@@ -3,7 +3,9 @@ import { useState, MouseEvent } from 'react';
 
 import ProductToolBars from './ProductToolBars';
 import {FilterDataItem, GridTabItems, Product, ProductFilterItem} from "@/components/Products/ProductsTypes";
-
+import useRootStore from '@/store/useRootStore';
+import ProductActiveFilter from "@/components/Products/ProductActiveFilter";
+import ProductItem from "@/components/Products/ProductItem";
 
 
 /**
@@ -25,9 +27,7 @@ export default function ProductSixColumns({
                                               productFilter,
                                               productFilterPath,
                                           }: ProductSixColumnsProps) {
-    const { filterData }: { filterData: FilterDataItem[] } = useSelector(
-        (state: { filter: { filterData: FilterDataItem[] } }) => state.filter
-    );
+    const filterData = useRootStore((state) => state.filter.filterData) as FilterDataItem[];
 
     const [currentPage, setCurrentPage] = useState(1);
     const [itemPerPage] = useState(9);
@@ -119,6 +119,7 @@ export default function ProductSixColumns({
                             productTab={productTab}
                             tabState={tabState}
                             gridTabItems={gridTabItems}
+                            setTabState={setTabState}
                         />
 
                         {/* 4 Columns */}

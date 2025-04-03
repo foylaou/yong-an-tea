@@ -1,6 +1,8 @@
 
 import * as IoIcon from 'react-icons/io5';
 import Image from "next/image";
+import ProgressBar from "@/components/ProgressBar/ProgressBar";
+import VideoModal from "@/components/VideoModal/VideoModal";
 
 interface SingleSupportInfo {
     id: string | number;

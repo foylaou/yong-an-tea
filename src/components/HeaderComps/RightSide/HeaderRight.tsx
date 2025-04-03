@@ -10,17 +10,8 @@ import {
 import {HeaderItem} from "@/components/HeaderComps/MenuType";
 import OffcanvasComps from "@/components/HeaderComps/OffcanvasComps";
 import Cart from "@/components/Cart/Cart";
+import useRootStore from '@/store/useRootStore'; // Update this import path
 
-
-// 定義 Redux State 的類型
-interface RootState {
-    cart: {
-        totalQuantity: number;
-    };
-    wishlist: {
-        totalQuantity: number;
-    };
-}
 
 // 定義組件 Props 的介面
 interface HeaderRightProps {
@@ -38,8 +29,8 @@ export default function HeaderRight({ headerItems }: HeaderRightProps): JSX.Elem
     const [minicart, setMiniCart] = useState(false);
     const showMiniCart = () => setMiniCart(!minicart);
 
-    const cartQuantity = useSelector((state: RootState) => state.cart.totalQuantity);
-    const wishlistQuantity = useSelector((state: RootState) => state.wishlist.totalQuantity);
+    const cartQuantity = useRootStore((state) => state.cart.totalQuantity);
+    const wishlistQuantity = useRootStore((state) => state.wishlist.totalQuantity);
 
     return (
         <>

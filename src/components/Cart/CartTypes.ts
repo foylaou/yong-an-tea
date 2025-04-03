@@ -1,16 +1,21 @@
+// src/components/Cart/CartTypes.ts
+
 export interface CartProps {
     minicart: boolean;
     showMiniCart: () => void;
 }
 
-export interface CartItemType {
+export interface BaseCartItem {
     id: string | number;
-    name: string;
-    quantity: number;
-    totalPrice: number;
-    price: number;
     slug: string;
     image: string;
+    price: number;
+    quantity: number;
+}
+
+export interface CartItemType extends BaseCartItem {
+    name: string;
+    totalPrice: number;
 }
 
 export interface RootState {
@@ -20,13 +25,35 @@ export interface RootState {
 }
 
 export interface CartItemProps {
-    item: {
-        id: string | number;
-        image: string;
-        slug: string;
+    item: BaseCartItem & {
         title: string;
-        quantity: number;
-        price: number;
         total?: number;
     };
+}
+
+export interface CartThItem {
+    id: string | number;
+    thCName: string;
+    thName: string;
+}
+
+export interface CartPageItem {
+    cartThList?: CartThItem[];
+    shopPageBtnText?: string;
+    clearCartBtnText?: string;
+    couponTitle?: string;
+    couponDesc?: string;
+    couponBtnText?: string;
+    proceedBtnText?: string;
+}
+
+export interface CartItem {
+    id: string;
+    name: string;
+    title: string; // 🔧 加上這行
+    price: number;
+    quantity: number;
+    totalPrice: number;
+    image: string;
+    slug: string;
 }

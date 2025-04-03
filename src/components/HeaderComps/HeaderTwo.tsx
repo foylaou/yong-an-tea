@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, {JSX, useEffect, useRef} from 'react';
 import Link from 'next/link';
 import { IoCallOutline } from 'react-icons/io5';
 import {HeaderItem} from "@/components/HeaderComps/MenuType";

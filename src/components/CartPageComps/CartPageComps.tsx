@@ -1,6 +1,5 @@
 "use client"
 import { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import Link from 'next/link';
 import {
     IoArrowBackSharp,
@@ -8,45 +7,13 @@ import {
     IoAddSharp,
     IoRemoveSharp,
 } from 'react-icons/io5';
-import { cartActions } from '../../store/cart/cart-slice';
+import useRootStore from '@/store/useRootStore'; // Update this import path
 import EmptyCart from './EmptyCart';
-
-// 定義類型
-interface CartItem {
-    id: string | number;
-    slug: string;
-    name: string;
-    image: string;
-    price: number;
-    quantity: number;
-    totalPrice: number;
-}
-
-interface CartThItem {
-    id: string | number;
-    thCName: string;
-    thName: string;
-}
-
-interface CartPageItem {
-    cartThList?: CartThItem[];
-    shopPageBtnText?: string;
-    clearCartBtnText?: string;
-    couponTitle?: string;
-    couponDesc?: string;
-    couponBtnText?: string;
-    proceedBtnText?: string;
-}
-
-interface RootState {
-    cart: {
-        items: CartItem[];
-    };
-}
-
+import { CartItem, CartPageItem } from "@/components/Cart/CartTypes";
+import Image from "next/image";
+// Modify QuantityCount interface to remove 'empty' and use a separate flag
 interface QuantityCount {
-    [key: string | number]: number;
-    empty?: boolean;
+    [key: string]: number;
 }
 
 interface CartPageCompsProps {
@@ -57,41 +24,44 @@ const qtybutton = `cursor-pointer text-center absolute`;
 const qtyButtonWrap = `relative inline-flex`;
 
 export default function CartPageComps({ cartPageItems }: CartPageCompsProps) {
-    const dispatch = useDispatch();
+    // Get cart-related actions from Zustand store
+    const { items: cartItems, updateItemQuantity, removeFromCart, clearCart } = useRootStore((state) => state.cart);
 
-    const cartItems = useSelector((state: RootState) => state.cart.items);
-    const [quantityCount, setQuantityCount] = useState<QuantityCount>({
-        empty: true,
-    });
+    const [quantityCount, setQuantityCount] = useState<QuantityCount>({});
+    const [isInitialLoad, setIsInitialLoad] = useState(true);
 
     useEffect(() => {
-        if (quantityCount.empty && cartItems.length) {
+        if (isInitialLoad && cartItems.length > 0) {
             const tempObj: QuantityCount = {};
-            cartItems.forEach((item) => {
+            cartItems.forEach((item: CartItem) => {
                 tempObj[item.id] = item.quantity;
             });
 
             setQuantityCount(tempObj);
+            setIsInitialLoad(false);
         }
-    }, [cartItems, quantityCount.empty]);
+    }, [cartItems, isInitialLoad]);
 
     useEffect(() => {
-        if (!quantityCount.empty) {
-            dispatch(cartActions.updateItemQuantityFromCart(quantityCount));
+        if (!isInitialLoad) {
+            // Update each item's quantity individually
+            Object.entries(quantityCount).forEach(([id, quantity]) => {
+                updateItemQuantity(id, quantity);
+            });
         }
-    }, [dispatch, quantityCount]);
+    }, [updateItemQuantity, quantityCount, isInitialLoad]);
 
     const removeItemFromCartHandler = (id: string | number) => {
-        dispatch(cartActions.removeItemFromCart(id));
+        removeFromCart(id);
     };
 
     const clearAllItemHandler = () => {
-        dispatch(cartActions.clearAllFromCart());
+        clearCart();
     };
 
     const initialValue = 0;
     const SubTotal = cartItems.reduce(
-        (accumulator, current) =>
+        (accumulator: number, current: CartItem) =>
             accumulator + current.price * current.quantity,
         initialValue
     );
@@ -120,7 +90,7 @@ export default function CartPageComps({ cartPageItems }: CartPageCompsProps) {
                                         )}
                                     </tr>
                                     </thead>
-                                    {cartItems.map((item) => (
+                                    {cartItems.map((item: CartItem) => (
                                         <tbody key={item.id}>
                                         <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
                                             <td className="py-4 product-name pr-[25px] flex items-center font-medium text-gray-900 dark:text-white whitespace-nowrap">
@@ -128,7 +98,7 @@ export default function CartPageComps({ cartPageItems }: CartPageCompsProps) {
                                                     href={item.slug}
                                                     className="product-img w-[100px]"
                                                 >
-                                                    <img
+                                                    <Image
                                                         src={item.image}
                                                         alt={item.name}
                                                     />

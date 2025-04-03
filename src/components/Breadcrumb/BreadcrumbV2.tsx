@@ -1,9 +1,6 @@
 import Link from 'next/link';
+import {Product} from "@/components/Products/ProductsTypes";
 
-interface Product {
-    title: string;
-    [key: string]: any; // 用於其他可能的產品屬性
-}
 
 interface BreadcrumbV2Props {
     product: Product;

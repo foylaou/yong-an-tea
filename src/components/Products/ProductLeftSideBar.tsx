@@ -1,4 +1,4 @@
-import { useSelector } from 'react-redux';
+import useRootStore from '@/store/useRootStore';
 import {JSX, useState} from 'react';
 import ProductSidebarComps from './ProductSidebarComps';
 import ProductToolBars from './ProductToolBars';
@@ -8,6 +8,8 @@ import {
     Product,
     ProductFilterItem
 } from "@/components/Products/ProductsTypes";
+import ProductActiveFilter from "@/components/Products/ProductActiveFilter";
+import ProductItem from "@/components/Products/ProductItem";
 
 
 
@@ -24,14 +26,12 @@ export default function ProductLeftSideBar({
                                                productFilterPath,
                                                gridTabItems,
                                            }: ProductLeftSideBarProps): JSX.Element {
-    const { filterData }: { filterData: FilterDataItem[] } = useSelector(
-        (state: { filter: { filterData: FilterDataItem[] } }) => state.filter
-    );
+    const filterData = useRootStore((state) => state.filter.filterData) as FilterDataItem[];
 
     const [currentPage, setCurrentPage] = useState<number>(1);
-    const [itemPerPage, setitemPerPage] = useState<number>(9);
+    const [itemPerPage] = useState<number>(9);
 
-    const [pageNumberLimit, setPageNumberLimit] = useState<number>(9);
+    const [pageNumberLimit] = useState<number>(9);
     const [maxPageNumberLimit, setMaxPageNumberLimit] = useState<number>(9);
     const [minPageNumberLimit, setMinPageNumberLimit] = useState<number>(0);
 

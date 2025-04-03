@@ -1,4 +1,4 @@
-import React, {JSX, useEffect, useState} from 'react';
+import React, {JSX, useState} from 'react';
 import Link from 'next/link';
 
 import {
@@ -11,13 +11,8 @@ import {HeaderItem} from "@/components/HeaderComps/MenuType";
 import Cart from "@/components/Cart/Cart";
 import OffcanvasComps from "@/components/HeaderComps/OffcanvasComps";
 import FullscreenSearchBar from "@/components/HeaderComps/SearchBar/SearchBar";
-
-// 定義 Redux State 的類型
-interface RootState {
-    cart: {
-        totalQuantity: number;
-    };
-}
+import LogoComps from "@/components/LogoComps/LogoComps";
+import useRootStore from '@/store/useRootStore'; // Update this import path
 
 
 
@@ -41,18 +36,11 @@ export default function HeaderRightTwo({ headerItems }: HeaderRightTwoProps): JS
     const [minicart, setMiniCart] = useState(false);
     const showMiniCart = () => setMiniCart(!minicart);
 
-    // Redux 相關
-    const dispatch = useDispatch();
-    const cartQuantity = useSelector((state: RootState) => state.cart.totalQuantity);
 
-    // 初始化標記
-    let isInitial = true;
 
-    useEffect(() => {
-        if (isInitial) {
-            isInitial = false;
-        }
-    }, [dispatch]);
+    const cartQuantity = useRootStore((state) => state.cart.totalQuantity);
+
+
 
     return (
         <>

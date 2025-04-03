@@ -4,6 +4,7 @@ import {BlogDetailProps} from "@/components/Blogs/blog-types";
 import PageNavigation from "@/components/Blogs/BlogDetails/PageNavigation";
 import DisqusForm from "@/components/DisqusForm/DisqusForm";
 
+import Image from "next/image";
 
 
 export default function BlogDetail({ blog, prevBlog, nextBlog }: BlogDetailProps) {
@@ -17,7 +18,7 @@ export default function BlogDetail({ blog, prevBlog, nextBlog }: BlogDetailProps
             <div className="container">
                 <div className="blog-detail-item">
                     <div className="blog-detail-img">
-                        <img
+                        <Image
                             className="object-cover object-center w-full"
                             src={`/images/blogs/${blog?.slug}/${blog?.extraLargeImage}`}
                             alt={blog?.altImage}
@@ -62,14 +63,14 @@ export default function BlogDetail({ blog, prevBlog, nextBlog }: BlogDetailProps
                         <div className="rich-text-item">
                             <div className="rich-text-img grid grid-cols-2 gap-[30px]">
                                 <div className="single-img">
-                                    <img
+                                    <Image
                                         className="w-full"
                                         src={blog?.singleImgOne}
                                         alt={blog?.singleImgAlt}
                                     />
                                 </div>
                                 <div className="single-img">
-                                    <img
+                                    <Image
                                         className="w-full"
                                         src={blog?.singleImgTwo}
                                         alt={blog?.singleImgAlt}

@@ -8,8 +8,9 @@ import {
     IoHeartOutline,
     IoRemoveSharp,
 } from 'react-icons/io5';
-import {Product, ProductFilterItem} from "@/components/Products/ProductsTypes";
-
+import {FilterData, Product, ProductFilterItem} from "@/components/Products/ProductsTypes";
+import useRootStore from '@/store/useRootStore';
+import QuickView from "@/components/QuickView/QuickView";
 // Tailwind Related Stuff
 const addAction =
     'flex justify-center absolute w-full top-1/2 left-auto transform -translate-y-1/2 z-[1]';
@@ -54,7 +55,7 @@ export default function ProductItem({
         title,
         price,
         discountPrice,
-        totalPrice,
+
         soldOutSticker,
         bestSellerSticker,
         offerSticker,
@@ -66,41 +67,45 @@ export default function ProductItem({
     const [isOpen, setIsOpen] = useState<boolean>(false);
 
     const [quantityCount, setQuantityCount] = useState<number>(1);
+    const { addToCart } = useRootStore((state) => state.cart);
+    const { addToWishlist } = useRootStore((state) => state.wishlist);
+    const { updateFilter } = useRootStore((state) => state.filter);
 
-    const dispatch = useDispatch();
     const addToCartHandler = (): void => {
-        dispatch(
-            cartActions.addItemToCart({
-                id,
-                title,
-                price,
-                quantity: quantityCount,
-                totalPrice,
-                image: `/images/products/${product?.slug}/${product?.xsImage}`,
-                slug: `/products/${product?.slug}`,
-            })
-        );
+        addToCart({
+            id,
+            name: title,
+            title, // ✅ 補上這行
+            price: price,
+            quantity: quantityCount,
+            totalPrice: price * quantityCount,
+            image: `/images/products/${product?.slug}/${product?.xsImage}`,
+            slug: `/products/${product?.slug}`,
+        });
     };
 
+
     const filterChangeHandler = (isAdd: boolean, data: FilterData): void => {
-        if (isAdd) {
-            dispatch(filterActions.addFilter(data));
-        } else {
-            dispatch(filterActions.removeFilter(data));
-        }
+        updateFilter({
+            filterData: isAdd
+                ? [...useRootStore.getState().filter.filterData, data]
+                : useRootStore
+                    .getState()
+                    .filter.filterData.filter((item) => item.key !== data.key),
+        });
     };
 
     const addToWishlistHandler = (): void => {
-        dispatch(
-            wishlistActions.addItemToWishlist({
-                id,
-                title,
-                price,
-                totalPrice,
-                image: `/images/products/${product?.slug}/${product?.xsImage}`,
-                slug: `/products/${product?.slug}`,
-            })
-        );
+        addToWishlist({
+            id,
+            name: title, // 同上
+            title,       // 🔧 加上這行
+            price,
+            totalPrice: price,
+            quantity: 1, // 🔧 加上這行
+            image: `/images/products/${product?.slug}/${product?.xsImage}`,
+            slug: `/products/${product?.slug}`,
+        });
     };
 
     return (

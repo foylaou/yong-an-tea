@@ -4,10 +4,16 @@ import FooterCompsThree from "@/components/FooterComps/FooterCompsThree";
 import HomeCarousel from "@/components/HomeCarousel/HomeCarousel";
 import type { Metadata } from "next";
 import {JSX, ReactNode} from "react";
+import { Noto_Sans_TC } from 'next/font/google'
 
 /**
  * 預設網站 SEO 資訊
  */
+const notoSansTc = Noto_Sans_TC({
+  weight: ['400', '500', '700'],
+  subsets: ['latin'],
+  display: 'swap',
+});
 export const metadata: Metadata = {
   title: "永安茶園",
   description: "位於台東鹿野的永安茶園，提供優質紅烏龍、茶葉禮盒、茶文化體驗。",
@@ -68,33 +74,27 @@ export default function RootLayout({
       ],
       infoTitle: "快速連結",
       infoList: [
-        { id: 1, title: "關於我們", path: "/about" },
-        { id: 2, title: "最新消息", path: "/news" },
+        {id: 1, title: "關於我們", path: "/about"},
+        {id: 2, title: "最新消息", path: "/news"},
       ],
       aboutTitle: "服務",
       aboutList: [
-        { id: 1, title: "線上商店", path: "/products" },
-        { id: 2, title: "會員專區", path: "/member" },
+        {id: 1, title: "線上商店", path: "/products"},
+        {id: 2, title: "會員專區", path: "/member"},
       ],
       newsletterTitle: "訂閱電子報",
       menuList: [
-        { id: 1, title: "隱私政策", path: "/privacy" },
-        { id: 2, title: "服務條款", path: "/terms" },
+        {id: 1, title: "隱私政策", path: "/privacy"},
+        {id: 2, title: "服務條款", path: "/terms"},
       ],
       copyrightLink: "/",
     },
   ];
 
   return (
-      <html lang="zh-tw">
+      <html lang="zh-tw" className={notoSansTc.className}>
       <head>
-        {/* Google Fonts */}
-        <link
-            href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap"
-            rel="stylesheet"
-        />
-        {/* Viewport & Charset */}
-        <meta charSet="UTF-8" />
+        <meta charSet="UTF-8"/>
         <meta
             name="viewport"
             content="width=device-width, initial-scale=1.0, maximum-scale=5"
@@ -102,7 +102,7 @@ export default function RootLayout({
       </head>
       <body className="font-sans">
       <HomeCarousel>{children}</HomeCarousel>
-      <FooterCompsThree footerItems={footerItems} />
+      <FooterCompsThree footerItems={footerItems}/>
       </body>
       </html>
   );

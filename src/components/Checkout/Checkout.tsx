@@ -1,8 +1,8 @@
 "use client"
 import { useState } from 'react';
-import { useSelector } from 'react-redux';
 import Link from 'next/link';
 import { IoCheckmarkCircle } from 'react-icons/io5';
+import useRootStore from '@/store/useRootStore'; // Update this import path
 import EmptyCheckout from './EmptyCheckout';
 
 // 定義常量
@@ -12,18 +12,9 @@ const textareaField = `border border-[#e8e8e8] focus-visible:outline-0 placehold
 const secondaryButton =
     'flex bg-secondary text-white leading-[38px] text-[15px] h-[40px] px-[32px]';
 
-const isInitial = true;
+
 
 // 定義類型
-interface CartItem {
-    id: string | number;
-    name: string;
-    price: number;
-    quantity: number;
-    slug: string;
-    image: string;
-    totalPrice: number;
-}
 
 interface CheckoutItem {
     customerzoneTitle?: string;
@@ -41,13 +32,6 @@ interface CheckoutItem {
     privacyText?: string;
     orderBtnText?: string;
 }
-
-interface RootState {
-    cart: {
-        items: CartItem[];
-    };
-}
-
 interface CheckoutProps {
     checkoutItems: CheckoutItem[];
 }
@@ -57,13 +41,12 @@ export default function Checkout({ checkoutItems }: CheckoutProps) {
     const openReturningCustomer = () => {
         setReturningCustomer(!returningCustomer);
     };
-
+    const cartItems = useRootStore((state) => state.cart.items);
     const [coupon, setCoupon] = useState<boolean>(false);
     const openCoupon = () => {
         setCoupon(!coupon);
     };
 
-    const cartItems = useSelector((state: RootState) => state.cart.items);
 
     const initialValue = 0;
     const SubTotal = cartItems.reduce(

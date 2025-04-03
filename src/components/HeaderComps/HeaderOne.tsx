@@ -3,6 +3,7 @@ import React, {JSX, useEffect, useRef} from 'react';
 import {HeaderItem} from "@/components/HeaderComps/MenuType";
 import HeaderRight from "@/components/HeaderComps/RightSide/HeaderRight";
 import LogoComps from "@/components/LogoComps/LogoComps";
+import SearchBarComps from "@/components/SearchBarComps/SearchBarComps";
 
 
 

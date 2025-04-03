@@ -1,23 +1,26 @@
 import Link from 'next/link';
 import { IoCloseOutline } from 'react-icons/io5';
-import {CartItemProps} from "@/components/Cart/CartTypes";
+import { CartItemProps } from "@/components/Cart/CartTypes";
+import useRootStore from '@/store/useRootStore'; // Update this import path
+import Image from "next/image";
 
 
 
 export default function CartItem({ item }: CartItemProps) {
-    const dispatch = useDispatch();
+    // Get the removeFromCart action from the Zustand store
+    const removeFromCart = useRootStore((state) => state.cart.removeFromCart);
 
-    const { image, slug, title, quantity, price } = item;
+    const { image, slug, title, quantity, price, id } = item;
 
-    const removeItemFromCartHandler = (id: string | number) => {
-        dispatch(cartActions.removeItemFromCart(id));
+    const removeItemFromCartHandler = () => {
+        removeFromCart(id);
     };
 
     return (
         <li className="item flex items-start justify-between border-b border-[#dddddd] pb-[25px] mb-[20px] last:mb-0 last:pb-0 last:border-b-0">
             <div className="item-img">
                 <Link href={slug} className="product-img">
-                    <img src={image} alt={title} />
+                    <Image src={image} alt={title} />
                 </Link>
             </div>
             <div className="item-content w-[calc(100%-88px)] pl-[20px]">
@@ -37,11 +40,13 @@ export default function CartItem({ item }: CartItemProps) {
                     <span className="text-[#666666]">${price.toFixed(2)}</span>{' '}
                 </div>
             </div>
-            <button type="button" className="item-remove flex items-start">
+            <button
+                type="button"
+                className="item-remove flex items-start"
+                onClick={removeItemFromCartHandler}
+            >
                 <span className="flex">
-                    <IoCloseOutline
-                        onClick={() => removeItemFromCartHandler(item.id)}
-                    />
+                    <IoCloseOutline />
                 </span>
             </button>
         </li>

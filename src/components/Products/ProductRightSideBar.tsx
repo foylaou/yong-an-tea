@@ -1,13 +1,14 @@
-import { useSelector } from 'react-redux';
-import {JSX, useState} from 'react';
+import useRootStore from '@/store/useRootStore';
+import {useState, MouseEvent, JSX} from 'react';
+import ProductItem from './ProductItem';
 import ProductSidebarComps from './ProductSidebarComps';
 import ProductToolBars from './ProductToolBars';
-import {FilterDataItem, GridTabItems, Product, ProductFilterItem} from "@/components/Products/ProductsTypes";  // 引入 Image
-
+import ProductActiveFilter from './ProductActiveFilter';
+import { FilterDataItem, GridTabItems, Product, ProductFilterItem } from '@/components/Products/ProductsTypes';
 
 interface ProductRightSideBarProps {
     products: Product[];
-    productFilter: ProductFilterItem[]; // 根據實際情況定義正確的型別
+    productFilter: ProductFilterItem[];
     productFilterPath: string;
     gridTabItems: GridTabItems[];
 }
@@ -18,65 +19,55 @@ export default function ProductRightSideBar({
                                                 productFilterPath,
                                                 gridTabItems,
                                             }: ProductRightSideBarProps): JSX.Element {
-    const { filterData }: { filterData: FilterDataItem[] } = useSelector(
-        (state: { filter: { filterData: FilterDataItem[] } }) => state.filter
-    );
+    const filterData = useRootStore((state) => state.filter.filterData) as FilterDataItem[];
 
     const [currentPage, setCurrentPage] = useState<number>(1);
-    const [itemPerPage, setitemPerPage] = useState<number>(9);
-
-    const [pageNumberLimit, setPageNumberLimit] = useState<number>(9);
+    const [itemPerPage] = useState<number>(9);
+    const [pageNumberLimit] = useState<number>(9);
     const [maxPageNumberLimit, setMaxPageNumberLimit] = useState<number>(9);
     const [minPageNumberLimit, setMinPageNumberLimit] = useState<number>(0);
     const [tabState, setTabState] = useState<number>(1);
-    const productTab = (index: number) => {
-        setTabState(index);
-    };
-    const handleClick = (event: React.MouseEvent<HTMLSpanElement>) => {
+
+    const handleClick = (event: MouseEvent<HTMLElement>) => {
         setCurrentPage(Number(event.currentTarget.id));
     };
 
     const filteredProduct = products.filter((product) => {
         const filterGroupResult: Record<string, boolean> = {};
+
         filterData.forEach((filter) => {
             if (filter.key === 'priceFilter' && filter.data) {
                 filterGroupResult[filter.group] =
                     filter.data.fromPrice <= product.price &&
                     product.price <= filter.data.toPrice;
             } else if (!filterGroupResult[filter.group]) {
-                filterGroupResult[filter.group] =
-                    product[filter.group as keyof typeof product] === filter.key;
+                filterGroupResult[filter.group] = product[filter.group as keyof typeof product] === filter.key;
             }
         });
+
         return !Object.values(filterGroupResult).includes(false);
     });
-
 
     const pages: number[] = [];
     for (let i = 1; i <= Math.ceil(filteredProduct.length / itemPerPage); i++) {
         pages.push(i);
     }
 
-    const indexofLastItem = currentPage * itemPerPage;
-    const indexOfFirstItem = indexofLastItem - itemPerPage;
-    const currentItems = filteredProduct.slice(
-        indexOfFirstItem,
-        indexofLastItem
-    );
+    const indexOfLastItem = currentPage * itemPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemPerPage;
+    const currentItems = filteredProduct.slice(indexOfFirstItem, indexOfLastItem);
 
     const renderPageNumbers = pages.map((number) => {
         if (number < maxPageNumberLimit + 1 && number > minPageNumberLimit) {
             return (
                 <li className="px-[5px]" key={number}>
-                    <span
-                        className={`${
-                            currentPage === number ? 'active' : ''
-                        } bg-[#f5f5f5] cursor-pointer flex items-center px-[13px] h-[34px] text-[12px] font-medium`}
-                        id={number.toString()}
-                        onClick={handleClick}
-                    >
-                        {number}
-                    </span>
+          <span
+              className={`${currentPage === number ? 'active' : ''} bg-[#f5f5f5] cursor-pointer flex items-center px-[13px] h-[34px] text-[12px] font-medium`}
+              id={number.toString()}
+              onClick={handleClick}
+          >
+            {number}
+          </span>
                 </li>
             );
         }
@@ -84,36 +75,19 @@ export default function ProductRightSideBar({
     });
 
     const handleNextbtn = () => {
-        setCurrentPage(currentPage + 1);
-
+        setCurrentPage((prev) => prev + 1);
         if (currentPage + 1 > maxPageNumberLimit) {
-            setMaxPageNumberLimit(maxPageNumberLimit + pageNumberLimit);
-            setMinPageNumberLimit(minPageNumberLimit + pageNumberLimit);
+            setMaxPageNumberLimit((prev) => prev + pageNumberLimit);
+            setMinPageNumberLimit((prev) => prev + pageNumberLimit);
         }
     };
+
     const handlePrevbtn = () => {
-        setCurrentPage(currentPage - 1);
-
-        if ((currentPage - 1) % maxPageNumberLimit === 0) {
-            setMaxPageNumberLimit(maxPageNumberLimit - pageNumberLimit);
-            setMinPageNumberLimit(minPageNumberLimit - pageNumberLimit);
+        setCurrentPage((prev) => prev - 1);
+        if ((currentPage - 1) % pageNumberLimit === 0) {
+            setMaxPageNumberLimit((prev) => prev - pageNumberLimit);
+            setMinPageNumberLimit((prev) => prev - pageNumberLimit);
         }
-    };
-
-    let pageIncrementBtn = null;
-    if (pages.length > maxPageNumberLimit) {
-        pageIncrementBtn = <li onClick={handleNextbtn}>&hellip;</li>;
-    }
-
-    let pageDecrementBtn = null;
-    if (minPageNumberLimit >= 1) {
-        pageDecrementBtn = <li onClick={handlePrevbtn}>&hellip;</li>;
-    }
-
-    // Tab
-    const [tabState, setTabState] = useState<number>(1);
-    const productTab = (index: number) => {
-        setTabState(index);
     };
 
     return (
@@ -129,53 +103,70 @@ export default function ProductRightSideBar({
                             totalProductNumber={filteredProduct.length}
                             startItemNumber={(currentPage - 1) * itemPerPage + 1}
                             endItemNumber={
-                                filteredProduct.length >
-                                currentPage * itemPerPage
+                                filteredProduct.length > currentPage * itemPerPage
                                     ? currentPage * itemPerPage
                                     : filteredProduct.length
                             }
-                            productTab={productTab}
+                            productTab={setTabState}
                             tabState={tabState}
                             setTabState={setTabState}
                             gridTabItems={gridTabItems}
                         />
 
-                        <div
-                            className={
-                                tabState === 1
-                                    ? 'grid-content-03 tab-style-common active'
-                                    : 'grid-content-03 tab-style-common'
-                            }
-                        >
+                        <div className={`grid-content-03 tab-style-common ${tabState === 1 ? 'active' : ''}`}>
                             <div className="grid md:grid-cols-3 lm:grid-cols-2 grid-cols-1 gap-x-[25px] gap-y-[40px]">
-                                {currentItems &&
-                                    currentItems.map((product) => (
-                                        <ProductItem
-                                            product={product}
-                                            productFilter={productFilter}
-                                            productFilterPath={productFilterPath}
-                                            key={product.id}
-                                        />
-                                    ))}
+                                {currentItems.map((product) => (
+                                    <ProductItem
+                                        key={product.id}
+                                        product={product}
+                                        productFilter={productFilter}
+                                        productFilterPath={productFilterPath}
+                                    />
+                                ))}
                             </div>
                         </div>
-                        <div
-                            className={
-                                tabState === 2
-                                    ? 'grid-content-04 tab-style-common active'
-                                    : 'grid-content-04 tab-style-common'
-                            }
-                        >
+
+                        <div className={`grid-content-04 tab-style-common ${tabState === 2 ? 'active' : ''}`}>
                             <div className="grid lg:grid-cols-4 md:grid-cols-3 lm:grid-cols-2 grid-cols-1 gap-x-[25px] gap-y-[40px]">
-                                {currentItems &&
-                                    currentItems.map((product) => (
-                                        <ProductItem
-                                            productFilter={productFilter}
-                                            product={product}
-                                            productFilterPath={productFilterPath}
-                                            key={product.id}
-                                        />
-                                    ))}
+                                {currentItems.map((product) => (
+                                    <ProductItem
+                                        key={product.id}
+                                        product={product}
+                                        productFilter={productFilter}
+                                        productFilterPath={productFilterPath}
+                                    />
+                                ))}
                             </div>
                         </div>
-                        <ul class
+
+                        <ul className="pagination flex justify-center pt-[40px]">
+                            <li className="px-[5px]">
+                                <button
+                                    className={`${currentPage === pages[0] ? 'hidden' : ''} bg-[#f5f5f5] cursor-pointer flex items-center text-[14px] px-[13px] h-[34px]`}
+                                    type="button"
+                                    onClick={handlePrevbtn}
+                                    disabled={currentPage === pages[0]}
+                                >
+                                    Prev
+                                </button>
+                            </li>
+                            {minPageNumberLimit >= 1 && <li onClick={handlePrevbtn}>…</li>}
+                            {renderPageNumbers}
+                            {pages.length > maxPageNumberLimit && <li onClick={handleNextbtn}>…</li>}
+                            <li className="px-[5px]">
+                                <button
+                                    className={`${currentPage === pages[pages.length - 1] ? 'hidden' : ''} bg-[#f5f5f5] cursor-pointer flex items-center text-[14px] px-[13px] h-[34px]`}
+                                    type="button"
+                                    onClick={handleNextbtn}
+                                    disabled={currentPage === pages[pages.length - 1]}
+                                >
+                                    Next
+                                </button>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+}

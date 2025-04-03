@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { IoAddSharp } from 'react-icons/io5';
 import { BlogItemProps } from './blog-types';
+import Image from "next/image";
 
 export default function BlogItem({ blog }: BlogItemProps) {
     const formattedDate = new Date(blog?.date).toLocaleDateString('zh-tw', {
@@ -13,7 +14,7 @@ export default function BlogItem({ blog }: BlogItemProps) {
         <div className="blog-item overflow-hidden group">
             <div className="blog-img relative">
                 <Link href={`/blogs/${blog?.slug}`} className="blog-img block">
-                    <img
+                    <Image
                         className="object-cover object-center w-full"
                         src={`/images/blogs/${blog?.slug}/${blog?.mediumImage}`}
                         alt={blog?.altImage}

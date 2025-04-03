@@ -1,15 +1,14 @@
-
 import { IoCloseOutline } from 'react-icons/io5';
-import { useSelector } from 'react-redux';
 import Link from 'next/link';
-
-import {CartProps, RootState} from "@/components/Cart/CartTypes";
-
+import useRootStore from '@/store/useRootStore'; // Update this import path
+import { CartProps } from "@/components/Cart/CartTypes";
+import CartItem from '@/components/Cart/CartItem'; // Assuming you have this component
 
 const minicartGroupBtn = `flex items-center justify-center border border-[#222222] w-full h-[50px]`;
 
 export default function Cart({ minicart, showMiniCart }: CartProps) {
-    const cartItems = useSelector((state: RootState) => state.cart.items);
+    // Use Zustand store instead of useSelector
+    const cartItems = useRootStore((state) => state.cart.items);
 
     const initialValue = 0;
     const SubTotal = cartItems.reduce(

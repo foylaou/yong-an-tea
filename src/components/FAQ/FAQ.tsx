@@ -15,15 +15,10 @@ interface FaqProps {
 }
 
 export default function Faq({ faqItems, title, desc }: FaqProps) {
-    const [selected, setSelected] = useState<FaqItem | {}>({});
+    const [selected, setSelected] = useState<FaqItem | null>(null);
 
     const toggle = (items: FaqItem) => {
-        if (selected === items) {
-            setSelected({});
-            return;
-        }
-
-        setSelected(items);
+        setSelected(selected === items ? null : items);
     };
 
     return (
@@ -52,7 +47,11 @@ export default function Faq({ faqItems, title, desc }: FaqProps) {
                                     </span>
                                 </span>
                             </div>
-                            <div className="content p-[30px]">
+                            <div
+                                className={`content p-[30px] ${
+                                    selected === items ? 'block' : 'hidden'
+                                }`}
+                            >
                                 {items.answer}
                             </div>
                         </div>

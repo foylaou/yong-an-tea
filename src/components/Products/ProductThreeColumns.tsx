@@ -1,35 +1,31 @@
-
-import React, {JSX, useState} from 'react';
-import {FilterDataItem, GridTabItems, Product} from "@/components/Products/ProductsTypes";
+import React, { JSX, useState } from 'react';
+import {FilterDataItem, GridTabItems, Product, ProductFilterItem} from "@/components/Products/ProductsTypes";
 import ProductToolBars from "@/components/Products/ProductToolBars";
+import ProductActiveFilter from "@/components/Products/ProductActiveFilter";
+import ProductItem from "@/components/Products/ProductItem";
+import useRootStore from '@/store/useRootStore';
 
 interface ProductThreeColumnsProps {
     products: Product[];
     gridTabItems: GridTabItems[];
-    productFilter: Record<string, unknown>;
+    productFilter: ProductFilterItem[];
     productFilterPath: string;
 }
-/**
- * 三欄式產品顯示元件
- *
- * @param {ProductThreeColumnsProps} props - 傳入參數
- * @returns {JSX.Element}
- */
+
 export default function ProductThreeColumns({
                                                 products,
                                                 gridTabItems,
                                                 productFilter,
                                                 productFilterPath,
                                             }: ProductThreeColumnsProps): JSX.Element {
-    const { filterData }: { filterData: FilterDataItem[] } = useSelector(
-        (state: any) => state.filter
-    );
+    const filterData = useRootStore((state) => state.filter.filterData) as FilterDataItem[];
 
     const [currentPage, setCurrentPage] = useState(1);
     const [itemPerPage] = useState(9);
     const [pageNumberLimit] = useState(9);
     const [maxPageNumberLimit, setMaxPageNumberLimit] = useState(9);
     const [minPageNumberLimit, setMinPageNumberLimit] = useState(0);
+    const [tabState, setTabState] = useState(1);
 
     const handleClick = (event: React.MouseEvent<HTMLElement>) => {
         setCurrentPage(Number((event.target as HTMLElement).id));
@@ -49,7 +45,6 @@ export default function ProductThreeColumns({
             }
         });
 
-
         return !Object.values(filterGroupResult).includes(false);
     });
 
@@ -67,7 +62,9 @@ export default function ProductThreeColumns({
             return (
                 <li className="px-[5px]" key={number}>
           <span
-              className={`$${currentPage === number ? 'active' : ''} bg-[#f5f5f5] cursor-pointer flex items-center px-[13px] h-[34px] text-[12px] font-medium`}
+              className={`${
+                  currentPage === number ? 'active' : ''
+              } bg-[#f5f5f5] cursor-pointer flex items-center px-[13px] h-[34px] text-[12px] font-medium`}
               id={String(number)}
               onClick={handleClick}
           >
@@ -81,15 +78,14 @@ export default function ProductThreeColumns({
 
     const handleNextbtn = () => {
         setCurrentPage((prev) => prev + 1);
-
         if (currentPage + 1 > maxPageNumberLimit) {
             setMaxPageNumberLimit((prev) => prev + pageNumberLimit);
             setMinPageNumberLimit((prev) => prev + pageNumberLimit);
         }
     };
+
     const handlePrevbtn = () => {
         setCurrentPage((prev) => prev - 1);
-
         if ((currentPage - 1) % pageNumberLimit === 0) {
             setMaxPageNumberLimit((prev) => prev - pageNumberLimit);
             setMinPageNumberLimit((prev) => prev - pageNumberLimit);
@@ -97,15 +93,12 @@ export default function ProductThreeColumns({
     };
 
     const pageIncrementBtn =
-        pages.length > maxPageNumberLimit ? (
-            <li onClick={handleNextbtn}>&hellip;</li>
-        ) : null;
+        pages.length > maxPageNumberLimit ? <li onClick={handleNextbtn}>&hellip;</li> : null;
 
     const pageDecrementBtn =
         minPageNumberLimit >= 1 ? <li onClick={handlePrevbtn}>&hellip;</li> : null;
 
-    const [tabState, setTabState] = useState(1);
-    const productTab = (index: number) => {
+    const productTab = (index: number): void => {
         setTabState(index);
     };
 
@@ -116,6 +109,7 @@ export default function ProductThreeColumns({
                     <div className="col-span-12">
                         <ProductActiveFilter />
                         <ProductToolBars
+                            setTabState={setTabState}
                             totalProductNumber={filteredProduct.length}
                             startItemNumber={(currentPage - 1) * itemPerPage + 1}
                             endItemNumber={
@@ -127,13 +121,16 @@ export default function ProductThreeColumns({
                             tabState={tabState}
                             gridTabItems={gridTabItems}
                         />
+
                         {[1, 2, 3].map((state) => (
                             <div
                                 key={state}
-                                className={`grid-content-0${state + 2} tab-style-common$${tabState === state ? ' active' : ''}`}
+                                className={`grid-content-0${state + 2} tab-style-common${
+                                    tabState === state ? ' active' : ''
+                                }`}
                             >
                                 <div
-                                    className={`$${
+                                    className={`${
                                         state === 1
                                             ? 'grid md:grid-cols-3 lm:grid-cols-2 grid-cols-1'
                                             : state === 2
@@ -152,10 +149,13 @@ export default function ProductThreeColumns({
                                 </div>
                             </div>
                         ))}
+
                         <ul className="pagination flex justify-center pt-[40px]">
                             <li className="px-[5px]">
                                 <button
-                                    className={`$${currentPage === pages[0] ? 'hidden' : ''} bg-[#f5f5f5] cursor-pointer flex items-center text-[14px] px-[13px] h-[34px]`}
+                                    className={`${
+                                        currentPage === pages[0] ? 'hidden' : ''
+                                    } bg-[#f5f5f5] cursor-pointer flex items-center text-[14px] px-[13px] h-[34px]`}
                                     type="button"
                                     onClick={handlePrevbtn}
                                     disabled={currentPage === pages[0]}
@@ -168,7 +168,9 @@ export default function ProductThreeColumns({
                             {pageIncrementBtn}
                             <li className="px-[5px]">
                                 <button
-                                    className={`$${currentPage === pages[pages.length - 1] ? 'hidden' : ''} bg-[#f5f5f5] cursor-pointer flex items-center text-[14px] px-[13px] h-[34px]`}
+                                    className={`${
+                                        currentPage === pages[pages.length - 1] ? 'hidden' : ''
+                                    } bg-[#f5f5f5] cursor-pointer flex items-center text-[14px] px-[13px] h-[34px]`}
                                     type="button"
                                     onClick={handleNextbtn}
                                     disabled={currentPage === pages[pages.length - 1]}

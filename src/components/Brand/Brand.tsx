@@ -1,9 +1,10 @@
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
-import {BrandProps} from "@/components/helendo/Brand/BrandType";
+
 import Image from "next/image";
 import {SwiperSettings} from "@/components/SwiperComps/SwiperTypes";
 import {Slide} from "@/components/SwiperComps/SwiperComps";
+import {BrandProps} from "@/components/Brand/BrandType";
 
 
 

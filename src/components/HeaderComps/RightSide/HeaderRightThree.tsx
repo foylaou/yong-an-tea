@@ -1,5 +1,5 @@
-import React, {JSX, useEffect, useState} from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React, {JSX, useState} from 'react';
+import useRootStore from '@/store/useRootStore';
 import {
     IoMenuOutline,
     IoBagHandleOutline,
@@ -11,12 +11,6 @@ import Cart from "@/components/Cart/Cart";
 import OffcanvasComps from "@/components/HeaderComps/OffcanvasComps";
 import FullscreenSearchBar from "@/components/HeaderComps/SearchBar/SearchBar";
 
-// 定义 Redux State 的类型
-interface RootState {
-    cart: {
-        totalQuantity: number;
-    };
-}
 
 // 定义组件 Props 的接口
 interface HeaderRightThreeProps {
@@ -39,18 +33,11 @@ export default function HeaderRightThree({ headerItems }: HeaderRightThreeProps)
     const showMiniCart = () => setMiniCart(!minicart);
 
     // Redux 相关
-    const dispatch = useDispatch();
-    const cart = useSelector((state: RootState) => state.cart);
-    const cartQuantity = useSelector((state: RootState) => state.cart.totalQuantity);
 
-    // 初始化标记
-    let isInitial = true;
+    const cartQuantity = useRootStore((state) => state.cart.totalQuantity); // ✅ 用這行就夠了
 
-    useEffect(() => {
-        if (isInitial) {
-            isInitial = false;
-        }
-    }, [cart, dispatch]);
+
+
 
     return (
         <>

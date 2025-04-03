@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { BlogItemProps } from './blog-types';
-
+import Image from "next/image";
 // 如果需要擴展 Blog 類型以包含 largeImage 和 desc 屬性，請在 blog-types.ts 文件中進行更新：
 
 
@@ -14,7 +14,7 @@ export default function BlogListItem({ blog }: BlogItemProps) {
         <div className="blog-item overflow-hidden group">
             <div className="blog-img relative">
                 <Link href={`/blogs/${blog?.slug}`} className="blog-img block">
-                    <img
+                    <Image
                         className="object-cover object-center w-full"
                         src={`/images/blogs/${blog?.slug}/${blog?.largeImage}`}
                         alt={blog?.altImage}

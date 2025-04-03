@@ -1,15 +1,14 @@
-import { useSelector } from 'react-redux';
-import {JSX, useState} from 'react';
+import useRootStore from '@/store/useRootStore';
+import React, {JSX, useState} from 'react';
 import ProductItem from './ProductItem';
 import ProductToolBars from './ProductToolBars';
 import {
-    FilterData,
     FilterDataItem,
     GridTabItems,
     Product,
     ProductFilterItem,
-    RootState
 } from "@/components/Products/ProductsTypes";
+import ProductActiveFilter from "@/components/Products/ProductActiveFilter";
 
 
 
@@ -17,7 +16,7 @@ interface ProductFourColumnsProps {
     products: Product[];
     productFilter: ProductFilterItem[];
     productFilterPath: string;
-    gridTabItems: GridTabItems;
+    gridTabItems: GridTabItems[];
 }
 
 export default function ProductFourColumns({
@@ -26,15 +25,15 @@ export default function ProductFourColumns({
                                                productFilterPath,
                                                gridTabItems,
                                            }: ProductFourColumnsProps): JSX.Element {
-    const { filterData }: { filterData: FilterDataItem[] } = useSelector(
-        (state: { filter: { filterData: FilterDataItem[] } }) => state.filter
-    );
+    const filterData = useRootStore((state) => state.filter.filterData) as FilterDataItem[];
+
+
 
 
     const [currentPage, setCurrentPage] = useState<number>(1);
-    const [itemPerPage, setitemPerPage] = useState<number>(9);
+    const [itemPerPage] = useState<number>(9);
 
-    const [pageNumberLimit, setPageNumberLimit] = useState<number>(9);
+    const [pageNumberLimit] = useState<number>(9);
     const [maxPageNumberLimit, setMaxPageNumberLimit] = useState<number>(9);
     const [minPageNumberLimit, setMinPageNumberLimit] = useState<number>(0);
 
@@ -44,7 +43,7 @@ export default function ProductFourColumns({
 
     const filteredProduct = products.filter((product) => {
         const filterGroupResult: Record<string, boolean> = {};
-        filterData.forEach((filter) => {
+        filterData.forEach((filter: FilterDataItem) => {
             if (filter.key === 'priceFilter' && filter.data) {
                 filterGroupResult[filter.group] =
                     filter.data.fromPrice <= product.price &&
@@ -56,6 +55,7 @@ export default function ProductFourColumns({
         });
         return !Object.values(filterGroupResult).includes(false);
     });
+
 
 
     const pages: number[] = [];

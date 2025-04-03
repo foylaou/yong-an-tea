@@ -1,37 +1,42 @@
-import {JSX, useEffect, useRef, useState} from "react";
-import {FilterData, FilterState, ProductFilterItem} from "@/components/Products/ProductsTypes";
+import React, { JSX, useEffect, useRef, useState } from 'react';
+import { FilterData, ProductFilterItem } from '@/components/Products/ProductsTypes';
+import useRootStore from '@/store/useRootStore';
 
 interface ProductSidebarCompsProps {
     productFilter: ProductFilterItem[];
 }
 
 export default function ProductSidebarComps({ productFilter }: ProductSidebarCompsProps): JSX.Element {
-    const dispatch = useDispatch();
     const [fromPrice, setFromPrice] = useState('');
     const [toPrice, setToPrice] = useState('');
 
     const fromPriceRef = useRef<HTMLInputElement>(null);
     const toPriceRef = useRef<HTMLInputElement>(null);
 
-    const filter = useSelector((state: { filter: FilterState }) => state.filter);
+    const addFilter = useRootStore((state) => state.filter.updateFilter as (data: FilterData[]) => void);
+    const removeFilter = useRootStore((state) => state.filter.resetFilter);
+    const filterData = useRootStore((state) => state.filter.filterData);
+
+    const textHover = 'transition-all hover:text-primary';
+    const swatchColor = 'inline-block w-[20px] h-[20px] rounded-full cursor-pointer';
 
     const filterChangeHandler = (isAdd: boolean, data: FilterData) => {
         if (isAdd) {
-            dispatch(filterActions.addFilter(data));
+            addFilter?.([data]);
         } else {
-            dispatch(filterActions.removeFilter(data));
+            removeFilter?.();
         }
     };
 
     useEffect(() => {
         if (fromPriceRef.current) {
-            fromPriceRef.current.setCustomValidity(fromPrice >= '0' ? '' : 'Value must be greater than or equal to 0.');
+            fromPriceRef.current.setCustomValidity(parseFloat(fromPrice) >= 0 ? '' : 'Value must be greater than or equal to 0.');
         }
     }, [fromPrice]);
 
     useEffect(() => {
         if (toPriceRef.current) {
-            toPriceRef.current.setCustomValidity(toPrice >= '0' ? '' : 'Value must be greater than or equal to 0.');
+            toPriceRef.current.setCustomValidity(parseFloat(toPrice) >= 0 ? '' : 'Value must be greater than or equal to 0.');
         }
     }, [toPrice]);
 
@@ -43,8 +48,8 @@ export default function ProductSidebarComps({ productFilter }: ProductSidebarCom
             key: 'priceFilter',
             group: 'priceFilter',
             data: {
-                fromPrice,
-                toPrice,
+                fromPrice: parseFloat(fromPrice),
+                toPrice: parseFloat(toPrice),
             },
         });
     };
@@ -60,11 +65,13 @@ export default function ProductSidebarComps({ productFilter }: ProductSidebarCom
                             key={item.id}
                             type="button"
                             className="transition-all hover:text-primary capitalize mb-[10px] last:mb-0"
-                            onClick={() => filterChangeHandler(true, {
-                                title: item.categoryListTitle,
-                                key: item.categoryListTitle,
-                                group: 'category',
-                            })}
+                            onClick={() =>
+                                filterChangeHandler(true, {
+                                    title: item.categoryListTitle,
+                                    key: item.categoryListTitle,
+                                    group: 'category',
+                                })
+                            }
                         >
                             {item.categoryListTitle}
                         </button>
@@ -72,33 +79,24 @@ export default function ProductSidebarComps({ productFilter }: ProductSidebarCom
                 </div>
             </div>
 
+            {/* Availability */}
             <div className="product-sidebar-widget border-b border-[#dddddd] pb-[30px] mb-[25px]">
                 <h2 className="widget-title text-[18px]">Availability</h2>
                 <ul className="flex flex-col pt-[20px]">
                     {productFilter[0]?.availabilityList?.map((item) => (
                         <li className="mb-[10px]" key={item.id}>
-                            <label
-                                htmlFor={item.filterLabel}
-                                className={`${textHover}`}
-                            >
+                            <label htmlFor={item.filterLabel} className={textHover}>
                                 <input
                                     className="mr-[10px]"
                                     type="checkbox"
                                     id={item.filterLabel}
-                                    checked={
-                                        !!filter.filterData.find(
-                                            (data) => data.key === item.checked
-                                        )
-                                    }
-                                    onChange={(data) =>
-                                        filterChangeHandler(
-                                            data.target.checked,
-                                            {
-                                                title: item.name,
-                                                key: item.key,
-                                                group: item.group,
-                                            }
-                                        )
+                                    checked={!!filterData.find((data) => data.key === item.key)}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                                        filterChangeHandler(e.target.checked, {
+                                            title: item.name,
+                                            key: item.key,
+                                            group: item.group,
+                                        })
                                     }
                                 />
                                 {item.title}
@@ -107,33 +105,25 @@ export default function ProductSidebarComps({ productFilter }: ProductSidebarCom
                     ))}
                 </ul>
             </div>
+
+            {/* Size */}
             <div className="product-sidebar-widget border-b border-[#dddddd] pb-[30px] mb-[25px]">
                 <h2 className="widget-title text-[18px]">Size</h2>
                 <ul className="flex flex-col pt-[20px]">
                     {productFilter[0]?.productSizeList?.map((item) => (
                         <li className="mb-[10px]" key={item.id}>
-                            <label
-                                htmlFor={item.filterLabel}
-                                className={`${textHover}`}
-                            >
+                            <label htmlFor={item.filterLabel} className={textHover}>
                                 <input
                                     className="mr-[10px]"
                                     type="checkbox"
                                     id={item.filterLabel}
-                                    checked={
-                                        !!filter.filterData.find(
-                                            (data) => data.key === item.checked
-                                        )
-                                    }
-                                    onChange={(data) =>
-                                        filterChangeHandler(
-                                            data.target.checked,
-                                            {
-                                                title: item.name,
-                                                key: item.key,
-                                                group: item.group,
-                                            }
-                                        )
+                                    checked={!!filterData.find((data) => data.key === item.key)}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                                        filterChangeHandler(e.target.checked, {
+                                            title: item.name,
+                                            key: item.key,
+                                            group: item.group,
+                                        })
                                     }
                                 />
                                 {item.title}
@@ -142,15 +132,14 @@ export default function ProductSidebarComps({ productFilter }: ProductSidebarCom
                     ))}
                 </ul>
             </div>
-            <div className="product-sidebar-widge border-b border-[#dddddd] pb-[30px] mb-[25px]">
+
+            {/* Price */}
+            <div className="product-sidebar-widget border-b border-[#dddddd] pb-[30px] mb-[25px]">
                 <h2 className="widget-title text-[18px]">Price</h2>
-                <form
-                    className="price-filter-form pt-[20px]"
-                    onSubmit={priceFilterSubmitHandler}
-                >
+                <form className="price-filter-form pt-[20px]" onSubmit={priceFilterSubmitHandler}>
                     <div className="price-form-field mb-[15px]">
                         <label className="flex mb-[5px]" htmlFor="priceForm">
-                            Form
+                            From
                         </label>
                         <div className="flex items-center border border-[#dddddd] px-[10px] h-[45px]">
                             <span className="text-[#777777] pr-[5px]">$</span>
@@ -198,6 +187,8 @@ export default function ProductSidebarComps({ productFilter }: ProductSidebarCom
                     </div>
                 </form>
             </div>
+
+            {/* Color */}
             <div className="product-sidebar-widget border-b border-[#dddddd] pb-[30px] mb-[25px]">
                 <h2 className="widget-title text-[18px]">Color</h2>
                 <ul className="flex flex-wrap pt-[20px]">
@@ -213,13 +204,13 @@ export default function ProductSidebarComps({ productFilter }: ProductSidebarCom
                                 })
                             }
                         >
-                            <span
-                                className={`${swatchColor} ${singleColorList.colorOption}`}
-                            />
+                            <span className={`${swatchColor} ${singleColorList.colorOption}`} />
                         </li>
                     ))}
                 </ul>
             </div>
+
+            {/* Tags */}
             <div className="product-sidebar-widget">
                 <h2 className="widget-title text-[18px]">Tags</h2>
                 <div className="flex flex-wrap pt-[20px]">
@@ -244,6 +235,5 @@ export default function ProductSidebarComps({ productFilter }: ProductSidebarCom
                 </div>
             </div>
         </div>
-)
-    ;
+    );
 }

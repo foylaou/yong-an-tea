@@ -2,11 +2,12 @@ import React, {JSX, useState} from 'react';
 import Link from 'next/link';
 import { IoArrowForwardOutline } from 'react-icons/io5';
 import { motion } from 'framer-motion';
-import {HeroDefaultItem} from "@/components/helendo/Hero/HeroTypes";
+
 import SwiperComps, {Slide} from "@/components/SwiperComps/SwiperComps";
 
 import {SwiperSettings} from "@/components/SwiperComps/SwiperTypes";
 import {Swiper} from "swiper/types";
+import {HeroDefaultItem} from "@/components/Hero/HeroTypes";
 
 
 

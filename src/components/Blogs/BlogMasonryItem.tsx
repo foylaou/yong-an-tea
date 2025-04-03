@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { BlogItemProps } from './blog-types';
+import Image from "next/image";
 
 export default function BlogMasonryItem({ blog }: BlogItemProps) {
     const formattedDate = new Date(blog?.date).toLocaleDateString('en-US', {
@@ -15,7 +16,7 @@ export default function BlogMasonryItem({ blog }: BlogItemProps) {
                         href={`/blogs/${blog.slug}`}
                         className="blog-img block"
                     >
-                        <img
+                        <Image
                             className="object-cover object-center w-full"
                             src={`/images/blogs/${blog.slug}/${blog.masonry}`}
                             alt={blog.altImage}

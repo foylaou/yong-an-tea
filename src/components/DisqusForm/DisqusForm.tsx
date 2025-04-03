@@ -43,7 +43,7 @@ export default function DisqusForm(): JSX.Element {
 
     return (
         <div className="pt-[65px]">
-            {/* @ts-ignore - Ignoring type error for DiscussionEmbed */}
+
             <DiscussionEmbed
                 shortname={disqusShortname}
                 config={disqusConfig}

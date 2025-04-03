@@ -1,4 +1,4 @@
-import Faq from "@/components/helendo/FAQ/FAQ";
+import Faq from "@/components/FAQ/FAQ";
 
 
 export default function FaqPage() {

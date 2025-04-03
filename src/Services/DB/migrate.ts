@@ -48,6 +48,8 @@ export async function runMigration(adminToken: string): Promise<{ success: boole
         // 建立表格的SQL
         const createTablesSQL = `
  
+ 
+ 
         `;
 
         // 執行SQL遷移

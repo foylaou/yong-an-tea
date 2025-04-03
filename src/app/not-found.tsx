@@ -1,4 +1,4 @@
-import Error404 from "@/components/helendo/Error404/Error404";
+import Error404 from "@/components/Error404/Error404";
 
 export default function Page() {
 

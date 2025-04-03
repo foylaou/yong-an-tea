@@ -7,7 +7,7 @@ import {
     IoArrowForwardOutline,
 } from 'react-icons/io5';
 import * as FaIcons from 'react-icons/fa';
-
+import Image from "next/image";
 // 定義 FooterItem 的類型
 interface FooterItem {
     id: number;
@@ -19,8 +19,8 @@ interface FooterItem {
 // 定義 FooterItemSection 的類型
 interface FooterItemSection {
     footerLogoPath?: string;
-    footerLogo?: string;
-    footerLogoAlt?: string;
+    footerLogo: string;
+    footerLogoAlt: string;
     address?: string;
     contactNumber?: string;
     contactNumberText?: string;
@@ -51,9 +51,12 @@ export default function FooterCompsThree({ footerItems }: FooterCompsThreeProps)
 
             const scrollTop = window.scrollY;
 
-            scrollTop < 0
-                ? footer.current.classList.add('is-sticky')
-                : footer.current.classList.remove('is-sticky');
+            if (scrollTop < 0) {
+                footer.current.classList.add('is-sticky');
+            } else {
+                footer.current.classList.remove('is-sticky');
+            }
+
         };
 
         window.addEventListener('scroll', isSticky);
@@ -75,11 +78,11 @@ export default function FooterCompsThree({ footerItems }: FooterCompsThreeProps)
                             <div className="footer-widget">
                                 <div className="footer-logo mb-[15px]">
                                     <Link href={footerItems[0]?.footerLogoPath || ''}>
-                                        <img
-                                            src={footerItems[0]?.footerLogo}
-                                            alt={footerItems[0]?.footerLogoAlt}
-                                            width={120}
-                                            height={30}
+                                        <Image
+                                            src={footerItems[0].footerLogo }
+                                            alt={footerItems[0].footerLogoAlt}
+                                            width={200}
+                                            height={60}
                                         />
                                     </Link>
                                 </div>
@@ -193,7 +196,7 @@ export default function FooterCompsThree({ footerItems }: FooterCompsThreeProps)
                         <div className="grid grid-cols-12">
                             <div className="lg:col-span-6 col-span-12 max-md:order-2">
                                 <span className="flex lg:justify-start justify-center items-center pt-[10px]">
-                                    © {new Date().getFullYear()} Helendo.
+                                    © {new Date().getFullYear()} 永安茶園 .
                                     <Link
                                         href={footerItems[0]?.copyrightLink || ''}
                                         className="font-normal ml-[5px] transition-all hover:text-primary"

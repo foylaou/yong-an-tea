@@ -6,7 +6,7 @@ import {
     IoArrowForwardOutline,
 } from 'react-icons/io5';
 import * as FaIcons from 'react-icons/fa';
-
+import Image from "next/image";
 interface SocialItem {
     id: string | number;
     socialIcon: string;
@@ -38,8 +38,8 @@ interface FooterItem {
     newsletterTitle?: string;
     menuList?: MenuItem[];
     footerLogoPath?: string;
-    footerLogo?: string;
-    footerLogoAlt?: string;
+    footerLogo: string;
+    footerLogoAlt: string;
     socialTitle?: string;
     copyrightLink?: string;
 }
@@ -84,6 +84,7 @@ export default function FooterComps({ footerContainer, footerItems }: FooterComp
                                 <ul className="flex pt-[35px]">
                                     {footerItems[0]?.socialList?.map((item) => {
                                         const Social = FaIcons[item.socialIcon as keyof typeof FaIcons];
+                                        if (!Social) return null;
                                         return (
                                             <li
                                                 className="mr-[25px] last:mr-0"
@@ -213,9 +214,9 @@ export default function FooterComps({ footerContainer, footerItems }: FooterComp
                         <div className="md:col-span-4 col-span-12">
                             <div className="footer-logo flex justify-center">
                                 <Link href={footerItems[0]?.footerLogoPath || '#'}>
-                                    <img
-                                        src={footerItems[0]?.footerLogo}
-                                        alt={footerItems[0]?.footerLogoAlt}
+                                    <Image
+                                        src={footerItems[0].footerLogo}
+                                        alt={footerItems[0].footerLogoAlt}
                                         width={120}
                                         height={30}
                                     />
@@ -230,6 +231,7 @@ export default function FooterComps({ footerContainer, footerItems }: FooterComp
                                 <ul className="flex">
                                     {footerItems[0]?.socialList?.map((item) => {
                                         const Social = FaIcons[item.socialIcon as keyof typeof FaIcons];
+                                        if (!Social) return null;
                                         return (
                                             <li
                                                 className="xl:mr-[25px] mr-[20px] last:mr-0"
@@ -253,10 +255,10 @@ export default function FooterComps({ footerContainer, footerItems }: FooterComp
                 </div>
             </div>
             <div className="footer-copyright pt-[35px] pb-[25px]">
-                <div className="container">
+
                     <div className="grid grid-cols-1">
-                        <span className="flex justify-center items-center">
-                            © {new Date().getFullYear()} Helendo.
+                        <span className="flex justify-center">
+                            © {new Date().getFullYear()} Foy.
                             <Link
                                 href={footerItems[0]?.copyrightLink || '#'}
                                 className="font-normal ml-[5px]"
@@ -266,7 +268,6 @@ export default function FooterComps({ footerContainer, footerItems }: FooterComp
                         </span>
                     </div>
                 </div>
-            </div>
         </footer>
     );
 }

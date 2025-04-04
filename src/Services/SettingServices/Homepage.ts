@@ -82,7 +82,7 @@ export const HomePage = {
         return [
             {
                 path: "/products/oriental-beauty-tea",
-                image: "/images/products/nancy-chair/300x300.jpg",
+                image: "/images/products/animi-dolor-pariatur/300x300.jpg",
                 altImage: "東方美人茶精緻包裝與茶葉展示",
                 subTitle: "傳承百年工藝",
                 title: "東方美人茶 – 蜜香珍藏禮盒",
@@ -91,7 +91,7 @@ export const HomePage = {
             },
             {
                 path: "/products/seasonal-tea-collection",
-                image: "/images/products/nancy-chair/300x300.jpg",
+                image: "/images/products/art-deco-home/285x396.jpg",
                 altImage: "四季茶品精選禮盒",
                 subTitle: "四季風味",
                 title: "四季茶韻 – 台灣茶品精選",
@@ -100,7 +100,7 @@ export const HomePage = {
             },
             {
                 path: "/experiences/tea-tasting",
-                image: "/images/products/nancy-chair/300x300.jpg",
+                image: "/images/products/drinking-glasses/600x429.png",
                 altImage: "台東鹿野茶席體驗",
                 subTitle: "身心靈體驗",
                 title: "鹿野茶席 – 品茗文化之旅",

@@ -45,12 +45,13 @@ export default function FeaturedProduct({
                                             featuredProduct,
                                         }: FeaturedProductProps): JSX.Element {
     const outlineButton =
-        'inline-flex items-center border border-secondary text-secondary transition-all hover:bg-secondary hover:text-white leading-[38px] text-[15px] h-[38px] px-[35px]';
+        'inline-flex items-center border border-secondary text-secondary transition-all hover:bg-secondary hover:text-white leading-[38px] text-[15px] h-[38px] px-[35px] group';
 
-    const sections = ['Wood coth', 'Pine', 'Art Deco'];
+    const sections = ['天然', '在地', '好茶'];
 
     return (
         <>
+
             {featuredProduct.map((item, index) => (
                 <div
                     key={index}
@@ -70,28 +71,32 @@ export default function FeaturedProduct({
                     data-count={sections[index]}
                 >
                     <div className="container">
-                        <div className="grid md:grid-cols-2 grid-cols-12 lm:gap-x-[30px] md:gap-y-0 gap-y-[30px] group">
-                            <div
-                                className={`md:col-span-1 col-span-12 ${
-                                    index === 1 ? 'order-2' : ''
-                                }`}
-                            >
+                        <div className="grid md:grid-cols-2 grid-cols-12 md:gap-x-[50px] lm:gap-x-[40px] gap-x-[30px] md:gap-y-0 gap-y-[30px] group items-center">
+                            <div className={`md:col-span-1 col-span-12 self-center ${index % 2 === 1 ? 'md:order-2' : ''}`}>
                                 <Link
                                     href={item.path}
                                     className="featured-product-img block transition-all duration-500 group-hover:scale-[1.05]"
                                 >
-                                    <Image src={item.image} alt={item.altImage} fill />
+                                    <Image
+                                        src={item.image}
+                                        alt={item.altImage}
+                                        width={0}
+                                        height={0}
+                                        sizes="(max-width: 768px) 100vw, 50vw"
+                                        className="w-full h-auto"
+                                    />
                                 </Link>
                             </div>
                             <div
                                 className={`md:col-span-1 col-span-12 self-center ${
-                                    index === 1 ? 'order-1' : ''
+                                    index % 2 === 1 ? 'md:order-1' : ''
                                 }`}
                             >
-                                <div className="featured-product-content">
-                  <span className="text-[14px] leading-5 font-medium uppercase block mb-[5px] text-[#999999]">
-                    {item.subTitle}
-                  </span>
+                                <div className="featured-product-content md:pl-[15px]">
+                                <span
+                                    className="text-[14px] leading-5 font-medium uppercase block mb-[5px] text-[#999999]">
+                                    {item.subTitle}
+                                </span>
                                     <h2 className="relative after:bg-primary after:absolute after:left-0 after:bottom-0 after:h-[4px] after:w-[70px] pb-[10px] mb-[30px]">
                                         <Link
                                             href={item.path}
@@ -108,7 +113,8 @@ export default function FeaturedProduct({
                                     <div className="mt-[60px]">
                                         <Link href={item.path} className={outlineButton}>
                                             {item.buttonText}
-                                            <IoArrowForwardOutline className="ml-[5px]" />
+                                            <IoArrowForwardOutline
+                                                className="ml-[5px] text-secondary group-hover:text-white transition-colors"/>
                                         </Link>
                                     </div>
                                 </div>
@@ -117,6 +123,7 @@ export default function FeaturedProduct({
                     </div>
                 </div>
             ))}
+
         </>
     );
 }

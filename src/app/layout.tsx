@@ -1,7 +1,6 @@
 import "./globals.css";
 import "@/styles/components.css"
 import FooterCompsThree from "@/components/FooterComps/FooterCompsThree";
-import HomeCarousel from "@/components/HomeCarousel/HomeCarousel";
 import type { Metadata } from "next";
 import {JSX, ReactNode} from "react";
 import { Noto_Sans_TC } from 'next/font/google'
@@ -99,9 +98,11 @@ export default function RootLayout({
             name="viewport"
             content="width=device-width, initial-scale=1.0, maximum-scale=5"
         />
+        <title>永安茶園</title>
       </head>
       <body className="font-sans">
-      <HomeCarousel>{children}</HomeCarousel>
+      <main>{children}</main>
+
       <FooterCompsThree footerItems={footerItems}/>
       </body>
       </html>

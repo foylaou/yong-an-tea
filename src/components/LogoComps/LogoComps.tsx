@@ -36,8 +36,8 @@ export default function LogoComps({
                 <Image
                     src={"圓形LOGO（白背景）.svg"}
                     alt={'網站 Logo'}
-                    width={120}
-                    height={30}
+                    width={100}
+                    height={20}
                 />
             </Link>
         </div>

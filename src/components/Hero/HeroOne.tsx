@@ -59,7 +59,7 @@ export default function HeroOne({
         'inline-flex items-center bg-secondary text-white leading-[38px] text-[15px] h-[38px] px-5';
 
     return (
-        <div className="hero-area">
+        <div className="=hero-area pt-[90px]">
             <div className="container-fluid px-[15px] mt-[15px]">
                 <SwiperComps
                     sliderCName="pagination-bg-primary"

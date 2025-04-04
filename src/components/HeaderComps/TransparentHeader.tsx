@@ -37,10 +37,10 @@ export default function TransparentHeader({ headerItems }: TransparentHeaderProp
     return (
         <header
             ref={header}
-            className="flex items-center px-[20px] h-[90px] w-full absolute top-0 z-30"
+            className="flex items-center px-[20px] h-[90px] w-full absolute top-0 z-40"
         >
-            <div className="container">
-                <div className="grid grid-cols-12">
+            <div className="container mx-auto px-4">
+                <div className="grid grid-cols-12 items-center">
                     <div className="md:col-span-4 max-lm:hidden">
                         <SearchBarComps placeholdertext="Search Anything..." />
                     </div>

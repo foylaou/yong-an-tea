@@ -8,7 +8,7 @@ import OfferColection from "@/components/OfferColection/OfferColection";
 import NewsletterComps from "@/components/NewsletterComps/NewsletterComps";
 import TransparentHeader from "@/components/HeaderComps/TransparentHeader";
 import {HeaderMenuService} from "@/Services/SettingServices/HeaderMenuService";
-import {notoSansTc} from "@/Services/SettingServices/baseSetting";
+
 
 export default function Page() {
     // 獲取所有數據

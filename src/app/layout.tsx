@@ -4,7 +4,8 @@ import FooterCompsThree from "@/components/FooterComps/FooterCompsThree";
 import type { Metadata } from "next";
 import {JSX, ReactNode} from "react";
 import {Noto_Sans_TC, Roboto} from 'next/font/google'
-
+import { Analytics } from "@vercel/analytics/react"
+import { SpeedInsights } from "@vercel/speed-insights/next"
 /**
  * 預設網站 SEO 資訊
  */
@@ -110,7 +111,8 @@ export default function RootLayout({
       </head>
       <body className="font-sans">
       <main>{children}</main>
-
+      <Analytics />
+      <SpeedInsights/>
       <FooterCompsThree footerItems={footerItems}/>
       </body>
       </html>

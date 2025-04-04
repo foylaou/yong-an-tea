@@ -1,0 +1,220 @@
+/*
+   額外的組件樣式
+   將這個文件引入到您的 _app.js 或 layout.js 中:
+   import '../styles/components.css';
+*/
+
+/* 導航與側邊欄 */
+.offcanvas-menu {
+    position: relative;
+}
+.offcanvas-menu::before {
+    pointer-events: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #111111;
+    opacity: 0;
+    z-index: 30;
+    content: "";
+}
+.offcanvas-menu.active::before {
+    opacity: 0.7;
+    pointer-events: auto;
+}
+.offcanvas-menu-inner {
+    position: fixed;
+    background-color: white;
+    transition: all 500ms;
+    opacity: 0;
+    top: 0;
+    right: -100%;
+    height: 100%;
+    padding: 45px 40px 100px;
+    z-index: 50;
+    width: calc(100% - 15px);
+}
+@media (min-width: 640px) {
+    .offcanvas-menu-inner {
+        width: 420px;
+    }
+}
+.offcanvas-menu.active .offcanvas-menu-inner {
+    right: 0;
+    opacity: 1;
+}
+
+/* 子菜單管理 */
+.has-children .submenu {
+    display: none;
+}
+.has-children.active .submenu {
+    display: block;
+}
+.has-children.active .menu-icon {
+    transform: rotate(180deg);
+}
+.sub-children .level-two {
+    display: none;
+}
+.sub-children.active .level-two {
+    display: block;
+}
+.sub-children.active .sub-icon {
+    transform: rotate(180deg);
+}
+
+/* 標頭子菜單 */
+.header-submenu-holder {
+    position: relative;
+}
+.header-submenu {
+    border: 1px solid #dddddd;
+    background-color: white;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 240px;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    z-index: 10;
+}
+.header-submenu::before {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border: transparent;
+    border-bottom: 1px solid #d7d7d7;
+    border-left: 1px solid #d7d7d7;
+    background-color: white;
+    content: "";
+    transform: rotate(135deg);
+    transition: all 0.3s;
+    top: -7px;
+    left: 10px;
+}
+.header-submenu-holder:hover .header-submenu {
+    top: calc(100% - 20px);
+    opacity: 1;
+    visibility: visible;
+}
+.header-submenu li a {
+    font-weight: normal;
+    display: block;
+    color: #ababab;
+    transition: all 0.3s;
+    padding: 5px 30px;
+}
+.header-submenu li a:hover {
+    color: black;
+}
+
+/* FAQ 樣式 */
+.faq .item .content {
+    display: none;
+    opacity: 0;
+    text-align: left;
+    transition: all 0.3s;
+}
+.faq .item .title {
+    padding: 15px;
+}
+@media (min-width: 640px) {
+    .faq .item .title {
+        padding-left: 30px;
+        padding-right: 30px;
+    }
+}
+.faq .item.active .title {
+    background-color: var(--color-primary, #dcb14a);
+    color: white;
+}
+.faq .item.active .title h2 {
+    color: white;
+}
+.faq .item.active .navigation {
+    transform: rotate(180deg);
+}
+.faq .item.active .content {
+    display: block;
+    opacity: 1;
+}
+
+/* 分頁 */
+.pagination li span.active {
+    background-color: var(--color-primary, #dcb14a);
+}
+
+/* Swiper 輪播 */
+.swiper-button-disabled {
+    opacity: 0.3;
+}
+.pagination-bg-primary .swiper-pagination {
+    bottom: 20px !important;
+}
+.pagination-bg-primary .swiper-pagination-bullet {
+    width: 12px;
+    height: 12px;
+    bottom: 30px !important;
+    margin-right: 15px !important;
+}
+.pagination-bg-primary .swiper-pagination-bullet:last-child {
+    margin-right: 0 !important;
+}
+.pagination-bg-primary .swiper-pagination-bullet-active {
+    background-color: var(--color-primary, #dcb14a);
+}
+
+/* 英雄區塊 */
+.hero-bg {
+    display: flex;
+    align-items: center;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+.hero .swiper-pagination-bullet {
+    width: 0.75rem !important;
+    height: 0.75rem !important;
+    margin-left: 0.5rem !important;
+    margin-right: 0.5rem !important;
+}
+.hero .swiper-pagination-bullet-active {
+    background-color: var(--color-primary, #dcb14a) !important;
+}
+
+/* 購物車表格 */
+.cart-table th.product-name {
+    min-width: 370px;
+}
+.cart-table th.product-price {
+    min-width: 130px;
+}
+.cart-table th.price-total {
+    min-width: 70px;
+}
+.cart-table th.product-remove {
+    min-width: 70px;
+}
+
+/* 新品到貨 */
+.newarrival-item-two .product-content {
+    margin-top: -60px;
+}
+@media (min-width: 576px) {
+    .newarrival-item-two .product-content {
+        margin-top: -70px;
+    }
+}
+.newarrival-reverse-item {
+    display: flex;
+    flex-direction: column-reverse;
+}
+.newarrival-reverse-item .product-content {
+    margin-bottom: -70px;
+}

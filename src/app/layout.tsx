@@ -1,5 +1,5 @@
 import "./globals.css";
-
+import "@/styles/components.css"
 import FooterCompsThree from "@/components/FooterComps/FooterCompsThree";
 import HomeCarousel from "@/components/HomeCarousel/HomeCarousel";
 import type { Metadata } from "next";

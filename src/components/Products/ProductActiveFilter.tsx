@@ -1,3 +1,4 @@
+"use client";
 import { IoCloseOutline } from 'react-icons/io5';
 import { JSX } from "react";
 

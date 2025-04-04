@@ -68,7 +68,7 @@ export default function FooterCompsThree({ footerItems }: FooterCompsThreeProps)
 
     return (
         <footer
-            className="sm:bg-[#f4f5f7] sm:fixed sm:bottom-0 sm:left-0 sm:right-0 sm:w-full sm:z-[-1]"
+            className="footer-top xl:py-[115px] lg:py-[95px] md:py-[75px] py-[45px]"
             ref={footer}
         >
             <div className="footer-top xl:py-[115px] lg:py-[95px] md:py-[75px] py-[50px]">

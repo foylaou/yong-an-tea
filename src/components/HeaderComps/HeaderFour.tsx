@@ -1,3 +1,4 @@
+"use client";
 import React, {JSX, useEffect, useRef} from 'react';
 
 import {HeaderItem} from "@/components/HeaderComps/MenuType";

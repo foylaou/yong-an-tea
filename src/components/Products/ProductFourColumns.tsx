@@ -1,3 +1,4 @@
+"use client";
 import useRootStore from '@/store/useRootStore';
 import React, {JSX, useState} from 'react';
 import ProductItem from './ProductItem';

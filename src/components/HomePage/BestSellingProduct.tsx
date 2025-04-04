@@ -1,3 +1,4 @@
+"use client";
 import type { SwiperSettings } from '../SwiperComps/SwiperTypes';
 import SwiperComps, {Slide} from "@/components/SwiperComps/SwiperComps";
 import {JSX} from "react";

@@ -1,3 +1,4 @@
+"use client";
 import {JSX, useEffect, useState} from 'react';
 import { IoArrowUpSharp } from 'react-icons/io5';
 import { className } from '@/utils/className';

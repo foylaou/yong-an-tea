@@ -1,3 +1,4 @@
+"use client";
 import { JSX } from "react";
 import MainContent from "@/components/Products/ProductDetails/MainContent";
 import ProductDetailTab from "@/components/Products/ProductDetails/ProductDetailTab";

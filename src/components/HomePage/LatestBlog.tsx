@@ -1,3 +1,4 @@
+"use client";
 import BlogItem from '../Blogs/BlogItem';
 import {Blog} from "@/components/Blogs/blog-types";
 import {JSX} from "react";

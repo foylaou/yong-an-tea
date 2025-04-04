@@ -1,3 +1,4 @@
+"use client";
 import {JSX, useState} from 'react';
 import { MdPlayArrow, MdOutlineStarPurple500 } from 'react-icons/md';
 import Image from "next/image";

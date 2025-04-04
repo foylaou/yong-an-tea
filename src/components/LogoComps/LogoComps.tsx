@@ -1,3 +1,4 @@
+"use client";
 import Link from 'next/link';
 import {JSX} from "react";
 
@@ -25,7 +26,7 @@ interface LogoCompsProps {
  * @returns {JSX.Element} Logo 組件
  */
 export default function LogoComps({
-                                      headerItems,
+
                                       headerLogoCName,
                                       logoPath,
                                   }: LogoCompsProps): JSX.Element {
@@ -33,8 +34,8 @@ export default function LogoComps({
         <div className={headerLogoCName}>
             <Link href={logoPath} className="block">
                 <Image
-                    src={headerItems[0]?.headerLogo?.[0]?.darkLogo}
-                    alt={headerItems[0]?.headerLogo?.[0]?.darkLogoAlt}
+                    src={"圓形LOGO（白背景）.svg"}
+                    alt={'網站 Logo'}
                     width={120}
                     height={30}
                 />

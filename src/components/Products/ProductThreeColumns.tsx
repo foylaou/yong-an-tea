@@ -1,3 +1,4 @@
+"use client";
 import React, { JSX, useState } from 'react';
 import {FilterDataItem, GridTabItems, Product, ProductFilterItem} from "@/components/Products/ProductsTypes";
 import ProductToolBars from "@/components/Products/ProductToolBars";

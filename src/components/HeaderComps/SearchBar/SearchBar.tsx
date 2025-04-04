@@ -1,3 +1,4 @@
+"use client";
 import React, {JSX} from 'react';
 import { IoCloseOutline, IoSearchOutline } from 'react-icons/io5';
 import {HeaderItem} from "@/components/HeaderComps/MenuType";

@@ -1,4 +1,4 @@
-
+"use client";
 import Link from 'next/link';
 import { IoAddSharp } from 'react-icons/io5';
 import { BlogItemProps } from './blog-types';

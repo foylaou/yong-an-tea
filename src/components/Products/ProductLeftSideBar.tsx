@@ -1,3 +1,4 @@
+"use client";
 import useRootStore from '@/store/useRootStore';
 import {JSX, useState} from 'react';
 import ProductSidebarComps from './ProductSidebarComps';

@@ -1,4 +1,4 @@
-
+"use client";
 import { useState, MouseEvent } from 'react';
 
 import ProductToolBars from './ProductToolBars';

@@ -1,3 +1,4 @@
+"use client";
 import Link from 'next/link';
 import { IoCloseOutline } from 'react-icons/io5';
 import { CartItemProps } from "@/components/Cart/CartTypes";

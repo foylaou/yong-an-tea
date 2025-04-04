@@ -1,3 +1,4 @@
+"use client";
 import {JSX, useState} from 'react';
 import { IoPlayCircleOutline, IoCloseOutline } from 'react-icons/io5';
 import { BiLoaderAlt } from 'react-icons/bi';

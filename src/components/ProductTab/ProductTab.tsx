@@ -1,3 +1,4 @@
+"use client";
 import React, {JSX, useState} from 'react';
 import ProductItem from '../Products/ProductItem';
 import {Product, ProductFilterItem} from "@/components/Products/ProductsTypes";

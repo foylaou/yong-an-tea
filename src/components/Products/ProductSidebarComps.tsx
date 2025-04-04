@@ -1,3 +1,4 @@
+"use client";
 import React, { JSX, useEffect, useRef, useState } from 'react';
 import { FilterData, ProductFilterItem } from '@/components/Products/ProductsTypes';
 import useRootStore from '@/store/useRootStore';

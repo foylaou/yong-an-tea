@@ -1,3 +1,4 @@
+"use client";
 import {useState, useEffect, useRef, JSX} from 'react';
 import Link from 'next/link';
 import { IoArrowForwardOutline } from 'react-icons/io5';

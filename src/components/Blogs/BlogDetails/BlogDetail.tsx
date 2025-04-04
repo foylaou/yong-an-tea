@@ -1,3 +1,4 @@
+"use client";
 import Link from 'next/link';
 import { FaQuoteRight } from 'react-icons/fa';
 import {BlogDetailProps} from "@/components/Blogs/blog-types";

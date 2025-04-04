@@ -1,4 +1,4 @@
-
+"use client";
 import { Blog } from './blog-types';
 import BlogMasonryItem from "@/components/Blogs/BlogMasonryItem";
 

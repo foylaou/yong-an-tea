@@ -1,3 +1,4 @@
+"use client";
 import Link from 'next/link';
 import { IoArrowForwardOutline } from 'react-icons/io5';
 import {JSX} from "react";
@@ -79,7 +80,7 @@ export default function FeaturedProduct({
                                     href={item.path}
                                     className="featured-product-img block transition-all duration-500 group-hover:scale-[1.05]"
                                 >
-                                    <Image src={item.image} alt={item.altImage} />
+                                    <Image src={item.image} alt={item.altImage} fill />
                                 </Link>
                             </div>
                             <div

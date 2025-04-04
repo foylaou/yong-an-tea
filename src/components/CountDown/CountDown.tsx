@@ -1,3 +1,4 @@
+"use client";
 interface CountDownProps {
     timerDays?: number;
     timerHours?: number;

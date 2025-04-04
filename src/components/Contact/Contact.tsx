@@ -1,3 +1,4 @@
+"use client";
 import * as IoIcon from 'react-icons/io5';
 import Link from 'next/link';
 import GoogleMap from "@/components/GoogleMap/GoogleMap";

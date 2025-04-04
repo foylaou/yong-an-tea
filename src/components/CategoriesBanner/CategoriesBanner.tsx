@@ -1,3 +1,4 @@
+"use client";
 import Link from 'next/link';
 import {Product} from "@/components/Products/ProductsTypes";
 import Image from "next/image";

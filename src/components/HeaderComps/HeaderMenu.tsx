@@ -1,3 +1,4 @@
+"use client";
 import React, {JSX} from 'react';
 import Link from 'next/link';
 import {ExtendedMenuItem, HeaderItem} from "@/components/HeaderComps/MenuType";

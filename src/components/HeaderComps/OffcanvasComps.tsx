@@ -1,3 +1,4 @@
+"use client";
 import React, {JSX} from 'react';
 import Link from 'next/link';
 import * as FaIcons from 'react-icons/fa';
@@ -98,15 +99,9 @@ export default function OffcanvasComps({
                             {headerItems[0]?.socialList?.map((item) => {
                                 const Social = FaIcons[item.socialIcon as keyof typeof FaIcons];
                                 return (
-                                    <li
-                                        className="mr-[25px] last:mr-0"
-                                        key={item.id}
-                                    >
-                                        <Link
-                                            href={item?.path || '#'}
-                                            className="transition-all hover:text-primary"
-                                        >
-                                            <Social />
+                                    <li className="mr-[25px] last:mr-0" key={item.id}>
+                                        <Link href={item?.path || '#'} className="transition-all hover:text-primary">
+                                            {Social ? <Social /> : null}
                                         </Link>
                                     </li>
                                 );

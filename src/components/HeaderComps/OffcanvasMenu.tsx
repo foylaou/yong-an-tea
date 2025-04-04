@@ -1,3 +1,4 @@
+"use client";
 import React, {JSX, useState} from 'react';
 import Link from 'next/link';
 import { IoCaretDownOutline } from 'react-icons/io5';

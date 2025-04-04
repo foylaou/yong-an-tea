@@ -1,3 +1,4 @@
+"use client";
 import {JSX, useState} from 'react';
 import { IoAddSharp, IoHeartOutline, IoRemoveSharp } from 'react-icons/io5';
 import useRootStore from '@/store/useRootStore';

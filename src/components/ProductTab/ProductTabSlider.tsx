@@ -1,4 +1,4 @@
-
+"use client";
 import React, {JSX, useState} from 'react';
 import dynamic from 'next/dynamic';
 import ProductItem from '../Products/ProductItem';

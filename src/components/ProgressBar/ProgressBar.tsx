@@ -1,3 +1,4 @@
+"use client";
 import {JSX} from "react";
 
 interface ProgressBarProps {

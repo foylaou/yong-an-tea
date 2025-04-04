@@ -1,3 +1,4 @@
+"use client";
 import { IoArrowForwardOutline } from 'react-icons/io5';
 import {JSX} from "react";
 

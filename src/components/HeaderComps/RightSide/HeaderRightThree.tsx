@@ -1,3 +1,4 @@
+"use client";
 import React, {JSX, useState} from 'react';
 import useRootStore from '@/store/useRootStore';
 import {

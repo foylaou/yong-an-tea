@@ -1,3 +1,4 @@
+"use client";
 import Link from 'next/link';
 import { IoChevronBackSharp, IoChevronForwardSharp } from 'react-icons/io5';
 import {PageNavigationProps} from "@/components/Blogs/blog-types";

@@ -1,3 +1,4 @@
+"use client";
 import Link from 'next/link';
 import BlogSearchBar from './BlogSearchBar';
 import { Blog } from './blog-types';

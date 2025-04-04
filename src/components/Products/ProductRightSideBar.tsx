@@ -1,3 +1,4 @@
+"use client";
 import useRootStore from '@/store/useRootStore';
 import {useState, MouseEvent, JSX} from 'react';
 import ProductItem from './ProductItem';

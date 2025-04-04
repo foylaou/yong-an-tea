@@ -1,3 +1,5 @@
+
+"use client";
 import Link from 'next/link';
 import { IoSearchOutline } from 'react-icons/io5';
 import Image from "next/image";
@@ -25,8 +27,9 @@ export default function Error404({ errorItems }: Error404Props) {
             <div className="container">
                 <div className="content flex flex-col items-center">
                     <Image
-                        src={errorItems[0]?.image}
+                        src="404R3.svg"
                         alt={errorItems[0]?.imageAlt}
+                        fill
                     />
                     <h1 className="mb-[10px]">{errorItems[0]?.title}</h1>
                     {errorItems[0]?.descInfo?.map((item) => (

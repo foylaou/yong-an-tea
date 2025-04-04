@@ -75,7 +75,7 @@ export default function FooterComps({ footerContainer, footerItems }: FooterComp
                                         </span>
                                         <Link
                                             href={footerItems[0]?.contactNumber || '#'}
-                                            className="font-normal hover:text-primary transition-all ml-[10px]"
+                                            className="font-normal hover:text-stone-950 transition-all ml-[10px]"
                                         >
                                             {footerItems[0]?.contactNumberText}
                                         </Link>

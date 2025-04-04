@@ -29,7 +29,7 @@ export default function CountDownTwo({
                         <span className="capitalize font-normal">Hours</span>
                     </div>
                     <div className="mr-[40px]">
-                        <h4 className="font-prata text-primary lm:text-[48px] text-[30px]">
+                        <h4 className="font-prata text-stone-950 lm:text-[48px] text-[30px]">
                             {timerMinutes}
                         </h4>
                         <span className="capitalize font-normal">Minutes</span>

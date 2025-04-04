@@ -42,7 +42,7 @@ export default function TransparentHeader({ headerItems }: TransparentHeaderProp
             <div className="container mx-auto px-4">
                 <div className="grid grid-cols-12 items-center">
                     <div className="md:col-span-4 max-lm:hidden">
-                        <SearchBarComps placeholdertext="Search Anything..." />
+                        <SearchBarComps placeholdertext="搜尋網站內容..." />
                     </div>
                     <div className="md:col-span-4 sm:col-span-6 col-span-4">
                         <LogoComps

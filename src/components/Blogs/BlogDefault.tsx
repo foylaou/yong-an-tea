@@ -27,7 +27,7 @@ export default function BlogDefault({ blogs }: BlogDefaultProps) {
                     {noOfElement < blogs.length && (
                         <div className="pt-[90px]">
                             <button
-                                className="bg-black text-white transition-all hover:bg-primary px-[40px] h-[40px] leading-[40px]"
+                                className="bg-black text-white transition-all hover:bg-stone-950 px-[40px] h-[40px] leading-[40px]"
                                 type="button"
                                 onClick={loadMore}
                             >

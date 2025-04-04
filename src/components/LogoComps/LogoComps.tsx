@@ -34,10 +34,10 @@ export default function LogoComps({
         <div className={headerLogoCName}>
             <Link href={logoPath} className="block">
                 <Image
-                    src={"圓形LOGO（白背景）.svg"}
+                    src={"網頁首頁.svg"}
                     alt={'網站 Logo'}
-                    width={100}
-                    height={20}
+                    width={200}
+                    height={50}
                 />
             </Link>
         </div>

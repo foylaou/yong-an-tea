@@ -57,9 +57,9 @@ export default function BestSellingProduct({
 
     return (
         <div className="best-selling-product xl:pt-[120px] lg:pt-[60px] pt-[5px]">
-            <div className="container">
+            <div className="container mx-auto px-4">
                 <div className="section-title text-center pb-[10px] mb-[50px] relative after:bg-primary after:absolute after:left-1/2 after:transform after:-translate-x-1/2 after:bottom-0 after:h-[4px] after:w-[70px]">
-                    <h2>{sectionTitle}</h2>
+                    <h2 className="text-center w-full">{sectionTitle}</h2>
                 </div>
                 <div className="slider-wrap relative">
                     <SwiperComps settings={settings}>

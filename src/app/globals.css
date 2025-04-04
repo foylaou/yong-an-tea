@@ -4,7 +4,9 @@
 -----------------------------------------------------------------------------------*/
 
 @import "tailwindcss";
-
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -13,13 +15,21 @@
   --color-heading: #111111;
 }
 
-@theme inline {
+/* 先移除或注釋掉這段代碼 */
+/* :root {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-noto-sans-tc);
   --font-roboto: var(--font-roboto);
-}
+} */
 
+/* 確保在字體變量被添加後再使用這些變量 */
+html {
+  --color-background: var(--background, #ffffff);
+  --color-foreground: var(--foreground, #000000);
+  --font-sans: var(--font-noto-sans-tc, 'Noto Sans TC', sans-serif);
+  --font-roboto: var(--font-roboto, 'Roboto', sans-serif);
+}
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;

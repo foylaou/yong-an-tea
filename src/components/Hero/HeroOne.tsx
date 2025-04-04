@@ -56,11 +56,11 @@ export default function HeroOne({
 
     // Tailwind Related Stuff
     const secondaryButton =
-        'inline-flex items-center bg-secondary text-white leading-[38px] text-[15px] h-[38px] px-5';
+        'inline-flex items-center bg-stone-950 text-white leading-[38px] text-[15px] h-[38px] px-5 group';
 
     return (
-        <div className="=hero-area pt-[90px]">
-            <div className="container-fluid px-[15px] mt-[15px]">
+        <div className="hero-area pt-[100px]">
+            <div className="container-fluid px-[15px]  mt-[100px]">
                 <SwiperComps
                     sliderCName="pagination-bg-primary"
                     settings={settings}

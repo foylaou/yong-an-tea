@@ -76,14 +76,15 @@ export default function FooterCompsThree({ footerItems }: FooterCompsThreeProps)
                     <div className="grid grid-cols-12 sm:gap-x-[30px] max-md:gap-y-[30px]">
                         <div className="lg:col-span-3 sm:col-span-6 col-span-12 lg:self-center">
                             <div className="footer-widget">
-                                <div className="footer-logo mb-[15px]">
+                                <div className="footer-logo mb-[15px] ml-[50px] ">
                                     <Link href={footerItems[0]?.footerLogoPath || ''}>
                                         <Image
                                             src={footerItems[0].footerLogo }
                                             alt={footerItems[0].footerLogoAlt}
-                                            width={250}
+                                            width={150}
                                             height={60}
                                             quality={90}
+                                            className="items-center"
                                         />
                                     </Link>
                                 </div>

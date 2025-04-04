@@ -8,9 +8,10 @@ module.exports = {
     theme: {
         extend: {
             colors: {
-                primary: 'var(--color-primary, #dcb14a)',
+                primary: '#dcb14a',
                 secondary: '#000000',
-                heading: 'var(--color-heading, #111111)',
+                heading: '#111111',
+                test: '#ff0000',
             },
             backgroundImage: {
                 'offer-colection': "url('/images/offer-colection/countdown.jpg')",

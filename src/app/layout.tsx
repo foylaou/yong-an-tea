@@ -3,14 +3,22 @@ import "@/styles/components.css"
 import FooterCompsThree from "@/components/FooterComps/FooterCompsThree";
 import type { Metadata } from "next";
 import {JSX, ReactNode} from "react";
-import { Noto_Sans_TC } from 'next/font/google'
+import {Noto_Sans_TC, Roboto} from 'next/font/google'
 
 /**
  * 預設網站 SEO 資訊
  */
-const notoSansTc = Noto_Sans_TC({
+const notoSansTC = Noto_Sans_TC({
   weight: ['400', '500', '700'],
   subsets: ['latin'],
+  variable: '--font-noto-sans-tc',
+  display: 'swap',
+});
+
+const roboto = Roboto({
+  weight: ['400', '500', '700'],
+  subsets: ['latin'],
+  variable: '--font-roboto',
   display: 'swap',
 });
 export const metadata: Metadata = {
@@ -56,7 +64,7 @@ export default function RootLayout({
       contactNumber: "tel:+886-089550818",
       contactNumberText: "(089) 550-818",
       footerLogoPath: "/",
-      footerLogo: "/網頁首頁.svg",
+      footerLogo: "/footerlogo.svg",
       footerLogoAlt: "永安茶園 Logo",
       socialTitle: "追蹤我們",
       socialList: [
@@ -91,7 +99,7 @@ export default function RootLayout({
   ];
 
   return (
-      <html lang="zh-tw" className={notoSansTc.className}>
+      <html lang="zh-tw" className={`${notoSansTC.variable} ${roboto.variable}`}>
       <head>
         <meta charSet="UTF-8"/>
         <meta

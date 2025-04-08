@@ -107,11 +107,13 @@ export default function RootLayout({
             name="viewport"
             content="width=device-width, initial-scale=1.0, maximum-scale=5"
         />
+        <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet"/>
+
         <title>永安茶園</title>
       </head>
       <body className="font-sans">
       <main>{children}</main>
-      <Analytics />
+      <Analytics/>
       <SpeedInsights/>
       <FooterCompsThree footerItems={footerItems}/>
       </body>

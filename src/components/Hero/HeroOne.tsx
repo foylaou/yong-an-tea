@@ -10,9 +10,6 @@ import {SwiperSettings} from "@/components/SwiperComps/SwiperTypes";
 import {Swiper} from "swiper/types";
 import {HeroDefaultItem} from "@/components/Hero/HeroTypes";
 
-
-
-
 // 定義組件 Props 的介面
 interface HeroOneProps {
     heroDefaultItems: HeroDefaultItem[];
@@ -54,13 +51,11 @@ export default function HeroOne({
         ...initialSettings,
     };
 
-    // Tailwind Related Stuff
-    const secondaryButton =
-        'inline-flex items-center bg-stone-950 text-white leading-[38px] text-[15px] h-[38px] px-5 group';
+
 
     return (
         <div className="hero-area pt-[100px]">
-            <div className="container-fluid px-[15px]  mt-[100px]">
+            <div className="container-fluid px-[15px] mt-[100px]">
                 <SwiperComps
                     sliderCName="pagination-bg-primary"
                     settings={settings}
@@ -68,12 +63,14 @@ export default function HeroOne({
                     {heroDefaultItems?.map((heroDefaultItem, idx) => (
                         <Slide key={heroDefaultItem.id}>
                             <div
-                                className={`${heroDefaultItem.heroBG
-                                    .split(' ')
-                                    .join(' ')} md:h-[800px] h-[540px]`}
+                                className="md:h-[800px] h-[540px] bg-cover bg-center bg-no-repeat relative"
+                                style={{ backgroundImage: `url(${heroDefaultItem.heroBG})` }}
                             >
-                                <div className="container">
-                                    <div className="hero-content">
+                                {/* 渐变遮罩层 */}
+                                <div className="absolute inset-0 bg-gradient-to-b from-transparent from-0% to-black to-80% opacity-80"></div>
+
+                                <div className="container relative z-10">
+                                    <div className="hero-content text-white">
                                         <motion.span
                                             className="text-primary font-medium block mb-[5px]"
                                             dangerouslySetInnerHTML={{
@@ -110,7 +107,7 @@ export default function HeroOne({
                                             }}
                                         />
                                         <motion.h2
-                                            className="relative md:text-[60px] text-[34px] leading-[1.1] pb-[15px] mb-[30px] after:bg-primary after:absolute after:min-h-[4px] after:min-w-[70px] after:max-h-[4px] after:max-w-[70px] after:bottom-0 after:left-0"
+                                            className="text-amber-50 relative md:text-[60px] text-[34px] leading-[1.1] pb-[15px] mb-[30px] after:bg-slate-900 after:absolute after:min-h-[4px] after:min-w-[70px] after:max-h-[4px] after:max-w-[70px] after:bottom-0 after:left-0"
                                             dangerouslySetInnerHTML={{
                                                 __html: heroDefaultItem.title,
                                             }}
@@ -212,7 +209,7 @@ export default function HeroOne({
                                         >
                                             <Link
                                                 href="/products/left-sidebar"
-                                                className={secondaryButton}
+                                                className="inline-flex items-center bg-emerald-900 text-white leading-[38px] text-[15px] h-[38px] px-5 group"
                                             >
                                                 Shop Now
                                                 <IoArrowForwardOutline className="text-white ml-[5px]" />

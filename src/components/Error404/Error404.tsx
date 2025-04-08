@@ -24,12 +24,13 @@ interface Error404Props {
 export default function Error404({ errorItems }: Error404Props) {
     return (
         <div className="error-404 border-b border-[#ededed] pt-[180px] pb-[180px]">
-            <div className="container">
+
                 <div className="content flex flex-col items-center">
                     <Image
                         src="404R3.svg"
                         alt={errorItems[0]?.imageAlt}
-                        fill
+                        height={300}
+                        width={500}
                     />
                     <h1 className="mb-[10px]">{errorItems[0]?.title}</h1>
                     {errorItems[0]?.descInfo?.map((item) => (
@@ -69,7 +70,7 @@ export default function Error404({ errorItems }: Error404Props) {
                         </div>
                     </form>
                 </div>
-            </div>
+
         </div>
     );
 }

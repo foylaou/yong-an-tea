@@ -1,258 +1,426 @@
 /*-----------------------------------------------------------------------------------
     Template Name: Helendo - React eCommerce Template
-    Version: 1.0
+    Version: 2.0 - Tailwind CSS 4 with TypeScript Support
+-----------------------------------------------------------------------------------
+
+    INDEX
+    ===================
+
+    - default
+    - helper
+    - header
+    - hero
+    - product
+    - faq
+    - pagination
+    - tabs
+    - swiper
+    - newarrrival
+    - cart Page
+
 -----------------------------------------------------------------------------------*/
 
-@import "tailwindcss";
+@import 'tailwindcss';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-  /* 添加作者模板需要的自定義變數 */
-  --color-primary: #dcb14a;
-  --color-heading: #111111;
-}
 
-/* 先移除或注釋掉這段代碼 */
-/* :root {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-noto-sans-tc);
-  --font-roboto: var(--font-roboto);
-} */
-
-/* 確保在字體變量被添加後再使用這些變量 */
-html {
-  --color-background: var(--background, #ffffff);
-  --color-foreground: var(--foreground, #000000);
-  --font-sans: var(--font-noto-sans-tc, 'Noto Sans TC', sans-serif);
-  --font-roboto: var(--font-roboto, 'Roboto', sans-serif);
-}
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/*----------------------------------------*/
+/*  - default
+/*----------------------------------------*/
+@layer base {
+  body {
+    @apply text-base leading-7 font-normal relative;
+    font-family: font-roboto, sans-serif;
   }
-}
-
-/* 基本樣式 */
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: var(--font-roboto, 'Roboto'), sans-serif;
-  font-size: 1rem;
-  line-height: 1.75rem;
-  font-weight: 400;
-  position: relative;
-}
-
-h1, h2, h3, h4, h5, h6 {
-  color: var(--color-heading, #111111);
-  font-weight: 500;
-  line-height: 1.41;
-}
-
-a {
-  font-weight: 500;
-  line-height: 1.41;
-}
-
-/* 標題大小 */
-h1 {
-  font-size: 34px;
-}
-@media (min-width: 768px) {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-medium leading-tight text-[#111111];
+  }
+  a {
+    @apply font-medium leading-tight;
+  }
   h1 {
-    font-size: 40px;
+    @apply text-[34px] md:text-[40px] lg:text-[46px] xl:text-[60px];
   }
-}
-@media (min-width: 992px) {
-  h1 {
-    font-size: 46px;
-  }
-}
-@media (min-width: 1200px) {
-  h1 {
-    font-size: 60px;
-  }
-}
-
-h2 {
-  font-size: 30px;
-}
-@media (min-width: 768px) {
   h2 {
-    font-size: 32px;
+    @apply text-[30px] md:text-[32px] xl:text-[36px];
   }
-}
-@media (min-width: 1200px) {
-  h2 {
-    font-size: 36px;
-  }
-}
-
-h3 {
-  font-size: 25px;
-}
-@media (min-width: 768px) {
   h3 {
-    font-size: 28px;
+    @apply text-[25px] md:text-[28px] xl:text-[30px];
   }
-}
-@media (min-width: 1200px) {
-  h3 {
-    font-size: 30px;
-  }
-}
-
-h4 {
-  font-size: 22px;
-}
-@media (min-width: 768px) {
   h4 {
-    font-size: 24px;
+    @apply text-[22px] md:text-[24px] xl:text-[26px];
   }
-}
-@media (min-width: 1200px) {
-  h4 {
-    font-size: 26px;
-  }
-}
-
-h5 {
-  font-size: 20px;
-}
-@media (min-width: 768px) {
   h5 {
-    font-size: 24px;
+    @apply text-[20px] md:text-[24px];
+  }
+  h6 {
+    @apply text-[18px];
   }
 }
 
-h6 {
-  font-size: 18px;
+/*----------------------------------------*/
+/*  - helper
+/*----------------------------------------*/
+@layer components {
+  .container-fluid {
+    @apply w-full mx-auto;
+  }
+  .offer-colection-title .offer {
+    @apply text-[#ff0000];
+  }
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    @apply appearance-none;
+  }
+  input[type='checkbox'],
+  label {
+    @apply cursor-pointer;
+  }
+
+  .light-stroke path {
+    @apply stroke-[20px];
+  }
+
+  .sr-only-custom {
+    @apply absolute w-[1px] h-[1px] m-[-1px] overflow-hidden whitespace-nowrap;
+  }
+
+  /* -Notification- */
+  .notification {
+    @apply fixed bottom-0 w-full h-[40px] bg-[#1a8ed1] text-white flex justify-between items-center p-[0.5rem_10%] z-10;
+  }
+  .success {
+    @apply bg-green-500;
+  }
+  .error {
+    @apply bg-red-700;
+  }
 }
 
-/* 輔助類 */
-.container-fluid {
-  width: 100%;
-  margin-left: auto;
-  margin-right: auto;
-}
+/*----------------------------------------*/
+/*  - header
+/*----------------------------------------*/
+@layer components {
+  .is-sticky {
+    @apply fixed bg-white shadow-[0_1px_1px_0_#f0f0f0];
+  }
+  /* Homebox Header */
+  .homebox-header.is-sticky {
+    @apply fixed bg-white xl:w-[1140px] 2xl:w-[1330px] mx-auto left-0 right-0 shadow-[0_1px_1px_0_#f0f0f0];
+  }
+  .homebox-header.is-sticky .header-contact {
+    @apply hidden;
+  }
+  .homebox-header .sticky-logo {
+    @apply hidden;
+  }
+  .homebox-header.is-sticky .sticky-logo {
+    @apply block;
+  }
 
-/* 全屏搜索 */
-.fullscreen-search {
-  position: fixed;
-  background-color: white;
-  transition: all 500ms;
-  opacity: 0;
-  top: 100%;
-  right: 0;
-  width: 100%;
-  height: 100%;
-  padding: 50px 40px 100px;
-  z-index: 50;
-}
-.fullscreen-search.active {
-  top: 0;
-  opacity: 1;
-}
+  /* Header Megamenu */
+  .header-megamenu {
+    @apply bg-center bg-no-repeat;
 
-/* 購物車 */
-.minicart-area {
-  position: relative;
-}
-.minicart-area::before {
-  pointer-events: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: #111111;
-  opacity: 0;
-  z-index: 50;
-  content: "";
-}
-.minicart-area.active::before {
-  opacity: 0.7;
-  pointer-events: auto;
-}
-.minicart-inner {
-  position: fixed;
-  background-color: white;
-  transition: all 500ms;
-  opacity: 0;
-  top: 0;
-  right: -100%;
-  height: 100%;
-  padding: 20px 40px 100px;
-  z-index: 50;
-}
-@media (min-width: 768px) {
+  }
+
+  /* Offcanvas */
+  .offcanvas-menu {
+    @apply relative before:pointer-events-none before:fixed before:top-0 before:left-0 before:w-full before:h-full before:bg-[#111111] before:opacity-0 before:z-30;
+  }
+  .offcanvas-menu.active {
+    @apply before:opacity-70 before:pointer-events-auto;
+  }
+  .offcanvas-menu-inner {
+    @apply fixed bg-white transition-all duration-500 opacity-0 top-0 -right-full sm:w-[420px] w-[calc(100%-15px)] h-full p-[45px_40px_100px] z-50;
+  }
+  .offcanvas-menu.active .offcanvas-menu-inner {
+    @apply right-0 opacity-100;
+  }
+  .has-children.active .menu-icon {
+    @apply rotate-180;
+  }
+  .has-children .submenu {
+    @apply hidden;
+  }
+  .has-children.active .submenu {
+    @apply block;
+  }
+  .sub-children.active .sub-icon {
+    @apply rotate-180;
+  }
+  .sub-children .level-two {
+    @apply hidden;
+  }
+  .sub-children.active .level-two {
+    @apply block;
+  }
+
+  /* Minicart */
+  .minicart-area {
+    @apply relative before:pointer-events-none before:fixed before:top-0 before:left-0 before:w-full before:h-full before:bg-[#111111] before:opacity-0 before:z-50;
+  }
+  .minicart-area.active {
+    @apply before:opacity-70 before:pointer-events-auto;
+  }
   .minicart-inner {
-    width: 410px;
+    @apply fixed bg-white transition-all duration-500 opacity-0 top-0 -right-full md:w-[410px] w-[calc(100%-15px)] h-full p-[20px_40px_100px] z-50;
+  }
+  .minicart-area.active .minicart-inner {
+    @apply right-0 opacity-100;
+  }
+
+  /* fullscreen Search */
+  .fullscreen-search {
+    @apply fixed bg-white transition-all duration-500 opacity-0 top-full right-0 w-full h-full p-[50px_40px_100px] z-50;
+  }
+  .fullscreen-search.active {
+    @apply top-0 opacity-100;
+  }
+
+  /* Header Submenu */
+  .header-submenu-holder {
+    @apply relative;
+  }
+  .header-submenu {
+    @apply border border-[#dddddd] bg-white absolute top-full left-0 w-[240px] opacity-0 invisible transition-all group-hover:top-[calc(100%-20px)] group-hover:opacity-100 group-hover:visible py-[20px] before:absolute before:w-[12px] before:h-[12px] before:border-transparent before:border-b before:border-b-[#d7d7d7] before:border-l before:border-l-[#d7d7d7] before:bg-white z-10 before:rotate-[135deg] before:translate-x-1/2 before:translate-y-0 before:transition-all before:top-[-7px] before:left-[10px];
+  }
+  .header-submenu li a {
+    @apply font-normal block text-[#ababab] transition-all hover:text-black py-[5px] px-[30px];
+  }
+
+  /* Header Megamenu */
+  .header-megamenu-holder {
+    @apply static;
+  }
+  .header-megamenu {
+    @apply border border-[#dddddd] bg-white absolute top-full right-0 xl:w-[calc(100%-90px)] w-full opacity-0 invisible transition-all group-hover:top-[calc(100%-20px)] group-hover:opacity-100 group-hover:visible p-[35px_20px_30px] before:absolute before:w-[12px] before:h-[12px] before:border-transparent before:border-b before:border-b-[#d7d7d7] before:border-l before:border-l-[#d7d7d7] before:bg-white z-10 before:rotate-[135deg] before:translate-x-1/2 before:translate-y-0 before:transition-all before:top-[-7px] xl:before:left-[320px] 2xl:before:left-[410px] before:left-[385px];
+  }
+
+  /* Home Collection Megamenu */
+  .home-collection-megamenu-holder {
+    @apply xl:relative static;
+  }
+  .home-collection-megamenu-holder .header-megamenu {
+    @apply xl:left-1/2 xl:-translate-x-1/2 xl:w-[1080px] right-0 w-full xl:before:left-[480px] before:left-[435px];
   }
 }
-.minicart-inner {
-  width: calc(100% - 15px);
-}
-.minicart-area.active .minicart-inner {
-  right: 0;
-  opacity: 1;
+
+/*----------------------------------------*/
+/*  - hero
+/*----------------------------------------*/
+@layer components {
+  /* -All Hero BG- */
+  .hero-bg {
+    @apply flex items-center bg-cover bg-center bg-no-repeat;
+  }
+
+  /* All Hero Background */
+  .hero-default-bg-01 {
+    @apply bg-[url('/images/hero/home-default/1.jpg')];
+  }
+  .hero-default-bg-02 {
+    @apply bg-[url('/images/hero/home-default/2.jpg')];
+  }
+  .hero-default-bg-03 {
+    @apply bg-[url('/images/hero/home-default/3.jpg')];
+  }
+
+  .hero-carousel-bg-01 {
+    @apply bg-[url('/images/hero/home-carousel/1.jpg')];
+  }
+  .hero-carousel-bg-02 {
+    @apply bg-[url('/images/hero/home-carousel/2.jpg')];
+  }
+  .hero-carousel-bg-03 {
+    @apply bg-[url('/images/hero/home-carousel/3.jpg')];
+  }
+
+  /* End Here */
+
+  /* For Hero carousel */
+  .hero-carousel .swiper-button-prev,
+  .hero-carousel .swiper-button-next {
+    @apply text-[#666666] transition-all hover:text-[#dcb14a];
+  }
+  .hero-carousel .swiper-button-prev {
+    @apply lg:left-[195px];
+  }
+  .hero-carousel .swiper-button-next {
+    @apply lg:right-[195px];
+  }
+
+  /* For Hero carousel Animation */
+  .hero-carousel .swiper-slide-active h2 {
+    @apply animate-[slideUp_500ms_ease-in-out_normal];
+  }
+  .hero-carousel .swiper-slide-active p {
+    @apply animate-[slideUp_700ms_ease-in-out_normal];
+  }
+  .hero-carousel .swiper-slide-active .button-wrap {
+    @apply animate-[slideUp_900ms_ease-in-out_normal];
+  }
+
+  /* For Hero Collection*/
+  .hero-collection .swiper-pagination {
+    @apply flex flex-col left-auto lg:right-[100px] right-[15px] w-auto bottom-1/2 translate-y-1/2;
+  }
+  .hero-collection .swiper-pagination-bullet {
+    @apply bg-transparent text-[18px] w-auto h-auto opacity-70 relative after:bg-black after:opacity-70 after:absolute after:right-0 after:bottom-0 after:w-[40px] after:h-[2px] after:transition-all mb-[15px] last:mb-0;
+  }
+  .hero-collection .swiper-pagination-bullet-active {
+    @apply opacity-100 after:opacity-100 after:w-[60px];
+  }
+
+  /* -End Here- */
+
+  .hero .swiper-pagination-bullet {
+    @apply w-3 h-3 mx-2;
+  }
+  .hero .swiper-pagination-bullet-active {
+    @apply bg-[#dcb14a];
+  }
 }
 
-/* 固定頭部 */
-.is-sticky {
-  position: fixed;
-  background-color: white;
-  box-shadow: 0 1px 1px 0 #f0f0f0;
+/*----------------------------------------*/
+/*  - product
+/*----------------------------------------*/
+@layer components {
+  .separator {
+    @apply relative mx-[5px] after:content-["-"];
+  }
+  /* -Color variation -*/
+  .black {
+    @apply bg-black;
+  }
+  .green {
+    @apply bg-green-500;
+  }
+  .gray {
+    @apply bg-gray-500;
+  }
+  .red {
+    @apply bg-red-500;
+  }
+  .yellow {
+    @apply bg-yellow-500;
+  }
+
+  /* Tab Menu */
+  .tab-menu button {
+    @apply leading-[12px] border-r border-r-black mr-[15px] pr-[15px] last:border-r-0 last:mr-0 last:pr-0;
+  }
+  .tab-menu button.active {
+    @apply text-[#999999];
+  }
+
+  /* Product Detail Tab */
+  .product-detail-tab-menu li {
+    @apply cursor-pointer after:content-["/"] after:px-[20px] last:after:content-none;
+  }
 }
 
-/* 導航菜單 */
-.tab-menu button {
-  line-height: 12px;
-  border-right: 1px solid black;
-  margin-right: 15px;
-  padding-right: 15px;
-}
-.tab-menu button:last-child {
-  border-right: 0;
-  margin-right: 0;
-  padding-right: 0;
-}
-.tab-menu button.active {
-  color: #999999;
+/*----------------------------------------*/
+/*  - faq
+/*----------------------------------------*/
+@layer components {
+  .faq .item .content {
+    @apply hidden opacity-0 text-left transition-all;
+  }
+  .faq .item .title {
+    @apply sm:px-[30px] px-[15px] py-[15px];
+  }
+  .faq .item.active .title {
+    @apply bg-[#dcb14a] text-white;
+  }
+  .faq .item.active .title h2 {
+    @apply text-white;
+  }
+  .faq .item.active .navigation {
+    @apply rotate-180;
+  }
+  .faq .item.active .content {
+    @apply block opacity-100 transition-all;
+  }
 }
 
-/* 標籤頁 */
-.tab-style-common {
-  display: none;
-}
-.tab-style-common.active {
-  display: block;
+/*----------------------------------------*/
+/*  - pagination
+/*----------------------------------------*/
+@layer components {
+  .pagination li span.active {
+    @apply bg-[#dcb14a];
+  }
 }
 
-/* 常用顏色類 */
-.black {
-  background-color: black;
+/*----------------------------------------*/
+/*  - tabs
+/*----------------------------------------*/
+@layer components {
+  .tab-style-common {
+    @apply hidden;
+  }
+  .tab-style-common.active {
+    @apply block;
+  }
 }
-.green {
-  background-color: rgb(34, 197, 94);
+
+/*----------------------------------------*/
+/*  - swiper
+/*----------------------------------------*/
+@layer components {
+  .swiper-button-disabled {
+    @apply opacity-30;
+  }
+
+  /* Pagination Background */
+  .pagination-bg-primary .swiper-pagination {
+    @apply bottom-[20px];
+  }
+  .pagination-bg-primary .swiper-pagination-bullet {
+    @apply w-[12px] h-[12px] bottom-[30px] mr-[15px] last:mr-0;
+  }
+  .pagination-bg-primary .swiper-pagination-bullet-active {
+    @apply bg-[#dcb14a];
+  }
 }
-.gray {
-  background-color: rgb(107, 114, 128);
+
+/*----------------------------------------*/
+/*  - newarrrival
+/*----------------------------------------*/
+@layer components {
+  .newarrival-item-two .product-content {
+    @apply sm:mt-[-70px] mt-[-60px];
+  }
+  .newarrival-reverse-item {
+    @apply flex flex-col-reverse;
+  }
+  .newarrival-reverse-item .product-content {
+    @apply mb-[-70px];
+  }
 }
-.red {
-  background-color: rgb(239, 68, 68);
-}
-.yellow {
-  background-color: rgb(234, 179, 8);
-}
-.success {
-  background-color: rgb(34, 197, 94);
-}
-.error {
-  background-color: rgb(185, 28, 28);
+
+/*----------------------------------------*/
+/*  - cart Page
+/*----------------------------------------*/
+@layer components {
+  .cart-table th.product-name {
+    @apply min-w-[370px];
+  }
+  .cart-table th.product-price {
+    @apply min-w-[130px];
+  }
+  .cart-table th.price-total {
+    @apply min-w-[70px];
+  }
+  .cart-table th.product-remove {
+    @apply min-w-[70px];
+  }
 }

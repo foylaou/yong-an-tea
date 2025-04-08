@@ -11,7 +11,6 @@ interface TransparentHeaderProps {
 }
 
 export default function TransparentHeader({ headerItems }: TransparentHeaderProps): JSX.Element {
-    // 修正：使用 HTMLElement 或 HTMLHeaderElement 作為 ref 類型
     const header = useRef<HTMLElement>(null);
 
     useEffect(() => {
@@ -40,19 +39,39 @@ export default function TransparentHeader({ headerItems }: TransparentHeaderProp
             className="flex items-center px-[20px] h-[90px] w-full absolute top-0 z-40"
         >
             <div className="container mx-auto px-4">
-                <div className="grid grid-cols-12 items-center">
-                    <div className="md:col-span-4 max-lm:hidden">
+                <div className="grid grid-cols-12 items-center gap-y-2">
+                    {/* 桌機版左側搜尋 */}
+                    <div className="md:col-span-4 max-sm:hidden">
                         <SearchBarComps placeholdertext="搜尋網站內容..." />
                     </div>
-                    <div className="md:col-span-4 sm:col-span-6 col-span-4">
+
+                    {/* Logo 置中 */}
+                    <div className="md:col-span-4 sm:col-span-6 col-span-12 flex justify-center">
                         <LogoComps
                             headerItems={headerItems}
-                            headerLogoCName="flex md:justify-center"
+                            headerLogoCName="flex justify-center"
                             logoPath="/"
                         />
                     </div>
-                    <div className="md:col-span-4 sm:col-span-6 col-span-8 self-center">
+
+                    {/* 桌機版右側功能 */}
+                    <div className="md:col-span-4 max-sm:hidden flex justify-end">
                         <HeaderRight headerItems={headerItems} />
+                    </div>
+
+                    {/* 手機版及 640px-768px 功能區 */}
+                    <div className="sm:hidden col-span-12 flex justify-center">
+                        <div className="flex items-center">
+                            <SearchBarComps
+                                placeholdertext="搜尋..."
+                                mobileFullScreen={true}
+                                className="mr-4"
+                            />
+                            <HeaderRight
+                                headerItems={headerItems}
+                                isMobile={true}
+                            />
+                        </div>
                     </div>
                 </div>
             </div>

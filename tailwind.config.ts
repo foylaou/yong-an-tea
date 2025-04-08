@@ -9,14 +9,6 @@ const config = {
         "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
         "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
     ],
-    safelist: [
-        'text-heading',
-        'bg-primary',
-        'text-primary',
-        'bg-secondary',
-        'text-secondary',
-        'font-roboto',
-    ],
     theme: {
         extend: {
             colors: {

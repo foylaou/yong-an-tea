@@ -44,12 +44,12 @@ export default function Page() {
             {/*<OfferColection offerColection={offerCollection} />*/}
 
             {/* 最新部落格區 */}
-    <HomeBoxed>
+
             <LatestBlog blogs={blogs} sectionTitle="最新消息" />
 
             {/* 電子報訂閱區 */}
             <NewsletterComps sectionTitle="訂閱電子報" />
-    </HomeBoxed>
+
         </>
     );
 }

@@ -51,7 +51,6 @@ export default function FeaturedProduct({
 
     return (
         <>
-
             {featuredProduct.map((item, index) => (
                 <div
                     key={index}
@@ -70,9 +69,10 @@ export default function FeaturedProduct({
                     } before:z-[1] before:xxl:text-[150px] before:xl:text-[80px] before:text-[40px]`}
                     data-count={sections[index]}
                 >
-                    <div className="container">
-                        <div className="grid md:grid-cols-2 grid-cols-12 md:gap-x-[50px] lm:gap-x-[40px] gap-x-[30px] md:gap-y-0 gap-y-[30px] group items-center">
-                            <div className={`md:col-span-1 col-span-12 self-center ${index % 2 === 1 ? 'md:order-2' : ''}`}>
+                    {/* 在這裡我們保留 container 類，但直接修改內部 grid 容器的樣式 */}
+                    <div className="container flex justify-center">
+                        <div className="grid md:grid-cols-2 grid-cols-1 md:gap-x-[50px] lm:gap-x-[40px] gap-x-[30px] md:gap-y-0 gap-y-[30px] group items-center max-w-5xl w-full">
+                            <div className={`md:col-span-1 col-span-1 self-center ${index % 2 === 1 ? 'md:order-2' : ''}`}>
                                 <Link
                                     href={item.path}
                                     className="featured-product-img block transition-all duration-500 group-hover:scale-[1.05]"
@@ -88,7 +88,7 @@ export default function FeaturedProduct({
                                 </Link>
                             </div>
                             <div
-                                className={`md:col-span-1 col-span-12 self-center ${
+                                className={`md:col-span-1 col-span-1 self-center ${
                                     index % 2 === 1 ? 'md:order-1' : ''
                                 }`}
                             >
@@ -123,7 +123,6 @@ export default function FeaturedProduct({
                     </div>
                 </div>
             ))}
-
         </>
     );
 }

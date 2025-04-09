@@ -38,11 +38,6 @@ export default function Page() {
                 settings={settings}
             />
 
-            {/* 優惠活動區 */}
-            {/*<OfferColection offerColection={offerCollection} />*/}
-
-            {/* 最新部落格區 */}
-
             <LatestBlog blogs={blogs} sectionTitle="最新消息" />
 
             {/* 電子報訂閱區 */}

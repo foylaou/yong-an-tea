@@ -44,8 +44,6 @@ interface FeaturedProductProps {
 export default function FeaturedProduct({
                                             featuredProduct,
                                         }: FeaturedProductProps): JSX.Element {
-    const outlineButton =
-        'inline-flex items-center border border-secondary text-secondary transition-all hover:bg-secondary hover:text-white leading-[38px] text-[15px] h-[38px] px-[35px] group';
 
     const sections = ['天然', '在地', '好茶'];
 
@@ -69,9 +67,9 @@ export default function FeaturedProduct({
                     } before:z-[1] before:xxl:text-[150px] before:xl:text-[80px] before:text-[40px]`}
                     data-count={sections[index]}
                 >
-                    {/* 在這裡我們保留 container 類，但直接修改內部 grid 容器的樣式 */}
-                    <div className="container flex justify-center">
-                        <div className="grid md:grid-cols-2 grid-cols-1 md:gap-x-[50px] lm:gap-x-[40px] gap-x-[30px] md:gap-y-0 gap-y-[30px] group items-center max-w-5xl w-full">
+                    {/* 修改 container 類，確保居中顯示 */}
+                    <div className="container mx-auto px-4">
+                        <div className="grid md:grid-cols-2 grid-cols-1 md:gap-x-[50px] lm:gap-x-[40px] gap-x-[30px] md:gap-y-0 gap-y-[30px] group items-center max-w-5xl mx-auto">
                             <div className={`md:col-span-1 col-span-1 self-center ${index % 2 === 1 ? 'md:order-2' : ''}`}>
                                 <Link
                                     href={item.path}
@@ -92,7 +90,8 @@ export default function FeaturedProduct({
                                     index % 2 === 1 ? 'md:order-1' : ''
                                 }`}
                             >
-                                <div className="featured-product-content md:pl-[15px]">
+                                {/* 修改產品內容區塊，確保內容置中對齊 */}
+                                <div className="featured-product-content md:px-[15px] flex flex-col">
                                 <span
                                     className="text-[14px] leading-5 font-medium uppercase block mb-[5px] text-[#999999]">
                                     {item.subTitle}
@@ -111,7 +110,7 @@ export default function FeaturedProduct({
                                         }}
                                     />
                                     <div className="mt-[60px]">
-                                        <Link href={item.path} className={outlineButton}>
+                                        <Link href={item.path} className='inline-flex items-center border border-secondary text-secondary transition-all hover:bg-secondary hover:text-white leading-[38px] text-[15px] h-[38px] px-[35px] group'>
                                             {item.buttonText}
                                             <IoArrowForwardOutline
                                                 className="ml-[5px] text-secondary group-hover:text-white transition-colors"/>

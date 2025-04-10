@@ -1,8 +1,20 @@
 "use client";
 import Link from 'next/link';
-import { BlogItemProps } from './blog-types';
+import {Blog} from './blog-types';
 import Image from "next/image";
 // 如果需要擴展 Blog 類型以包含 largeImage 和 desc 屬性，請在 blog-types.ts 文件中進行更新：
+
+
+
+/**
+ * BlogItem 元件的屬性
+ *
+ * @interface BlogItemProps
+ * @member {Blog} blog 要顯示的部落格資料
+ */
+export interface BlogItemProps {
+    blog: Blog;
+}
 
 
 export default function BlogListItem({ blog }: BlogItemProps) {

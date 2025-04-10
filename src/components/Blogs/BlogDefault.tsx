@@ -1,7 +1,19 @@
 "use client"
 import { useState } from 'react';
 import BlogItem from './BlogItem';
-import { BlogDefaultProps } from './blog-types';
+import {Blog} from "@/components/Blogs/blog-types";
+
+
+
+/**
+ * BlogDefault 元件的屬性
+ *
+ * @interface BlogDefaultProps
+ * @member {Blog[]} blogs 部落格資料陣列
+ */
+export interface BlogDefaultProps {
+    blogs: Blog[];
+}
 
 export default function BlogDefault({ blogs }: BlogDefaultProps) {
     const [noOfElement, setNoOfElement] = useState<number>(6);

@@ -2,10 +2,12 @@ import "./globals.css";
 import "@/styles/components.css"
 import FooterCompsThree from "@/components/FooterComps/FooterCompsThree";
 import type { Metadata } from "next";
-import {JSX, ReactNode} from "react";
+import React, {JSX, ReactNode} from "react";
 import {Noto_Sans_TC, Roboto} from 'next/font/google'
 import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/next"
+import TransparentHeader from "@/components/HeaderComps/TransparentHeader";
+import {HeaderMenuService} from "@/Services/SettingServices/HeaderMenuService";
 /**
  * 預設網站 SEO 資訊
  */
@@ -98,7 +100,7 @@ export default function RootLayout({
       copyrightLink: "/",
     },
   ];
-
+    const data = HeaderMenuService.getHeaderMenuSetting();
   return (
       <html lang="zh-tw" className={`${notoSansTC.variable} ${roboto.variable}`}>
       <head>
@@ -112,6 +114,8 @@ export default function RootLayout({
         <title>永安茶園</title>
       </head>
       <body className="font-sans">
+
+      <TransparentHeader headerItems={data}/>
       <main>{children}</main>
       <Analytics/>
       <SpeedInsights/>

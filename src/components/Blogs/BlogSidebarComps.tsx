@@ -4,7 +4,7 @@ import BlogSearchBar from './BlogSearchBar';
 import { Blog } from './blog-types';
 import Image from "next/image";
 
-interface BlogSidebarCompsProps {
+export interface BlogSidebarCompsProps {
     blogs: Blog[];
     categories: string[];
     tags: string[];
@@ -52,7 +52,7 @@ export default function BlogSidebarComps({
             </div>
             <div className="blog-sidebar-widget">
                 <h2 className="widget-title text-[18px] mt-[40px]">
-                    Categories
+                    分類
                 </h2>
                 <ul className="pt-[15px]">
                     {categories &&
@@ -78,7 +78,7 @@ export default function BlogSidebarComps({
                 />
             </div>
             <div className="blog-sidebar-widget">
-                <h2 className="widget-title text-[18px] mt-[40px]">Tags</h2>
+                <h2 className="widget-title text-[18px] mt-[40px]">標籤</h2>
                 <ul className="flex flex-wrap pt-[15px]">
                     {tags &&
                         tags?.map((tag) => (

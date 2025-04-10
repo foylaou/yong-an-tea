@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import {
     IoLocationSharp,
@@ -29,6 +29,7 @@ interface FooterItemSection {
     aboutTitle?: string;
     aboutList?: FooterItem[];
     newsletterTitle?: string;
+    newsletterDescription?: string; // 新增電子報描述欄位
     menuList?: FooterItem[];
     copyrightLink?: string;
     socialTitle?: string;
@@ -44,6 +45,9 @@ interface FooterCompsThreeProps {
 export default function FooterCompsThree({ footerItems }: FooterCompsThreeProps) {
     // 使用 useRef 並指定類型為 React.RefObject<HTMLElement>
     const footer = useRef<HTMLElement>(null);
+    // 新增電子報訂閱狀態
+    const [email, setEmail] = useState("");
+    const [isSubscribed, setIsSubscribed] = useState(false);
 
     useEffect(() => {
         const isSticky = () => {
@@ -56,7 +60,6 @@ export default function FooterCompsThree({ footerItems }: FooterCompsThreeProps)
             } else {
                 footer.current.classList.remove('is-sticky');
             }
-
         };
 
         window.addEventListener('scroll', isSticky);
@@ -65,6 +68,21 @@ export default function FooterCompsThree({ footerItems }: FooterCompsThreeProps)
             window.removeEventListener('scroll', isSticky);
         };
     }, []);
+
+    // 處理電子報訂閱
+    const handleNewsletterSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (email) {
+            setIsSubscribed(true);
+            // 這裡可以添加實際的訂閱處理邏輯
+            setEmail("");
+
+            // 可選：設置一個計時器，幾秒後重置訂閱狀態
+            setTimeout(() => {
+                setIsSubscribed(false);
+            }, 5000);
+        }
+    };
 
     return (
         <footer
@@ -154,24 +172,38 @@ export default function FooterCompsThree({ footerItems }: FooterCompsThreeProps)
                         <div className="lg:col-span-4 sm:col-span-6 col-span-12">
                             <div className="footer-widget lm:max-w-[410px] mx-auto">
                                 <h2 className="text-[18px] mb-[15px]">
-                                    {footerItems[0]?.newsletterTitle}
+                                    {footerItems[0]?.newsletterTitle || "訂閱電子報"}
                                 </h2>
-                                <form>
-                                    <div className="input-field relative ">
-                                        <input
-                                            type="email"
-                                            name="email"
-                                            placeholder="Your email address"
-                                            className="bg-transparent border-0 border-b border-[rgba(0,0,0,.25)] outline-none w-full p-[10px_35px_10px_0] focus-visible:border-primary focus-visible:text-primary"
-                                        />
-                                        <button
-                                            type="submit"
-                                            className="absolute top-1/2 -translate-y-1/2 right-0 text-[20px] text-[#99999] opacity-70"
-                                        >
-                                            <IoArrowForwardOutline />
-                                        </button>
-                                    </div>
-                                </form>
+
+                                {isSubscribed ? (
+                                    <div className="text-primary mb-3">感謝您的訂閱！精彩內容即將送達您的信箱。</div>
+                                ) : (
+                                    <>
+                                        <form onSubmit={handleNewsletterSubmit}>
+                                            <div className="input-field relative">
+                                                <input
+                                                    type="email"
+                                                    name="email"
+                                                    placeholder="請輸入信箱..."
+                                                    value={email}
+                                                    onChange={(e) => setEmail(e.target.value)}
+                                                    className="bg-transparent border-0 border-b border-[rgba(0,0,0,.25)] outline-none w-full p-[10px_35px_10px_0] focus-visible:border-primary focus-visible:text-primary"
+                                                />
+                                                <button
+                                                    type="submit"
+                                                    className="absolute top-1/2 -translate-y-1/2 right-0 text-[20px] text-[#999999] opacity-70 hover:text-primary hover:opacity-100 transition-all"
+                                                    aria-label="訂閱電子報"
+                                                >
+                                                    <IoArrowForwardOutline />
+                                                </button>
+                                            </div>
+                                        </form>
+                                        <p className="text-gray-600 text-sm mt-2">
+                                            {footerItems[0]?.newsletterDescription || "搶先獲取獨家優惠，讓好康資訊不再錯過！"}
+                                        </p>
+                                    </>
+                                )}
+
                                 <ul className="flex pt-[50px]">
                                     {footerItems[0]?.menuList?.map((item) => (
                                         <li

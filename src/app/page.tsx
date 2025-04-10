@@ -5,8 +5,6 @@ import LatestBlog from "@/components/HomePage/LatestBlog";
 import { HomePage } from "@/Services/SettingServices/Homepage";
 import HeroOne from "@/components/Hero/HeroOne";
 import NewsletterComps from "@/components/NewsletterComps/NewsletterComps";
-import TransparentHeader from "@/components/HeaderComps/TransparentHeader";
-import {HeaderMenuService} from "@/Services/SettingServices/HeaderMenuService";
 
 
 
@@ -18,12 +16,10 @@ export default function Page() {
     // const offerCollection = HomePage.getOfferCollection();
     const blogs = HomePage.getLatestBlogs();
     const heroItems = HomePage.getHeroItems();
-    const data = HeaderMenuService.getHeaderMenuSetting();
+
     return (
         <>
-            <header className="header-contact">
-            <TransparentHeader headerItems={data} />
-            </header>
+
             <HeroOne heroDefaultItems={heroItems} />
             {/* 特色產品區 */}
 
@@ -40,8 +36,12 @@ export default function Page() {
 
             <LatestBlog blogs={blogs} sectionTitle="最新消息" />
 
+
             {/* 電子報訂閱區 */}
-            <NewsletterComps sectionTitle="訂閱電子報" />
+            <NewsletterComps
+              sectionTitle="訂閱電子報"
+              description="搶先獲取獨家優惠，讓好康資訊不再錯過！"
+            />
 
         </>
     );

@@ -38,7 +38,7 @@ export default function HeaderRight({
 
     return (
         <>
-            <div className="flex justify-end items-center">
+            <div className="flex justify-end items-center ">
                 <div className="user-item md:mr-[35px] sm:mr-[25px] mr-[15px] flex items-center">
                     <Link href="/auth" className="text-2xl hover:text-primary transition-all">
                         <IoPersonOutline/>

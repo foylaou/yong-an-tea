@@ -36,10 +36,10 @@ export default function TransparentHeader({ headerItems }: TransparentHeaderProp
     return (
         <header
             ref={header}
-            className="flex items-center px-[20px] h-[90px] w-full absolute top-0 z-40"
+            className="flex items-center px-[20px] h-[100px] w-full absolute top-0 z-40 bg-white"
         >
             <div className="container mx-auto px-4">
-                <div className="grid grid-cols-12 items-center gap-y-2">
+                <div className="grid grid-cols-12 items-center gap-y-1">
                     {/* 桌機版左側搜尋 */}
                     <div className="md:col-span-4 max-sm:hidden">
                         <SearchBarComps placeholdertext="搜尋網站內容..." />
@@ -55,12 +55,13 @@ export default function TransparentHeader({ headerItems }: TransparentHeaderProp
                     </div>
 
                     {/* 桌機版右側功能 */}
-                    <div className="md:col-span-4 max-sm:hidden flex justify-end">
+                    <div className="md:col-span-4 max-sm:hidden flex justify-end
+                    ">
                         <HeaderRight headerItems={headerItems} />
                     </div>
 
                     {/* 手機版及 640px-768px 功能區 */}
-                    <div className="sm:hidden col-span-12 flex justify-center">
+                    <div className="sm:hidden col-span-12 flex justify-center bg-white">
                         <div className="flex items-center">
                             <SearchBarComps
                                 placeholdertext="搜尋..."

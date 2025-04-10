@@ -1,14 +1,40 @@
 "use client";
 import Link from 'next/link';
 import { FaQuoteRight } from 'react-icons/fa';
-import {BlogDetailProps} from "@/components/Blogs/blog-types";
 import PageNavigation from "@/components/Blogs/BlogDetails/PageNavigation";
 import DisqusForm from "@/components/DisqusForm/DisqusForm";
 
 import Image from "next/image";
+import {Blog} from "@/components/Blogs/blog-types";
+import {JSX} from "react";
 
+/**
+ * BlogDetail 頁面用的屬性
+ * 包含當前、前一篇、下一篇的部落格資料。
+ *
+ * @interface BlogDetailProps
+ * @member {Blog} blog 當前部落格文章
+ * @member {Blog} prevBlog 上一篇文章
+ * @member {Blog} nextBlog 下一篇文章
+ */
+export interface BlogDetailProps {
+    blog: Blog;
+    prevBlog: Blog;
+    nextBlog: Blog;
+}
 
-export default function BlogDetail({ blog, prevBlog, nextBlog }: BlogDetailProps) {
+/**
+ * BlogDetail 元件
+ * 用於顯示單篇部落格的詳細內容頁，包括標題、作者、內容、引用、圖片與前後文章導覽。
+ *
+ * @component
+ * @param {BlogDetailProps} props 傳入部落格詳細資料，以及前一篇與下一篇文章
+ * @returns {JSX.Element} 部落格詳細內容頁面
+ */
+export default function BlogDetail({ blog, prevBlog, nextBlog }: BlogDetailProps): JSX.Element {
+    /**
+     * 將文章日期格式化為「YYYY年M月D日」格式
+     */
     const formattedDate = new Date(blog?.date).toLocaleDateString('zh-tw', {
         day: 'numeric',
         month: 'long',

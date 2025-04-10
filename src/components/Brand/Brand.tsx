@@ -5,10 +5,13 @@ import dynamic from 'next/dynamic';
 import Image from "next/image";
 import {SwiperSettings} from "@/components/SwiperComps/SwiperTypes";
 import {Slide} from "@/components/SwiperComps/SwiperComps";
-import {BrandProps} from "@/components/Brand/BrandType";
+import {BrandItem} from "@/components/Brand/BrandType";
 
 
-
+export interface BrandProps {
+    brandItems: BrandItem[];
+    settings?: SwiperSettings;
+}
 export default function Brand({ brandItems, settings: propSettings }: BrandProps) {
     const SwiperComps = dynamic(() => import('@/components/SwiperComps/SwiperComps'), {
         ssr: false,

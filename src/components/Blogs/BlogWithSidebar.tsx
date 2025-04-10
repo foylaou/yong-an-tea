@@ -4,7 +4,7 @@ import BlogSidebarComps from './BlogSidebarComps';
 import BlogSidebarItem from './BlogSidebarItem';
 import { Blog } from './blog-types';
 
-interface BlogWithSidebarProps {
+export interface BlogWithSidebarProps {
     blogs: Blog[];
     categories: string[];
     tags: string[];
@@ -120,7 +120,7 @@ export default function BlogWithSidebar({ blogs: mainBlog, categories, tags }: B
                             onClick={handlePrevbtn}
                             disabled={currentPage === pages[0]}
                         >
-                            Prev Page
+                            上一頁
                         </button>
                     </li>
                     {pageDecrementBtn}
@@ -137,7 +137,7 @@ export default function BlogWithSidebar({ blogs: mainBlog, categories, tags }: B
                             onClick={handleNextbtn}
                             disabled={currentPage === pages[pages.length - 1]}
                         >
-                            Next Page
+                            下一頁
                         </button>
                     </li>
                 </ul>

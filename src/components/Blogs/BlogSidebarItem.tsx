@@ -1,7 +1,19 @@
 "use client";
 import Link from 'next/link';
-import { BlogItemProps } from './blog-types';
+
 import Image from "next/image";
+import {Blog} from "@/components/Blogs/blog-types";
+
+
+/**
+ * BlogItem 元件的屬性
+ *
+ * @interface BlogItemProps
+ * @member {Blog} blog 要顯示的部落格資料
+ */
+export interface BlogItemProps {
+    blog: Blog;
+}
 
 export default function BlogSidebarItem({ blog }: BlogItemProps) {
     const formattedDate = new Date(blog?.date).toLocaleDateString('en-US', {
@@ -57,7 +69,7 @@ export default function BlogSidebarItem({ blog }: BlogItemProps) {
                         href={`/blogs/${blog?.slug}`}
                         className="border border-heading text-[15px] px-[32px] h-[40px] leading-[38px] transition-all hover:bg-heading hover:text-white"
                     >
-                        Read more
+                        瞭解更多
                     </Link>
                 </div>
             </div>

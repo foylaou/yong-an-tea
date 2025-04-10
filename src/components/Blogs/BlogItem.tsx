@@ -1,15 +1,40 @@
 "use client";
 import Link from 'next/link';
 import { IoAddSharp } from 'react-icons/io5';
-import { BlogItemProps } from './blog-types';
-import Image from "next/image";
 
-export default function BlogItem({ blog }: BlogItemProps) {
+import Image from "next/image";
+import {Blog} from "@/components/Blogs/blog-types";
+import {JSX} from "react";
+
+
+/**
+ * BlogItem 元件的屬性
+ *
+ * @interface BlogItemProps
+ * @member {Blog} blog 要顯示的部落格資料
+ */
+export interface BlogItemProps {
+    blog: Blog;
+}
+
+/**
+ * BlogItem 元件
+ * 顯示單篇部落格文章的摘要卡片，包括圖片、標題、作者、日期與分類。
+ *
+ * @component
+ * @param {BlogItemProps} props 傳入單一部落格文章的資料
+ * @returns {JSX.Element} 部落格摘要卡片
+ */
+export default function BlogItem({ blog }: BlogItemProps): JSX.Element {
+    /**
+     * 格式化文章日期為「YYYY年M月D日」格式
+     */
     const formattedDate = new Date(blog?.date).toLocaleDateString('zh-tw', {
         day: 'numeric',
         month: 'long',
         year: 'numeric',
     });
+
     return (
         <div className="blog-item overflow-hidden group">
             <div className="blog-img relative">

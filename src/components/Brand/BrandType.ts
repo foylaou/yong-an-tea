@@ -1,4 +1,4 @@
-import {SwiperSettings} from "@/components/SwiperComps/SwiperTypes";
+
 
 export interface BrandItem {
     id: string | number;
@@ -8,7 +8,3 @@ export interface BrandItem {
 
 
 
-export interface BrandProps {
-    brandItems: BrandItem[];
-    settings?: SwiperSettings;
-}

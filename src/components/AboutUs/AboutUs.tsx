@@ -4,6 +4,16 @@ import Image from "next/image";
 import ProgressBar from "@/components/ProgressBar/ProgressBar";
 import VideoModal from "@/components/VideoModal/VideoModal";
 
+/**
+ * 支援資訊項目
+ * 表示單一支援資訊的內容。
+ *
+ * @interface SingleSupportInfo
+ * @member {string | number} id 唯一識別碼，可為字串或數字
+ * @member {string} infoIcon 圖示路徑或 URL
+ * @member {string} title 支援標題
+ * @member {string} desc 支援描述文字
+ */
 interface SingleSupportInfo {
     id: string | number;
     infoIcon: string;
@@ -11,6 +21,27 @@ interface SingleSupportInfo {
     desc: string;
 }
 
+/**
+ * 關於我們項目
+ * 描述「關於我們」區塊中的內容與媒體資料。
+ *
+ * @interface AboutItem
+ * @member {string} videoBanner 影片橫幅路徑或 URL
+ * @member {string} videoBannerAlt 影片橫幅替代文字
+ * @member {SingleSupportInfo[]} singleSupportInfo 支援資訊陣列
+ * @member {string} perfectionTitle 完善標題文字
+ * @member {string} perfectionDesc 完善描述文字
+ * @member {string} aboutBannerOne 第一張橫幅圖
+ * @member {string} aboutBannerTwo 第二張橫幅圖
+ * @member {string} aboutBannerThree 第三張橫幅圖
+ * @member {string} aboutBannerFour 第四張橫幅圖
+ * @member {string} aboutBannerFive 第五張橫幅圖
+ * @member {string} aboutBannerAlt 橫幅替代文字
+ * @member {string} addressTitleOne 地址區塊第一標題
+ * @member {string} addressDescOne 地址區塊第一描述
+ * @member {string} addressTitleTwo 地址區塊第二標題
+ * @member {string} addressDescTwo 地址區塊第二描述
+ */
 interface AboutItem {
     videoBanner: string;
     videoBannerAlt: string;
@@ -29,9 +60,17 @@ interface AboutItem {
     addressDescTwo: string;
 }
 
-interface AboutUsProps {
+/**
+ * 關於我們元件的屬性
+ * 用於傳遞關於我們頁面的相關項目。
+ *
+ * @interface AboutUsProps
+ * @member {AboutItem[]} aboutItems 關於我們項目的陣列
+ */
+export interface AboutUsProps {
     aboutItems: AboutItem[];
 }
+
 
 export default function AboutUs({ aboutItems }: AboutUsProps) {
     return (

@@ -1,8 +1,18 @@
 "use client";
 import Link from 'next/link';
-import { BlogItemProps } from './blog-types';
-import Image from "next/image";
 
+import Image from "next/image";
+import {Blog} from "@/components/Blogs/blog-types";
+
+/**
+ * BlogItem 元件的屬性
+ *
+ * @interface BlogItemProps
+ * @member {Blog} blog 要顯示的部落格資料
+ */
+export interface BlogItemProps {
+    blog: Blog;
+}
 export default function BlogMasonryItem({ blog }: BlogItemProps) {
     const formattedDate = new Date(blog?.date).toLocaleDateString('en-US', {
         day: 'numeric',
@@ -30,7 +40,7 @@ export default function BlogMasonryItem({ blog }: BlogItemProps) {
                             {formattedDate}
                         </span>
                         <Link
-                            href="https://www.example.com/"
+                            href={blog.authorInfo}
                             className='author font-normal hover:text-primary transition-all after:text-[#999999] after:px-[8px] after:content-["/"]'
                         >
                             {blog.author}

@@ -33,13 +33,14 @@ export const HeaderMenuService = {
                 ],
                 navigationList: [
                     { id: 1, text: '首頁', path: '/' },
-                    { id: 2, text: '商品一覽', path: '/products' },
+                    { id: 2, text: '部落格', path: '/blogs' },
+                    { id: 3, text: '隱私政策', path: '/privacy' },
                 ],
                 headerNumberInfo: [
                     {
                         id: 1,
-                        numberUrl: 'tel:+886423456789',
-                        numberInText: '(04) 2345-6789',
+                        numberUrl: 'tel:+88689550818',
+                        numberInText: '(089) 550-818',
                     },
                 ],
                 homeBoxedMenu: [

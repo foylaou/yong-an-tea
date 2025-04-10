@@ -1,10 +1,29 @@
 "use client"
 import React, { useState } from 'react';
 import { IoChevronForwardSharp } from 'react-icons/io5';
-import { BlogListProps} from './blog-types';
+import {Blog} from './blog-types';
 import BlogListItem from "@/components/Blogs/BlogListItem";
 
 
+
+/**
+ * BlogList 元件的屬性
+ *
+ * @interface BlogListProps
+ * @member {Blog[]} blogs 部落格清單資料
+ */
+export interface BlogListProps {
+    blogs: Blog[];
+}
+
+/**
+ * BlogList 元件
+ * 顯示部落格清單，並支援分頁功能。
+ *
+ * @component
+ * @param {BlogListProps} props 傳入部落格文章陣列的屬性
+ * @returns {JSX.Element} 部落格清單與分頁控制
+ */
 export default function BlogList({ blogs }: BlogListProps) {
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [itemPerPage] = useState<number>(5);

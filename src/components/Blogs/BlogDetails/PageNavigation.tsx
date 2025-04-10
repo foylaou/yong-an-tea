@@ -1,11 +1,31 @@
 "use client";
 import Link from 'next/link';
 import { IoChevronBackSharp, IoChevronForwardSharp } from 'react-icons/io5';
-import {PageNavigationProps} from "@/components/Blogs/blog-types";
+import {Blog} from "@/components/Blogs/blog-types";
 
 
 
 
+/**
+ * 分頁導航元件的屬性
+ *
+ * @interface PageNavigationProps
+ * @member {Blog} prevBlog 上一篇部落格
+ * @member {Blog} nextBlog 下一篇部落格
+ */
+export interface PageNavigationProps {
+    prevBlog: Blog;
+    nextBlog: Blog;
+}
+
+/**
+ * PageNavigation 元件
+ * 顯示部落格文章底部的「上一頁 / 下一頁」導覽功能。
+ *
+ * @component
+ * @param {PageNavigationProps} props 傳入前一篇與下一篇文章的資料
+ * @returns {JSX.Element} 分頁導覽區塊
+ */
 export default function PageNavigation({ prevBlog, nextBlog }: PageNavigationProps) {
     return (
         <div className="page-navigation pt-[60px]">

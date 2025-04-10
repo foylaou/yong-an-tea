@@ -2,7 +2,7 @@
 import { IoSearchOutline } from 'react-icons/io5';
 import React from "react";
 
-interface BlogSearchBarProps {
+export interface BlogSearchBarProps {
     value: string;
     changeInput: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
@@ -12,7 +12,7 @@ export default function BlogSearchBar({ value, changeInput }: BlogSearchBarProps
         <form>
             <div className="input-field relative w-full">
                 <input
-                    placeholder="Search ..."
+                    placeholder="搜尋 ..."
                     type="text"
                     value={value}
                     onChange={changeInput}

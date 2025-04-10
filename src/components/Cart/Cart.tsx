@@ -1,4 +1,4 @@
-"use client";
+
 import { IoCloseOutline } from 'react-icons/io5';
 import Link from 'next/link';
 import useRootStore from '@/store/useRootStore'; // Update this import path

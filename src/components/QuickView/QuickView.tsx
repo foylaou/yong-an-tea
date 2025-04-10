@@ -1,4 +1,4 @@
-"use client";
+
 import {JSX, ReactNode} from 'react';
 import ReactDom from 'react-dom';
 import { IoCloseOutline } from 'react-icons/io5';

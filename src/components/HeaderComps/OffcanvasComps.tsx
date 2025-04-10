@@ -1,4 +1,4 @@
-"use client";
+
 import React, {JSX} from 'react';
 import Link from 'next/link';
 import * as FaIcons from 'react-icons/fa';
@@ -50,7 +50,7 @@ export default function OffcanvasComps({
                                     key={items.id}
                                 >
                                     <Link
-                                        href={`${items.path}`}
+                                        href={items.path}
                                         className="text-[#999999] font-normal transition-all hover:text-primary block"
                                     >
                                         {items.text}

@@ -1,4 +1,4 @@
-"use client";
+
 import Link from 'next/link';
 import BlogSearchBar from './BlogSearchBar';
 import { Blog } from './blog-types';
@@ -19,6 +19,7 @@ export default function BlogSidebarComps({
                                              searchInput,
                                              setSearchInput,
                                          }: BlogSidebarCompsProps) {
+
     return (
         <div className="blog-sidebar">
             <div className="blog-sidebar-widget">

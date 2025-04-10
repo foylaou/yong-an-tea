@@ -1,4 +1,4 @@
-"use client";
+
 import { IoChevronDownSharp } from 'react-icons/io5';
 
 import {Dispatch, JSX, SetStateAction} from "react";

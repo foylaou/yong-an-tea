@@ -25,7 +25,7 @@ export const HeaderMenuService = {
                     { id: 2, path: '#', text: 'USD', title: '美金' },
                 ],
                 contactInfoTitle: '聯絡我們',
-                contactInfo: '台中市西區公益路100號',
+                contactInfo: '台東縣鹿野鄉高台路39號',
                 socialTitle: '社群',
                 socialList: [
                     { id: 1, socialIcon: 'IoLogoFacebook', path: 'https://facebook.com' },

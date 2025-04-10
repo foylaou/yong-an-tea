@@ -63,7 +63,7 @@ export default function RootLayout({
   const footerItems = [
     {
       addressTitle: "永安茶園",
-      address: "台灣台東縣鹿野鄉高台路39號",
+      address: "台東縣鹿野鄉高台路39號",
       contactNumber: "tel:+886-089550818",
       contactNumberText: "(089) 550-818",
       footerLogoPath: "/",

@@ -27,7 +27,9 @@ const roboto = Roboto({
 export const metadata: Metadata = {
   title: "永安茶園",
   description: "位於台東鹿野的永安茶園，提供優質紅烏龍、茶葉禮盒、茶文化體驗。",
-  keywords: ["永安茶園", "台東紅烏龍", "台灣茶", "茶葉禮盒"],
+  keywords: ["永安茶園", "台東紅烏龍", "台灣茶", "茶葉禮盒", "鹿野茶", "台東茶園",
+            "有機茶葉", "茶文化體驗", "台灣高山茶", "台東特產", "茶葉禮品",
+            "茶葉批發", "紅烏龍茶", "台灣特色茶", "鹿野高台", "茶農直銷"],
   metadataBase: new URL("https://yong-an-tea.vercel.app"),
   openGraph: {
     title: "永安茶園",

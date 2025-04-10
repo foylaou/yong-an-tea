@@ -10,7 +10,8 @@
     "lint": "next lint",
     "drizzle:generate": "drizzle-kit generate",
     "drizzle:migrate": "drizzle-kit push",
-    "reset-db": "bun run src/db/reset-db.ts && drizzle-kit push"
+    "reset-db": "bun run src/db/reset-db.ts && drizzle-kit push",
+    "postbuild": "next-sitemap"
   },
   "dependencies": {
     "@prisma/client": "^6.5.0",

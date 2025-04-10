@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://yong-an-tea.vercel.app
+
+# Sitemaps
+Sitemap: https://yong-an-tea.vercel.app/sitemap.xml

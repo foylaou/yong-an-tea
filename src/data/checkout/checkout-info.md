@@ -1,0 +1,16 @@
+---
+customerzoneTitle: '已有帳號？'
+customerzoneBtnText: '點此登入'
+customerzoneDesc: '如果您之前曾在此購物，請在下方輸入您的資料。如果您是新客戶，請直接前往帳單與寄送區段。'
+couponZoneTitle: '有優惠券嗎？'
+couponZoneBtnText: '點此輸入優惠碼'
+returningFormDesc: '如果您有優惠券代碼，請在下方套用。'
+returningBtnText: '套用優惠券'
+checkTitle: '支票付款'
+checkDesc: '請將支票寄至 Helendo 門市，台北市信義區信義路五段7號。'
+paymentTitle: '什麼是 PayPal？'
+paymentDesc: '透過 PayPal 付款；如果沒有 PayPal 帳號，也可以使用信用卡付款。'
+additionDesc: '您的個人資料將用於處理您的訂單、支援您在本網站的體驗，以及我們'
+privacyText: '隱私權政策中描述的其他用途。'
+orderBtnText: '送出訂單'
+---

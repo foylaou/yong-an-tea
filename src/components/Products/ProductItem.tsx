@@ -13,6 +13,7 @@ import { useCartStore } from '../../store/cart/cart-slice';
 import { useFilterStore } from '../../store/product-filter/filter-slice';
 import { useWishlistStore } from '../../store/wishlist/wishlist-slice';
 import { formatPrice } from '../../store/settings/settings-slice';
+import { availabilityLabel } from '../../lib/build-filters';
 import { MarkdownItem } from '../../types';
 
 // Tailwind Related Stuff
@@ -268,7 +269,7 @@ function ProductItem({ product, productFilter, productFilterPath }: ProductItemP
                             <h3 className="stock font-semibold text-[14px] mb-[20px]">
                                 庫存狀態：
                                 <span className="text-[#3bc604] ml-[5px]">
-                                    {(product as any)?.availability}
+                                    {availabilityLabel[(product as any)?.availability] || (product as any)?.availability}
                                 </span>
                             </h3>
                             <p>{desc}</p>

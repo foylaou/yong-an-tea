@@ -11,7 +11,7 @@ const tagLabel: Record<string, string> = {
     table: '桌子',
 };
 
-const availabilityLabel: Record<string, string> = {
+export const availabilityLabel: Record<string, string> = {
     'in-stock': '有庫存',
     'out-of-stock': '缺貨',
 };

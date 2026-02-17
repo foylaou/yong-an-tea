@@ -1,5 +1,7 @@
+import { useMemo } from 'react';
 import Link from 'next/link';
 import type { MarkdownItem } from '../../types';
+import { useSettingsStore } from '../../store/settings/settings-slice';
 
 interface HeaderMenuProps {
     headerItems: MarkdownItem[];
@@ -7,11 +9,20 @@ interface HeaderMenuProps {
 }
 
 function HeaderMenu({ headerItems, differentPositionCName }: HeaderMenuProps) {
+    const blogEnabled = useSettingsStore((s) => s.blog_enabled);
+    const menuItems = useMemo(() => {
+        const items = headerItems[0]?.homeBoxedMenu ?? [];
+        if (blogEnabled === 'false') {
+            return items.filter((item: any) => !item.path?.includes('/blogs'));
+        }
+        return items;
+    }, [headerItems, blogEnabled]);
+
     return (
         <div className={`${differentPositionCName} header-menu`}>
             <nav>
                 <ul className="flex justify-center">
-                    {headerItems[0]?.homeBoxedMenu?.map((menuOne) => (
+                    {menuItems.map((menuOne: any) => (
                         <li
                             className={`${menuOne.holderCName} py-[50px] mr-[55px] last:mr-0`}
                             key={menuOne.id}

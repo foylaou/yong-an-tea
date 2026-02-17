@@ -59,6 +59,7 @@ export interface DynamicHomeContentProps {
 
 function DynamicHomeContent(props: DynamicHomeContentProps) {
     const homepageVariant = useSettingsStore((s) => s.homepage_variant);
+    const blogEnabled = useSettingsStore((s) => s.blog_enabled);
     const t = useSettingsStore(useShallow((s) => ({
         bestselling: s.section_title_bestselling,
         latestBlog: s.section_title_latest_blog,
@@ -147,12 +148,14 @@ function DynamicHomeContent(props: DynamicHomeContentProps) {
                         productFilter={props.productFilter}
                         productFilterPath="left-sidebar"
                     />
-                    <LatestBlogTwo
-                        blogs={props.blogs}
-                        sectionTitle={t.exploreBlog}
-                        btnPath="/blogs/sidebar"
-                        btnText={t.viewAll}
-                    />
+                    {blogEnabled !== 'false' && (
+                        <LatestBlogTwo
+                            blogs={props.blogs}
+                            sectionTitle={t.exploreBlog}
+                            btnPath="/blogs/sidebar"
+                            btnText={t.viewAll}
+                        />
+                    )}
                     <NewsletterCompsTwo
                         newsletterCName="newsletter-area border-b border-[#ededed] xl:pb-[120px] lg:pb-[100px] md:pb-[80px] pb-[50px]"
                         sectionTitle={t.newsletter}
@@ -199,7 +202,9 @@ function DynamicHomeContent(props: DynamicHomeContentProps) {
                         productFilterPath="left-sidebar"
                     />
                     <OfferColection />
-                    <LatestBlog blogs={props.blogs} sectionTitle={t.latestBlog} />
+                    {blogEnabled !== 'false' && (
+                        <LatestBlog blogs={props.blogs} sectionTitle={t.latestBlog} />
+                    )}
                     <NewsletterComps sectionTitle={t.newsletter} />
                     <FooterComps
                         footerContainer="container"

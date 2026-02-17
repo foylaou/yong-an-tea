@@ -4,7 +4,6 @@ import { useSettingsStore } from '../../store/settings/settings-slice';
 import { MarkdownItem } from '../../types';
 
 const textHover = `transition-all hover:text-primary`;
-const swatchColor = `w-[18px] h-[18px] rounded-full inline-block cursor-pointer opacity-80`;
 
 interface ProductSidebarCompsProps {
     productFilter: MarkdownItem[];
@@ -128,41 +127,6 @@ function ProductSidebarComps({ productFilter }: ProductSidebarCompsProps) {
                     ))}
                 </ul>
             </div>
-            <div className="product-sidebar-widget border-b border-[#dddddd] pb-[30px] mb-[25px]">
-                <h2 className="widget-title text-[18px]">尺寸</h2>
-                <ul className="flex flex-col pt-[20px]">
-                    {(productFilter[0] as any)?.productSizeList?.map((item: any) => (
-                        <li className="mb-[10px]" key={item.id}>
-                            <label
-                                htmlFor={item.filterLabel}
-                                className={`${textHover}`}
-                            >
-                                <input
-                                    className="mr-[10px]"
-                                    type="checkbox"
-                                    id={item.filterLabel}
-                                    checked={
-                                        !!filter.filterData.find(
-                                            (data: any) => data.key === item.checked
-                                        )
-                                    }
-                                    onChange={(data) =>
-                                        filterChangeHandler(
-                                            data.target.checked,
-                                            {
-                                                title: item.name,
-                                                key: item.key,
-                                                group: item.group,
-                                            }
-                                        )
-                                    }
-                                />
-                                {item.title}
-                            </label>
-                        </li>
-                    ))}
-                </ul>
-            </div>
             <div className="product-sidebar-widge border-b border-[#dddddd] pb-[30px] mb-[25px]">
                 <h2 className="widget-title text-[18px]">價格</h2>
                 <form
@@ -218,28 +182,6 @@ function ProductSidebarComps({ productFilter }: ProductSidebarCompsProps) {
                         </button>
                     </div>
                 </form>
-            </div>
-            <div className="product-sidebar-widget border-b border-[#dddddd] pb-[30px] mb-[25px]">
-                <h2 className="widget-title text-[18px]">顏色</h2>
-                <ul className="flex flex-wrap pt-[20px]">
-                    {(productFilter[0] as any)?.colorList?.map((singleColorList: any) => (
-                        <li
-                            className="mr-[20px] mb-[6px]"
-                            key={singleColorList.id}
-                            onClick={() =>
-                                filterChangeHandler(true, {
-                                    title: singleColorList.colorLabel || singleColorList.colorOption,
-                                    key: singleColorList.colorOption,
-                                    group: 'color',
-                                })
-                            }
-                        >
-                            <span
-                                className={`${swatchColor} ${singleColorList.colorOption}`}
-                            />
-                        </li>
-                    ))}
-                </ul>
             </div>
             <div className="product-sidebar-widget">
                 <h2 className="widget-title text-[18px]">標籤</h2>

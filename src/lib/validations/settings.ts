@@ -8,6 +8,7 @@ export const generalSettingsSchema = z.object({
   logo_url: z.string().min(1, 'Logo 路徑為必填'),
   favicon_url: z.string().min(1, 'Favicon 路徑為必填'),
   copyright_text: z.string().optional(),
+  blog_enabled: z.string().optional(),
 });
 
 export const homepageSettingsSchema = z.object({
@@ -115,6 +116,31 @@ export const featuredSettingsSchema = z.object({
   featured_products_json: z.string().optional(),
 });
 
+export const aboutSettingsSchema = z.object({
+  // video banner
+  about_video_banner: z.string().optional(),
+  about_video_banner_alt: z.string().optional(),
+  about_video_url: z.string().optional(),
+  // support info (JSON array)
+  about_support_info_json: z.string().optional(),
+  // perfection section
+  about_perfection_title: z.string().optional(),
+  about_perfection_desc: z.string().optional(),
+  about_progress_json: z.string().optional(),
+  // gallery banners
+  about_banner_alt: z.string().optional(),
+  about_banner_one: z.string().optional(),
+  about_banner_two: z.string().optional(),
+  about_banner_three: z.string().optional(),
+  about_banner_four: z.string().optional(),
+  about_banner_five: z.string().optional(),
+  // addresses
+  about_address_title_one: z.string().optional(),
+  about_address_desc_one: z.string().optional(),
+  about_address_title_two: z.string().optional(),
+  about_address_desc_two: z.string().optional(),
+});
+
 // --- Type exports ---
 
 export type GeneralSettingsData = z.infer<typeof generalSettingsSchema>;
@@ -129,6 +155,8 @@ export type OfferSettingsData = z.infer<typeof offerSettingsSchema>;
 export type BrandsSettingsData = z.infer<typeof brandsSettingsSchema>;
 export type HeroSettingsData = z.infer<typeof heroSettingsSchema>;
 export type FeaturedSettingsData = z.infer<typeof featuredSettingsSchema>;
+export type AboutSettingsData = z.infer<typeof aboutSettingsSchema>;
+
 // --- API Schemas (for server-side validation, accepts array for currencies) ---
 
 export const currencyApiSchema = z.object({
@@ -139,7 +167,7 @@ export const currencyApiSchema = z.object({
 });
 
 export const settingsUpdateApiSchema = z.object({
-  group: z.enum(['general', 'homepage', 'currency', 'contact', 'social', 'product_display', 'content', 'video', 'offer', 'brands', 'hero', 'featured']),
+  group: z.enum(['general', 'homepage', 'currency', 'contact', 'social', 'product_display', 'content', 'video', 'offer', 'brands', 'hero', 'featured', 'about']),
   settings: z.record(z.string(), z.unknown()),
 });
 
@@ -158,6 +186,7 @@ export const settingsSchemaMap: Record<string, z.ZodType> = {
   brands: brandsSettingsSchema,
   hero: heroSettingsSchema,
   featured: featuredSettingsSchema,
+  about: aboutSettingsSchema,
 };
 
 // --- Group labels (Chinese) ---
@@ -175,7 +204,8 @@ export const groupLabels: Record<string, string> = {
   brands: '品牌輪播',
   hero: 'Hero Banner',
   featured: '精選商品',
+  about: '關於我們',
 };
 
-export const groupKeys = ['general', 'homepage', 'currency', 'contact', 'social', 'product_display', 'content', 'video', 'offer', 'brands', 'hero', 'featured'] as const;
+export const groupKeys = ['general', 'homepage', 'currency', 'contact', 'social', 'product_display', 'content', 'video', 'offer', 'brands', 'hero', 'featured', 'about'] as const;
 export type SettingsGroup = (typeof groupKeys)[number];

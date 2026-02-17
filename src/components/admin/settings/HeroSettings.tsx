@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import ImageUploader from './ImageUploader';
+import AdminImageUploader from '../common/AdminImageUploader';
+import { OVERLAY_DEFAULTS } from '../../Hero/hero-utils';
 
 interface HeroSettingsProps {
   initialData: Record<string, unknown>;
@@ -13,6 +14,12 @@ interface DefaultSlide {
   subtitle: string;
   title: string;
   desc: string;
+  textColor: string;
+  subtitleColor: string;
+  overlayColor: string;
+  overlayOpacity: number;
+  overlayDirection: string;
+  buttonStyle: string;
 }
 
 interface BoxedSlide {
@@ -28,6 +35,11 @@ interface CarouselSlide {
   backgroundImage: string;
   title: string;
   desc: string;
+  textColor: string;
+  overlayColor: string;
+  overlayOpacity: number;
+  overlayDirection: string;
+  buttonStyle: string;
 }
 
 interface CollectionSlide {
@@ -72,6 +84,82 @@ function Field({ label, value, onChange, multiline, placeholder }: { label: stri
       ) : (
         <input value={value} onChange={(e) => onChange(e.target.value)} className={cls} placeholder={placeholder} />
       )}
+    </div>
+  );
+}
+
+// --- Overlay Controls Block ---
+const DIRECTION_OPTIONS = [
+  { value: 'full', label: '全覆蓋' },
+  { value: 'left', label: '從左漸變' },
+  { value: 'right', label: '從右漸變' },
+  { value: 'top', label: '從上漸變' },
+  { value: 'bottom', label: '從下漸變' },
+];
+const BUTTON_STYLE_OPTIONS = [
+  { value: 'dark', label: '深色按鈕' },
+  { value: 'light', label: '淺色按鈕' },
+];
+
+function OverlayControls<T extends Record<string, any>>({
+  slide,
+  index,
+  list,
+  setList,
+  updateSlide,
+  showSubtitleColor,
+}: {
+  slide: T;
+  index: number;
+  list: T[];
+  setList: (v: T[]) => void;
+  updateSlide: (list: T[], setList: (v: T[]) => void, index: number, patch: Partial<T>) => void;
+  showSubtitleColor?: boolean;
+}) {
+  const selCls = "w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black";
+  return (
+    <div className="mt-3 rounded-md border border-dashed border-gray-300 p-3">
+      <p className="mb-2 text-xs font-medium text-gray-500">文字與覆蓋層設定</p>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+        {/* Text Color */}
+        <div>
+          <label className="mb-1 block text-sm font-medium text-gray-700">文字顏色</label>
+          <input type="color" value={slide.textColor ?? OVERLAY_DEFAULTS.textColor} onChange={(e) => updateSlide(list, setList, index, { textColor: e.target.value } as any)} className="h-9 w-full cursor-pointer rounded-md border border-gray-300" />
+        </div>
+        {/* Subtitle Color (default only) */}
+        {showSubtitleColor && (
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">副標題顏色</label>
+            <input type="color" value={slide.subtitleColor ?? OVERLAY_DEFAULTS.subtitleColor} onChange={(e) => updateSlide(list, setList, index, { subtitleColor: e.target.value } as any)} className="h-9 w-full cursor-pointer rounded-md border border-gray-300" />
+          </div>
+        )}
+        {/* Overlay Color */}
+        <div>
+          <label className="mb-1 block text-sm font-medium text-gray-700">覆蓋層顏色</label>
+          <input type="color" value={slide.overlayColor ?? OVERLAY_DEFAULTS.overlayColor} onChange={(e) => updateSlide(list, setList, index, { overlayColor: e.target.value } as any)} className="h-9 w-full cursor-pointer rounded-md border border-gray-300" />
+        </div>
+        {/* Button Style */}
+        <div>
+          <label className="mb-1 block text-sm font-medium text-gray-700">按鈕樣式</label>
+          <select value={slide.buttonStyle ?? OVERLAY_DEFAULTS.buttonStyle} onChange={(e) => updateSlide(list, setList, index, { buttonStyle: e.target.value } as any)} className={selCls}>
+            {BUTTON_STYLE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+          </select>
+        </div>
+      </div>
+      <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {/* Overlay Opacity */}
+        <div>
+          <label className="mb-1 block text-sm font-medium text-gray-700">覆蓋層不透明度: {slide.overlayOpacity ?? 0}%</label>
+          <input type="range" min={0} max={100} step={5} value={slide.overlayOpacity ?? 0} onChange={(e) => updateSlide(list, setList, index, { overlayOpacity: Number(e.target.value) } as any)} className="w-full" />
+        </div>
+        {/* Overlay Direction */}
+        <div>
+          <label className="mb-1 block text-sm font-medium text-gray-700">覆蓋層方向</label>
+          <select value={slide.overlayDirection ?? OVERLAY_DEFAULTS.overlayDirection} onChange={(e) => updateSlide(list, setList, index, { overlayDirection: e.target.value } as any)} className={selCls}>
+            {DIRECTION_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+          </select>
+        </div>
+      </div>
     </div>
   );
 }
@@ -156,11 +244,12 @@ export default function HeroSettings({ initialData }: HeroSettingsProps) {
                 <button type="button" onClick={() => removeSlide(defaultSlides, setDefaultSlides, i)} className={removeBtn}>刪除</button>
               </div>
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                <ImageUploader
+                <AdminImageUploader
                   label="背景圖片"
                   hint="建議尺寸 1920×1080px，全寬背景"
-                  folder="hero-default"
-                  name={`slide-${i + 1}`}
+                  slug="hero-default"
+                  imageType={`slide-${i + 1}`}
+                  bucket="site-assets"
                   value={slide.backgroundImage}
                   onChange={(url) => updateSlide(defaultSlides, setDefaultSlides, i, { backgroundImage: url })}
                 />
@@ -168,10 +257,11 @@ export default function HeroSettings({ initialData }: HeroSettingsProps) {
                 <Field label="標題 (支援 HTML)" value={slide.title} onChange={(v) => updateSlide(defaultSlides, setDefaultSlides, i, { title: v })} />
                 <Field label="描述 (支援 HTML)" value={slide.desc} onChange={(v) => updateSlide(defaultSlides, setDefaultSlides, i, { desc: v })} />
               </div>
+              <OverlayControls slide={slide} index={i} list={defaultSlides} setList={setDefaultSlides} updateSlide={updateSlide} showSubtitleColor />
             </div>
           ))}
         </div>
-        <button type="button" onClick={() => setDefaultSlides([...defaultSlides, { id: genId('hero-default'), backgroundImage: '', subtitle: '', title: '', desc: '' }])} className={addBtn}>+ 新增幻燈片</button>
+        <button type="button" onClick={() => setDefaultSlides([...defaultSlides, { id: genId('hero-default'), backgroundImage: '', subtitle: '', title: '', desc: '', textColor: OVERLAY_DEFAULTS.textColor, subtitleColor: OVERLAY_DEFAULTS.subtitleColor, overlayColor: OVERLAY_DEFAULTS.overlayColor, overlayOpacity: OVERLAY_DEFAULTS.overlayOpacity, overlayDirection: OVERLAY_DEFAULTS.overlayDirection, buttonStyle: OVERLAY_DEFAULTS.buttonStyle }])} className={addBtn}>+ 新增幻燈片</button>
       </Section>
 
       {/* ===== 盒裝版 ===== */}
@@ -185,11 +275,12 @@ export default function HeroSettings({ initialData }: HeroSettingsProps) {
                 <button type="button" onClick={() => removeSlide(boxedSlides, setBoxedSlides, i)} className={removeBtn}>刪除</button>
               </div>
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                <ImageUploader
+                <AdminImageUploader
                   label="圖片"
                   hint="建議去背 PNG，最小 600×600px"
-                  folder="hero-boxed"
-                  name={`slide-${i + 1}`}
+                  slug="hero-boxed"
+                  imageType={`slide-${i + 1}`}
+                  bucket="site-assets"
                   value={slide.image}
                   onChange={(url) => updateSlide(boxedSlides, setBoxedSlides, i, { image: url })}
                 />
@@ -214,11 +305,12 @@ export default function HeroSettings({ initialData }: HeroSettingsProps) {
                 <button type="button" onClick={() => removeSlide(carouselSlides, setCarouselSlides, i)} className={removeBtn}>刪除</button>
               </div>
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                <ImageUploader
+                <AdminImageUploader
                   label="背景圖片"
                   hint="建議尺寸 1920×1080px，全寬背景"
-                  folder="hero-carousel"
-                  name={`slide-${i + 1}`}
+                  slug="hero-carousel"
+                  imageType={`slide-${i + 1}`}
+                  bucket="site-assets"
                   value={slide.backgroundImage}
                   onChange={(url) => updateSlide(carouselSlides, setCarouselSlides, i, { backgroundImage: url })}
                 />
@@ -227,10 +319,11 @@ export default function HeroSettings({ initialData }: HeroSettingsProps) {
                   <Field label="描述 (支援 HTML)" value={slide.desc} onChange={(v) => updateSlide(carouselSlides, setCarouselSlides, i, { desc: v })} />
                 </div>
               </div>
+              <OverlayControls slide={slide} index={i} list={carouselSlides} setList={setCarouselSlides} updateSlide={updateSlide} />
             </div>
           ))}
         </div>
-        <button type="button" onClick={() => setCarouselSlides([...carouselSlides, { id: genId('hero-carousel'), backgroundImage: '', title: '', desc: '' }])} className={addBtn}>+ 新增幻燈片</button>
+        <button type="button" onClick={() => setCarouselSlides([...carouselSlides, { id: genId('hero-carousel'), backgroundImage: '', title: '', desc: '', textColor: OVERLAY_DEFAULTS.textColor, overlayColor: OVERLAY_DEFAULTS.overlayColor, overlayOpacity: OVERLAY_DEFAULTS.overlayOpacity, overlayDirection: OVERLAY_DEFAULTS.overlayDirection, buttonStyle: OVERLAY_DEFAULTS.buttonStyle }])} className={addBtn}>+ 新增幻燈片</button>
       </Section>
 
       {/* ===== 精選版 ===== */}
@@ -249,11 +342,12 @@ export default function HeroSettings({ initialData }: HeroSettingsProps) {
                 <div className="md:col-span-2">
                   <Field label="描述 (支援 HTML)" value={slide.desc} onChange={(v) => updateSlide(collectionSlides, setCollectionSlides, i, { desc: v })} />
                 </div>
-                <ImageUploader
+                <AdminImageUploader
                   label="圖片"
                   hint="建議去背 PNG，最小 600×600px"
-                  folder="hero-collection"
-                  name={`slide-${i + 1}`}
+                  slug="hero-collection"
+                  imageType={`slide-${i + 1}`}
+                  bucket="site-assets"
                   value={slide.image}
                   onChange={(url) => updateSlide(collectionSlides, setCollectionSlides, i, { image: url })}
                 />

@@ -6,6 +6,7 @@ import FooterComps from '../../../components/FooterComps';
 import HeaderOne from '../../../components/HeaderComps';
 import { getAllItems } from '../../../lib/ItemsUtil';
 import { getBlogsByTag, getBlogCategories, getBlogTags } from '../../../lib/blogs-db';
+import { isBlogEnabled } from '../../../lib/blog-guard';
 
 interface BlogCategory {
     slug: string;
@@ -51,6 +52,10 @@ function BlogTagPage({ headerItems, blogs, categories, tags, footerItems }: Blog
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
+    if (!(await isBlogEnabled())) {
+        return { redirect: { destination: '/', permanent: false } };
+    }
+
     const { slug } = context.params as { slug: string };
     const headerItems = getAllItems('header');
     const [blogs, categories, tags] = await Promise.all([

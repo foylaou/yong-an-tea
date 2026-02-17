@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { blogFormSchema, type BlogFormData } from '@/lib/validations/blog';
-import BlogImageUploader from './BlogImageUploader';
+import AdminImageUploader from '../common/AdminImageUploader';
 import TagMultiSelect from './TagMultiSelect';
 
 interface BlogCategory {
@@ -223,53 +223,77 @@ export default function BlogForm({
       <section className="rounded-lg bg-white p-6 shadow">
         <h2 className="mb-4 text-lg font-semibold text-gray-900">文章圖片</h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <BlogImageUploader
+          <AdminImageUploader
             label="Medium 圖片"
             hint="374x243"
             slug={slug}
             imageType="medium"
+            bucket="blog-images"
             value={watch('medium_image')}
             onChange={(url) => setValue('medium_image', url)}
+            slugRequiredMessage="請先填寫文章標題以產生 Slug"
+            targetWidth={374}
+            targetHeight={243}
           />
-          <BlogImageUploader
+          <AdminImageUploader
             label="Masonry 圖片"
             hint="366x257 / 366x423"
             slug={slug}
             imageType="masonry"
+            bucket="blog-images"
             value={watch('masonry')}
             onChange={(url) => setValue('masonry', url)}
+            slugRequiredMessage="請先填寫文章標題以產生 Slug"
+            targetWidth={366}
+            targetHeight={257}
           />
-          <BlogImageUploader
+          <AdminImageUploader
             label="Large 圖片"
             hint="854x491"
             slug={slug}
             imageType="large"
+            bucket="blog-images"
             value={watch('large_image')}
             onChange={(url) => setValue('large_image', url)}
+            slugRequiredMessage="請先填寫文章標題以產生 Slug"
+            targetWidth={854}
+            targetHeight={491}
           />
-          <BlogImageUploader
+          <AdminImageUploader
             label="Extra Large 圖片"
             hint="1146x745"
             slug={slug}
             imageType="extra-large"
+            bucket="blog-images"
             value={watch('extra_large_image')}
             onChange={(url) => setValue('extra_large_image', url)}
+            slugRequiredMessage="請先填寫文章標題以產生 Slug"
+            targetWidth={1146}
+            targetHeight={745}
           />
-          <BlogImageUploader
+          <AdminImageUploader
             label="內文圖片 1"
             hint="570x327"
             slug={slug}
             imageType="single-1"
+            bucket="blog-images"
             value={watch('single_img_one')}
             onChange={(url) => setValue('single_img_one', url)}
+            slugRequiredMessage="請先填寫文章標題以產生 Slug"
+            targetWidth={570}
+            targetHeight={327}
           />
-          <BlogImageUploader
+          <AdminImageUploader
             label="內文圖片 2"
             hint="570x327"
             slug={slug}
             imageType="single-2"
+            bucket="blog-images"
             value={watch('single_img_two')}
             onChange={(url) => setValue('single_img_two', url)}
+            slugRequiredMessage="請先填寫文章標題以產生 Slug"
+            targetWidth={570}
+            targetHeight={327}
           />
         </div>
         <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">

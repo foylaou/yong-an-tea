@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import ImageUploader from './ImageUploader';
+import AdminImageUploader from '../common/AdminImageUploader';
 
 interface OfferSettingsProps {
   initialData: Record<string, unknown>;
@@ -161,11 +161,12 @@ export default function OfferSettings({ initialData }: OfferSettingsProps) {
               </select>
             </div>
           </div>
-          <ImageUploader
+          <AdminImageUploader
             label="背景圖片"
             hint="建議尺寸 1920×635px，橫幅大圖"
-            folder="offer"
-            name="background"
+            slug="offer"
+            imageType="background"
+            bucket="site-assets"
             value={image}
             onChange={setImage}
           />

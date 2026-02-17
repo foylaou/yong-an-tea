@@ -3,6 +3,7 @@ import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 import { Slide } from '../SwiperComps';
 import { useSettingsStore } from '../../store/settings/settings-slice';
+import { normalizeCarouselSlide, buildOverlayStyle } from './hero-utils';
 
 function HeroThree() {
     const heroCarouselJson = useSettingsStore((s) => s.hero_carousel_json);
@@ -10,11 +11,13 @@ function HeroThree() {
         try { return JSON.parse(heroCarouselJson); } catch { return []; }
     }, [heroCarouselJson]);
 
-    let settings: Record<string, any>;
     const SwiperComps = dynamic(() => import('../SwiperComps'), {
         ssr: false,
     });
-    settings = {
+
+    if (heroCarouselItems.length === 0) return null;
+
+    const settings: Record<string, any> = {
         autoplay: {
             delay: 3000,
             disableOnInteraction: false,
@@ -54,21 +57,34 @@ function HeroThree() {
                     settings={settings}
                     sliderCName="hero-carousel xl:px-[260px]! md:px-[100px]!"
                 >
-                    {heroCarouselItems?.map((heroCarouselItem) => (
+                    {heroCarouselItems?.map((heroCarouselItemRaw) => {
+                        const heroCarouselItem = normalizeCarouselSlide(heroCarouselItemRaw);
+                        const linkClass = heroCarouselItem.buttonStyle === 'light'
+                            ? 'text-[18px] leading-[18px] border-b border-white text-white transition-all hover:text-primary hover:border-primary'
+                            : 'text-[18px] leading-[18px] border-b border-black transition-all hover:text-primary hover:border-primary';
+                        return (
                         <Slide key={heroCarouselItem.id}>
                             <div className="slide-inner">
                                 <div
-                                    className="flex items-center bg-cover bg-center bg-no-repeat md:h-[600px] h-[500px]"
+                                    className="relative flex items-center bg-cover bg-center bg-no-repeat md:h-[600px] h-[500px]"
                                     style={{ backgroundImage: `url('${heroCarouselItem.backgroundImage}')` }}
                                 >
-                                    <div className="hero-content xxl:ml-[100px] md:ml-[50px] ml-[15px]">
+                                    {heroCarouselItem.overlayOpacity > 0 && (
+                                        <div
+                                            className="absolute inset-0 pointer-events-none"
+                                            style={buildOverlayStyle(heroCarouselItem.overlayColor, heroCarouselItem.overlayOpacity, heroCarouselItem.overlayDirection)}
+                                        />
+                                    )}
+                                    <div className="hero-content xxl:ml-[100px] md:ml-[50px] ml-[15px] relative z-10">
                                         <h2
                                             className="relative lg:text-[60px] text-[40px] leading-[1.1] pb-[15px] mb-[5px]"
+                                            style={{ color: heroCarouselItem.textColor }}
                                             dangerouslySetInnerHTML={{
                                                 __html: heroCarouselItem.title,
                                             }}
                                         />
                                         <p
+                                            style={{ color: heroCarouselItem.textColor }}
                                             dangerouslySetInnerHTML={{
                                                 __html: heroCarouselItem.desc,
                                             }}
@@ -76,7 +92,7 @@ function HeroThree() {
                                         <div className="button-wrap mt-[30px]">
                                             <Link
                                                 href="/products/left-sidebar"
-                                                className="text-[18px] leading-[18px] border-b border-black transition-all hover:text-primary hover:border-primary"
+                                                className={linkClass}
                                             >
                                                 Discover now
                                             </Link>
@@ -85,7 +101,8 @@ function HeroThree() {
                                 </div>
                             </div>
                         </Slide>
-                    ))}
+                        );
+                    })}
                 </SwiperComps>
             </div>
         </div>

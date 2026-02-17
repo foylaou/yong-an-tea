@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import ImageUploader from './ImageUploader';
+import AdminImageUploader from '../common/AdminImageUploader';
 
 interface VideoSettingsProps {
   initialData: Record<string, unknown>;
@@ -81,11 +81,12 @@ export default function VideoSettings({ initialData }: VideoSettingsProps) {
             />
           </div>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <ImageUploader
+            <AdminImageUploader
               label="背景圖片"
               hint="建議尺寸 1920×635px，橫幅大圖"
-              folder="video"
-              name="banner"
+              slug="video"
+              imageType="banner"
+              bucket="site-assets"
               value={image}
               onChange={setImage}
             />

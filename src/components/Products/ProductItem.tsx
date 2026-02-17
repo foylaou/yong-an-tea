@@ -53,6 +53,7 @@ function ProductItem({ product, productFilter, productFilterPath }: ProductItemP
     const [isOpen, setIsOpen] = useState(false);
 
     const [quantityCount, setQuantityCount] = useState(1);
+    const effectiveMax = (product as any)?.maxQty && (product as any).maxQty > 0 ? (product as any).maxQty : Infinity;
 
     const addToCartHandler = () => {
         useCartStore.getState().addItemToCart({
@@ -302,7 +303,9 @@ function ProductItem({ product, productFilter, productFilterPath }: ProductItemP
                                                     userInput.toString() !==
                                                     'NaN'
                                                 ) {
-                                                    setQuantityCount(userInput);
+                                                    setQuantityCount(
+                                                        Math.min(userInput, effectiveMax)
+                                                    );
                                                 }
                                             }}
                                         />
@@ -310,10 +313,10 @@ function ProductItem({ product, productFilter, productFilterPath }: ProductItemP
                                             type="button"
                                             className={`${qtybutton} inc top-1/2 -translate-y-1/2 right-[4px]`}
                                             onClick={() =>
-                                                setQuantityCount(
-                                                    quantityCount >= 0
-                                                        ? quantityCount + 1
-                                                        : quantityCount
+                                                setQuantityCount((prev) =>
+                                                    prev < effectiveMax
+                                                        ? prev + 1
+                                                        : prev
                                                 )
                                             }
                                         >

@@ -8,6 +8,7 @@ const navItems = [
   { href: '/admin/products', label: '商品管理', icon: '📦' },
   { href: '/admin/categories', label: '商品分類', icon: '📁' },
   { href: '/admin/blogs', label: '部落格管理', icon: '📝' },
+  { href: '/admin/users', label: '用戶管理', icon: '👥' },
   { href: '/admin/settings', label: '系統設定', icon: '⚙️' },
 ];
 

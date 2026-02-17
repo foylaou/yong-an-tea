@@ -11,11 +11,12 @@ interface HeroFourProps {
 
 function HeroFour({ btnText }: HeroFourProps) {
     const heroCollectionJson = useSettingsStore((s) => s.hero_collection_json);
+    const siteName = useSettingsStore((s) => s.site_name);
+    const siteDescription = useSettingsStore((s) => s.site_description);
     const heroCollectionItems = useMemo(() => {
         try { return JSON.parse(heroCollectionJson); } catch { return []; }
     }, [heroCollectionJson]);
 
-    let settings: Record<string, any>;
     const [activeIdx, setActiveId] = useState(0);
     const onSlideChange = (SwiperComps: any) => {
         const { activeIndex } = SwiperComps;
@@ -30,7 +31,9 @@ function HeroFour({ btnText }: HeroFourProps) {
         setActiveId(activeIndex);
     };
 
-    settings = {
+    if (heroCollectionItems.length === 0) return null;
+
+    const settings: Record<string, any> = {
         autoplay: {
             delay: 4000,
             disableOnInteraction: false,
@@ -95,9 +98,7 @@ function HeroFour({ btnText }: HeroFourProps) {
                                                         },
                                                     }}
                                                 >
-                                                    {
-                                                        heroCollectionItem.subtitle
-                                                    }
+                                                    {heroCollectionItem.subtitle || siteName}
                                                 </motion.span>
                                                 <motion.h2
                                                     className="lg:text-[60px] lg:leading-[66px] sm:text-[34px] text-[30px] mb-[30px]"
@@ -136,7 +137,7 @@ function HeroFour({ btnText }: HeroFourProps) {
                                                 <motion.p
                                                     className="hidden md:block fixed-lg:text-[15px]"
                                                     dangerouslySetInnerHTML={{
-                                                        __html: heroCollectionItem.desc,
+                                                        __html: heroCollectionItem.desc || siteDescription,
                                                     }}
                                                     initial="hidden"
                                                     animate={

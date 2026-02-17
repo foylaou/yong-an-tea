@@ -1,9 +1,17 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { IoCaretDownOutline } from 'react-icons/io5';
 import { OffcanvasData } from './OffcanvasMenuData';
+import { useSettingsStore } from '../../store/settings/settings-slice';
 
 function OffcanvasMenu() {
+    const blogEnabled = useSettingsStore((s) => s.blog_enabled);
+    const menuData = useMemo(() => {
+        if (blogEnabled === 'false') {
+            return OffcanvasData.filter((item) => item.title !== '部落格');
+        }
+        return OffcanvasData;
+    }, [blogEnabled]);
     const [submenuOpenId, setSubmenuOpenId] = useState<Record<string, boolean>>({});
 
     const showSubmenuClickHandler = (id: number) =>
@@ -20,7 +28,7 @@ function OffcanvasMenu() {
 
     return (
         <ul className="offcanvas-menu-items pt-[75px]">
-            {OffcanvasData.map((item) => {
+            {menuData.map((item) => {
                 const { submenu } = item;
 
                 return (

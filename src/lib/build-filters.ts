@@ -3,26 +3,12 @@ import type { MarkdownItem } from '../types';
 // ---------------------------------------------------------------------------
 // Translation maps (hardcoded)
 // ---------------------------------------------------------------------------
-const colorLabel: Record<string, string> = {
-    black: '黑色',
-    green: '綠色',
-    gray: '灰色',
-    red: '紅色',
-    yellow: '黃色',
-};
-
 const tagLabel: Record<string, string> = {
     accessories: '配件',
     chair: '椅子',
     glass: '玻璃',
     deco: '裝飾',
     table: '桌子',
-};
-
-const sizeLabel: Record<string, string> = {
-    large: '大',
-    medium: '中',
-    small: '小',
 };
 
 const availabilityLabel: Record<string, string> = {
@@ -67,48 +53,6 @@ export function buildProductFilters(
         },
     );
 
-    // --- productSizeList ---
-    const sizeCounts: Record<string, number> = {};
-    for (const p of products) {
-        const val = (p.size as string) || '';
-        if (val) sizeCounts[val] = (sizeCounts[val] || 0) + 1;
-    }
-    // Sort by defined order
-    const sizeOrder = ['large', 'medium', 'small'];
-    const sortedSizes = Object.keys(sizeCounts).sort(
-        (a, b) => (sizeOrder.indexOf(a) === -1 ? 99 : sizeOrder.indexOf(a))
-              - (sizeOrder.indexOf(b) === -1 ? 99 : sizeOrder.indexOf(b)),
-    );
-    const productSizeList = sortedSizes.map((key, i) => {
-        const label = sizeLabel[key] || key;
-        return {
-            id: `size-${String(i + 1).padStart(2, '0')}`,
-            filterLabel: `${key}-size`,
-            title: `${label} (${sizeCounts[key]})`,
-            name: label,
-            checked: key,
-            key,
-            group: 'size',
-        };
-    });
-
-    // --- colorList ---
-    const colorSet = new Set<string>();
-    for (const p of products) {
-        const val = (p.color as string) || '';
-        if (val) colorSet.add(val);
-    }
-    const colorOrder = ['black', 'green', 'gray', 'red', 'yellow'];
-    const sortedColors = [...colorSet].sort(
-        (a, b) => (colorOrder.indexOf(a) === -1 ? 99 : colorOrder.indexOf(a))
-              - (colorOrder.indexOf(b) === -1 ? 99 : colorOrder.indexOf(b)),
-    );
-    const colorListResult = sortedColors.map((key, i) => ({
-        id: `color-${String(i + 1).padStart(2, '0')}`,
-        colorOption: key,
-        colorLabel: colorLabel[key] || key,
-    }));
-
     // --- tagList ---
     const tagSet = new Set<string>();
     for (const p of products) {
@@ -132,8 +76,6 @@ export function buildProductFilters(
         {
             categoryList,
             availabilityList,
-            productSizeList,
-            colorList: colorListResult,
             tagList: tagListResult,
         } as MarkdownItem,
     ];

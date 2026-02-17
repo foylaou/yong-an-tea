@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import ImageUploader from './ImageUploader';
+import AdminImageUploader from '../common/AdminImageUploader';
 
 interface FeaturedSettingsProps {
   initialData: Record<string, unknown>;
@@ -185,11 +185,12 @@ export default function FeaturedSettings({ initialData }: FeaturedSettingsProps)
             <div className="md:col-span-2">
               <Field label="描述 (支援 HTML)" value={block.excerpt} onChange={(v) => updateBlock(i, { excerpt: v })} multiline placeholder="商品描述文字..." />
             </div>
-            <ImageUploader
+            <AdminImageUploader
               label="圖片"
               hint="建議比例 1:1，最小 585×585px"
-              folder="featured"
-              name={`block-${i + 1}`}
+              slug="featured"
+              imageType={`block-${i + 1}`}
+              bucket="site-assets"
               value={block.image}
               onChange={(url) => updateBlock(i, { image: url })}
             />

@@ -92,7 +92,7 @@ export default async function AdminDashboard() {
       label: '使用者',
       value: stats.userCount,
       color: 'bg-purple-500',
-      href: '/admin/settings',
+      href: '/admin/users',
     },
   ];
 

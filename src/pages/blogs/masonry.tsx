@@ -6,6 +6,7 @@ import BlogMasonry from '../../components/Blogs/BlogMasonry';
 import FooterComps from '../../components/FooterComps';
 import { getAllItems } from '../../lib/ItemsUtil';
 import { getAllBlogs } from '../../lib/blogs-db';
+import { isBlogEnabled } from '../../lib/blog-guard';
 
 interface BlogMasonryPageProps {
     headerItems: MarkdownItem[];
@@ -34,6 +35,10 @@ function BlogMasonryPage({ headerItems, blogs, footerItems }: BlogMasonryPagePro
 }
 
 export const getServerSideProps: GetServerSideProps = async () => {
+    if (!(await isBlogEnabled())) {
+        return { redirect: { destination: '/', permanent: false } };
+    }
+
     const headerItems = getAllItems('header');
     const blogs = await getAllBlogs();
     const footerItems = getAllItems('footer');

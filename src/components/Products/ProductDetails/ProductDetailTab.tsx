@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { MdPlayArrow, MdOutlineStarPurple500 } from 'react-icons/md';
 import { MarkdownItem } from '../../../types';
 
@@ -10,6 +10,10 @@ interface ProductDetailTabProps {
 function ProductDetailTab({ product, productDetailTabItems }: ProductDetailTabProps) {
     // Product Detail Tab
     const [productDetailTabState, setProductDetailTabState] = useState(1);
+    const productAttributes = useMemo(() => {
+        try { return JSON.parse((product as any)?.attributesJson || '[]'); }
+        catch { return []; }
+    }, [(product as any)?.attributesJson]);
     const productDetailTab = (index: number) => {
         setProductDetailTabState(index);
     };
@@ -48,21 +52,16 @@ function ProductDetailTab({ product, productDetailTabItems }: ProductDetailTabPr
                                 : `tab-style-common description`
                         }
                     >
+                        {(product as any)?.detailDesc && (
                         <div className="description-wrap border-b border-[#dddddd] py-[30px]">
                             <div className="grid grid-cols-12 lm:gap-x-[30px] max-sm:gap-y-[30px]">
                                 <div className="lm:col-span-7 col-span-12 self-center">
                                     <div>
                                         <h2 className="text-[24px] mb-[10px]">
-                                            {
-                                                (productDetailTabItems[0] as any)
-                                                    ?.descriptionTitle
-                                            }
+                                            商品描述
                                         </h2>
                                         <p>
-                                            {
-                                                (productDetailTabItems[0] as any)
-                                                    ?.descriptionExcerpt
-                                            }
+                                            {(product as any).detailDesc}
                                         </p>
                                     </div>
                                 </div>
@@ -75,30 +74,30 @@ function ProductDetailTab({ product, productDetailTabItems }: ProductDetailTabPr
                                 </div>
                             </div>
                         </div>
+                        )}
+                        {(product as any)?.features && (
                         <div className="description-wrap border-b border-[#dddddd] py-[30px]">
                             <div className="grid grid-cols-12 lm:gap-x-[30px] max-sm:gap-y-[30px]">
                                 <div className="lm:col-span-7 col-span-12 self-center">
                                     <div>
                                         <h2 className="text-[24px] mb-[10px]">
-                                            {
-                                                (productDetailTabItems[0] as any)
-                                                    ?.featureTitle
-                                            }
+                                            產品特色
                                         </h2>
                                         <ul className="features-list">
-                                            {(productDetailTabItems[0] as any)?.featuresList?.map(
-                                                (featureList: any) => (
+                                            {((product as any).features as string)
+                                                .split('\n')
+                                                .filter((line: string) => line.trim())
+                                                .map((line: string, idx: number) => (
                                                     <li
                                                         className="mb-[5px] last:mb-0"
-                                                        key={featureList?.id}
+                                                        key={idx}
                                                     >
                                                         <span className="flex items-center cursor-pointer transition-all hover:text-primary">
                                                             <MdPlayArrow className="mr-[10px]" />
-                                                            {featureList?.name}
+                                                            {line.trim()}
                                                         </span>
                                                     </li>
-                                                )
-                                            )}
+                                                ))}
                                         </ul>
                                     </div>
                                 </div>
@@ -111,6 +110,7 @@ function ProductDetailTab({ product, productDetailTabItems }: ProductDetailTabPr
                                 </div>
                             </div>
                         </div>
+                        )}
                     </div>
                     <div
                         className={
@@ -120,28 +120,28 @@ function ProductDetailTab({ product, productDetailTabItems }: ProductDetailTabPr
                         }
                     >
                         <div className="overflow-x-auto relative pt-[25px]">
+                            {productAttributes.length > 0 ? (
                             <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
                                 <tbody>
                                     <tr>
-                                        {(productDetailTabItems[0] as any)?.infoThList?.map(
-                                            (thData: any) => (
-                                                <th
-                                                    key={thData.id}
-                                                    scope="row"
-                                                    className="pb-4 pr-6 text-gray-900 whitespace-nowrap text-[16px]"
-                                                >
-                                                    <span className="font-bold">
-                                                        {thData.infoThName}
-                                                    </span>
-                                                    <span className="font-normal ml-[5px]">
-                                                        {thData.infoThValue}
-                                                    </span>
-                                                </th>
-                                            )
-                                        )}
+                                        {productAttributes.map((attr: any, idx: number) => (
+                                            <th
+                                                key={idx}
+                                                scope="row"
+                                                className="pb-4 pr-6 text-gray-900 whitespace-nowrap text-[16px]"
+                                            >
+                                                <span className="font-bold">{attr.name}</span>
+                                                <span className="font-normal ml-[5px]">
+                                                    {attr.value}{attr.unit ? ` ${attr.unit}` : ''}
+                                                </span>
+                                            </th>
+                                        ))}
                                     </tr>
                                 </tbody>
                             </table>
+                            ) : (
+                            <p className="text-gray-400">暫無其他資訊</p>
+                            )}
                         </div>
                     </div>
                     <div

@@ -10,8 +10,8 @@ interface VideoModalTwoProps {
 
 function VideoModalTwo({ containerCName }: VideoModalTwoProps) {
     const v = useSettingsStore(useShallow((s) => ({
-        title: s.video_title,
-        desc: s.video_desc,
+        title: s.video_title || s.site_name,
+        desc: s.video_desc || s.site_description,
         image: s.video_image,
         imageAlt: s.video_image_alt,
         url: s.video_url,

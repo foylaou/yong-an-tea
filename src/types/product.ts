@@ -14,8 +14,7 @@ export interface Product {
     sku: number;
     category: string;
     availability: string;
-    size: string;
-    color: string;
+    stockQty: number;
     tag: string;
     isFeatured?: boolean;
     soldOutSticker?: string;

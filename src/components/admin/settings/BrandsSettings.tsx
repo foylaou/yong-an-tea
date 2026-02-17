@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import ImageUploader from './ImageUploader';
+import AdminImageUploader from '../common/AdminImageUploader';
 
 interface BrandItem {
   id: string;
@@ -109,11 +109,12 @@ export default function BrandsSettings({ initialData }: BrandsSettingsProps) {
                 </button>
               </div>
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                <ImageUploader
+                <AdminImageUploader
                   label="品牌圖片"
                   hint="建議尺寸 200×80px，PNG 去背"
-                  folder="brands"
-                  name={`brand-${index + 1}`}
+                  slug="brands"
+                  imageType={`brand-${index + 1}`}
+                  bucket="site-assets"
                   value={brand.brandImg}
                   onChange={(url) => updateBrand(index, 'brandImg', url)}
                 />

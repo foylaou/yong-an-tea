@@ -2,7 +2,13 @@ import { useState } from 'react';
 import { IoPlayCircleOutline, IoCloseOutline } from 'react-icons/io5';
 import { BiLoaderAlt } from 'react-icons/bi';
 
-function VideoModal() {
+interface VideoModalProps {
+    videoUrl?: string;
+}
+
+const DEFAULT_VIDEO_URL = 'https://www.youtube.com/embed/fkoEj95puX0';
+
+function VideoModal({ videoUrl }: VideoModalProps) {
     const [modal, setModal] = useState(false);
     const [videoLoading, setVideoLoading] = useState(true);
 
@@ -13,6 +19,9 @@ function VideoModal() {
     const spinner = () => {
         setVideoLoading(!videoLoading);
     };
+
+    const src = videoUrl || DEFAULT_VIDEO_URL;
+
     return (
         <button type="button" onClick={openModal}>
             <IoPlayCircleOutline className="text-[80px] text-white absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10" />
@@ -39,7 +48,7 @@ function VideoModal() {
                                     loading="lazy"
                                     width="800"
                                     height="500"
-                                    src="https://www.youtube.com/embed/fkoEj95puX0"
+                                    src={src}
                                     title="YouTube video player"
                                     frameBorder="0"
                                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

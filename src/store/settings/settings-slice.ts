@@ -55,6 +55,8 @@ interface SiteSettings {
   video_image: string;
   video_image_alt: string;
   video_url: string;
+  // blog
+  blog_enabled: string;
   // offer
   offer_enabled: string;
   offer_title: string;
@@ -71,6 +73,24 @@ interface SiteSettings {
   hero_collection_json: string;
   // featured products
   featured_products_json: string;
+  // about
+  about_video_banner: string;
+  about_video_banner_alt: string;
+  about_video_url: string;
+  about_support_info_json: string;
+  about_perfection_title: string;
+  about_perfection_desc: string;
+  about_progress_json: string;
+  about_banner_alt: string;
+  about_banner_one: string;
+  about_banner_two: string;
+  about_banner_three: string;
+  about_banner_four: string;
+  about_banner_five: string;
+  about_address_title_one: string;
+  about_address_desc_one: string;
+  about_address_title_two: string;
+  about_address_desc_two: string;
   // state
   loaded: boolean;
 }
@@ -129,11 +149,13 @@ export const useSettingsStore = create<SiteSettings & SettingsActions>()((set) =
   new_arrival_excerpt: '多年來已發展出各種版本，有時是偶然的，有時是刻意的。',
   email_placeholder: '您的電子郵件地址',
   // video defaults
-  video_title: 'Helendo 商店',
-  video_desc: '從一幅肖像開始，追尋純粹的形態與清晰的輪廓，經過層層提煉，最終回歸本質。同樣地，從本質出發，循著相同的過程反向探索，終將呈現出完整的面貌。',
+  video_title: '',
+  video_desc: '',
   video_image: '/images/video-banner/1.jpg',
   video_image_alt: '影片彈窗',
   video_url: 'https://www.youtube.com/embed/fkoEj95puX0',
+  // blog default
+  blog_enabled: 'true',
   // offer defaults
   offer_enabled: 'true',
   offer_title: '裝飾精選系列 <span class="offer">5 折優惠</span>',
@@ -151,23 +173,23 @@ export const useSettingsStore = create<SiteSettings & SettingsActions>()((set) =
   ]),
   // hero defaults
   hero_default_json: JSON.stringify([
-    { id: 'hero-default-01', backgroundImage: '/images/hero/home-default/1.jpg', subtitle: '椅子 <br /> 精選系列 <br /> 2023', title: '歡迎來到 <br /> Helendo 商店', desc: '我們精心挑選各式居家生活用品，<br /> 為您打造舒適美好的生活空間' },
-    { id: 'hero-default-02', backgroundImage: '/images/hero/home-default/2.jpg', subtitle: '椅子 <br /> 精選系列 <br /> 2023', title: '歡迎來到 <br /> Helendo 商店', desc: '我們精心挑選各式居家生活用品，<br /> 為您打造舒適美好的生活空間' },
-    { id: 'hero-default-03', backgroundImage: '/images/hero/home-default/3.jpg', subtitle: '椅子 <br /> 精選系列 <br /> 2023', title: '歡迎來到 <br /> Helendo 商店', desc: '我們精心挑選各式居家生活用品，<br /> 為您打造舒適美好的生活空間' },
+    { id: 'hero-default-01', backgroundImage: '/images/hero/home-default/1.jpg', subtitle: '', title: '', desc: '', textColor: '#000000', subtitleColor: '#dcb14a', overlayColor: '#000000', overlayOpacity: 0, overlayDirection: 'full', buttonStyle: 'dark' },
+    { id: 'hero-default-02', backgroundImage: '/images/hero/home-default/2.jpg', subtitle: '', title: '', desc: '', textColor: '#000000', subtitleColor: '#dcb14a', overlayColor: '#000000', overlayOpacity: 0, overlayDirection: 'full', buttonStyle: 'dark' },
+    { id: 'hero-default-03', backgroundImage: '/images/hero/home-default/3.jpg', subtitle: '', title: '', desc: '', textColor: '#000000', subtitleColor: '#dcb14a', overlayColor: '#000000', overlayOpacity: 0, overlayDirection: 'full', buttonStyle: 'dark' },
   ]),
   hero_boxed_json: JSON.stringify([
-    { id: 'hero-boxed-01', image: '/images/hero/home-boxed/1.png', imageAlt: '輪播圖片', subtitle: 'Helendo 商店', title: 'Hailey <br /> 木質椅' },
-    { id: 'hero-boxed-02', image: '/images/hero/home-boxed/2.png', imageAlt: '輪播圖片', subtitle: 'Helendo 商店', title: 'Hailey <br /> 木質椅' },
+    { id: 'hero-boxed-01', image: '/images/hero/home-boxed/1.png', imageAlt: '輪播圖片', subtitle: '', title: '' },
+    { id: 'hero-boxed-02', image: '/images/hero/home-boxed/2.png', imageAlt: '輪播圖片', subtitle: '', title: '' },
   ]),
   hero_carousel_json: JSON.stringify([
-    { id: 'hero-carousel-01', backgroundImage: '/images/hero/home-carousel/1.jpg', title: '鬧鐘 <br /> Carbon', desc: '我們精心挑選各式居家生活用品，<br /> 為您打造舒適美好的生活空間' },
-    { id: 'hero-carousel-02', backgroundImage: '/images/hero/home-carousel/2.jpg', title: 'Angel <br /> 木質椅', desc: '我們精心挑選各式居家生活用品，<br /> 為您打造舒適美好的生活空間' },
-    { id: 'hero-carousel-03', backgroundImage: '/images/hero/home-carousel/3.jpg', title: '竹製 <br /> 藤編籃', desc: '我們精心挑選各式居家生活用品，<br /> 為您打造舒適美好的生活空間' },
+    { id: 'hero-carousel-01', backgroundImage: '/images/hero/home-carousel/1.jpg', title: '鬧鐘 <br /> Carbon', desc: '我們精心挑選各式居家生活用品，<br /> 為您打造舒適美好的生活空間', textColor: '#000000', overlayColor: '#000000', overlayOpacity: 0, overlayDirection: 'full', buttonStyle: 'dark' },
+    { id: 'hero-carousel-02', backgroundImage: '/images/hero/home-carousel/2.jpg', title: 'Angel <br /> 木質椅', desc: '我們精心挑選各式居家生活用品，<br /> 為您打造舒適美好的生活空間', textColor: '#000000', overlayColor: '#000000', overlayOpacity: 0, overlayDirection: 'full', buttonStyle: 'dark' },
+    { id: 'hero-carousel-03', backgroundImage: '/images/hero/home-carousel/3.jpg', title: '竹製 <br /> 藤編籃', desc: '我們精心挑選各式居家生活用品，<br /> 為您打造舒適美好的生活空間', textColor: '#000000', overlayColor: '#000000', overlayOpacity: 0, overlayDirection: 'full', buttonStyle: 'dark' },
   ]),
   hero_collection_json: JSON.stringify([
-    { id: 'hero-collection-01', subtitle: 'Helendo 商店', title: '香料罐', desc: '我們提供各式精選居家用品，<br /> 為您的生活增添獨特風格。', image: '/images/hero/home-collection/1.png', imageAlt: '輪播圖片' },
-    { id: 'hero-collection-02', subtitle: 'Helendo 商店', title: '藤編包', desc: '我們提供各式精選居家用品，<br /> 為您的生活增添獨特風格。', image: '/images/hero/home-collection/2.png', imageAlt: '輪播圖片' },
-    { id: 'hero-collection-03', subtitle: 'Helendo 商店', title: '鬧鐘', desc: '我們提供各式精選居家用品，<br /> 為您的生活增添獨特風格。', image: '/images/hero/home-collection/3.png', imageAlt: '輪播圖片' },
+    { id: 'hero-collection-01', subtitle: '', title: '香料罐', desc: '', image: '/images/hero/home-collection/1.png', imageAlt: '輪播圖片' },
+    { id: 'hero-collection-02', subtitle: '', title: '藤編包', desc: '', image: '/images/hero/home-collection/2.png', imageAlt: '輪播圖片' },
+    { id: 'hero-collection-03', subtitle: '', title: '鬧鐘', desc: '', image: '/images/hero/home-collection/3.png', imageAlt: '輪播圖片' },
   ]),
   // featured products default
   featured_products_json: JSON.stringify([
@@ -175,6 +197,33 @@ export const useSettingsStore = create<SiteSettings & SettingsActions>()((set) =
     { id: '2', subTitle: '精選商品', title: 'Table Wood Pine', excerpt: '結合實用與美學的設計，<br/>為您的居家空間帶來全新體驗。', image: '/images/featured-product/table-wood-pine.png', altImage: '精選商品圖片', path: '/products/table-wood-pine', buttonText: '僅 $50', bgLabel: '松木' },
     { id: '3', subTitle: '精選商品', title: 'Art Deco Home', excerpt: '探索我們精心設計的裝飾藝術系列，<br/>讓您的家充滿藝術氣息。', image: '/images/featured-product/art-deco-home.png', altImage: '精選商品圖片', path: '/products/art-deco-home', buttonText: '僅 $30', bgLabel: '裝飾藝術' },
   ]),
+  // about defaults
+  about_video_banner: '/images/about/video-banner.jpg',
+  about_video_banner_alt: '影片橫幅',
+  about_video_url: 'https://www.youtube.com/embed/fkoEj95puX0',
+  about_support_info_json: JSON.stringify([
+    { id: 'info-01', infoIcon: 'IoBagHandleOutline', title: '線上購物', desc: '我們提供多樣化的商品選擇，滿足您的各種需求。' },
+    { id: 'info-02', infoIcon: 'IoLogoPaypal', title: '付款方式', desc: '支援多種安全付款方式，讓您購物更安心。' },
+    { id: 'info-03', infoIcon: 'IoNavigateOutline', title: '免運費', desc: '符合條件的訂單享有免運費優惠。' },
+    { id: 'info-04', infoIcon: 'IoStopwatchOutline', title: '退換貨政策', desc: '提供完善的退換貨服務，保障您的權益。' },
+  ]),
+  about_perfection_title: '功能與完美的結合',
+  about_perfection_desc: '我們致力於為您提供最優質的產品與服務。透過精心的設計與不斷的創新，我們將功能性與美學完美融合，為您帶來卓越的使用體驗。我們相信，好的設計能夠改善生活品質。',
+  about_progress_json: JSON.stringify([
+    { title: '創意', progressText: '82%' },
+    { title: '行銷', progressText: '82%' },
+    { title: '設計', progressText: '70%' },
+  ]),
+  about_banner_alt: '關於橫幅',
+  about_banner_one: '/images/about/banner/1-780x770.jpg',
+  about_banner_two: '/images/about/banner/2-380x380.jpg',
+  about_banner_three: '/images/about/banner/3-380x380.jpg',
+  about_banner_four: '/images/about/banner/4-380x380.jpg',
+  about_banner_five: '/images/about/banner/5-780x380.jpg',
+  about_address_title_one: '台北',
+  about_address_desc_one: '台北市信義區信義路五段7號 <br/> (02) 2345-6789 <br/> info@helendo.com',
+  about_address_title_two: '台中',
+  about_address_desc_two: '台中市西屯區台灣大道三段99號 <br/> (04) 2345-6789 <br/> office@helendo.com',
   // state
   loaded: false,
 

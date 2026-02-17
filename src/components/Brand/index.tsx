@@ -18,6 +18,9 @@ function Brand() {
     const SwiperComps = dynamic(() => import('../SwiperComps'), {
         ssr: false,
     });
+
+    if (brandItems.length === 0) return null;
+
     const swiperSettings = {
         pagination: false,
         navigation: {

@@ -4,6 +4,7 @@ import { IoCallOutline } from 'react-icons/io5';
 import LogoComps from '../LogoComps';
 import HeaderMenu from './HeaderMenu';
 import HeaderRightTwo from './HeaderRightSideTwo';
+import { useSettingsStore } from '../../store/settings/settings-slice';
 import type { MarkdownItem } from '../../types';
 
 interface HeaderTwoProps {
@@ -12,6 +13,7 @@ interface HeaderTwoProps {
 }
 
 function HeaderTwo({ headerItems }: HeaderTwoProps) {
+    const phone = useSettingsStore((s) => s.phone);
     const header = useRef<HTMLDivElement>(null);
     useEffect(() => {
         window.addEventListener('scroll', isSticky);
@@ -45,19 +47,16 @@ function HeaderTwo({ headerItems }: HeaderTwoProps) {
                     <div className="grid grid-cols-12 self-center">
                         <div className="lg:col-span-4 md:col-span-6 self-center hidden md:block">
                             <div className="header-contact">
-                                {headerItems[0]?.headerNumberInfo?.map(
-                                    (item) => (
-                                        <Link
-                                            href={item.numberUrl}
-                                            key={item.id}
-                                            className="flex transition-all hover:text-primary"
-                                        >
-                                            <IoCallOutline className="text-[18px] mr-[5px]" />
-                                            <span className="font-normal">
-                                                {item.numberInText}
-                                            </span>
-                                        </Link>
-                                    )
+                                {phone && (
+                                    <Link
+                                        href={`tel:${phone.replace(/[^\d+]/g, '')}`}
+                                        className="flex transition-all hover:text-primary"
+                                    >
+                                        <IoCallOutline className="text-[18px] mr-[5px]" />
+                                        <span className="font-normal">
+                                            {phone}
+                                        </span>
+                                    </Link>
                                 )}
                             </div>
                             <LogoComps

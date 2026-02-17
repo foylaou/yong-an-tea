@@ -14,6 +14,7 @@ import OfferSettings from './OfferSettings';
 import BrandsSettings from './BrandsSettings';
 import HeroSettings from './HeroSettings';
 import FeaturedSettings from './FeaturedSettings';
+import AboutSettings from './AboutSettings';
 
 
 interface SettingsTabsProps {
@@ -36,6 +37,7 @@ export default function SettingsTabs({ initialSettings }: SettingsTabsProps) {
     brands: <BrandsSettings initialData={initialSettings.brands || {}} />,
     hero: <HeroSettings initialData={initialSettings.hero || {}} />,
     featured: <FeaturedSettings initialData={initialSettings.featured || {}} />,
+    about: <AboutSettings initialData={initialSettings.about || {}} />,
   };
 
   return (

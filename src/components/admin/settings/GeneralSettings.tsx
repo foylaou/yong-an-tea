@@ -35,11 +35,13 @@ export default function GeneralSettings({ initialData }: GeneralSettingsProps) {
       logo_url: (initialData.logo_url as string) || '',
       favicon_url: (initialData.favicon_url as string) || '',
       copyright_text: (initialData.copyright_text as string) || '© {year} Helendo. 版權所有。',
+      blog_enabled: (initialData.blog_enabled as string) || 'true',
     },
   });
 
   const logoUrl = watch('logo_url');
   const faviconUrl = watch('favicon_url');
+  const blogEnabled = watch('blog_enabled');
 
   async function uploadFile(file: File, key: string): Promise<string> {
     const formData = new FormData();
@@ -160,7 +162,7 @@ export default function GeneralSettings({ initialData }: GeneralSettingsProps) {
               <input
                 ref={logoInputRef}
                 type="file"
-                accept="image/jpeg,image/png,image/webp,image/svg+xml"
+                accept="image/jpeg,image/png,image/webp,image/svg+xml,image/heic,image/heif,.heic,.heif"
                 onChange={handleLogoUpload}
                 className="hidden"
               />
@@ -206,7 +208,7 @@ export default function GeneralSettings({ initialData }: GeneralSettingsProps) {
               <input
                 ref={faviconInputRef}
                 type="file"
-                accept="image/jpeg,image/png,image/webp,image/svg+xml"
+                accept="image/jpeg,image/png,image/webp,image/svg+xml,image/heic,image/heif,.heic,.heif"
                 onChange={handleFaviconUpload}
                 className="hidden"
               />
@@ -254,6 +256,36 @@ export default function GeneralSettings({ initialData }: GeneralSettingsProps) {
             {errors.copyright_text && (
               <p className="mt-1 text-sm text-red-600">{errors.copyright_text.message}</p>
             )}
+          </div>
+
+          <div className="flex items-center justify-between rounded-md border border-gray-200 p-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                啟用部落格功能
+              </label>
+              <p className="mt-0.5 text-xs text-gray-400">
+                關閉後，前台導覽列、首頁部落格區塊及所有部落格頁面將被隱藏
+              </p>
+            </div>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={blogEnabled === 'true'}
+              onClick={() =>
+                setValue('blog_enabled', blogEnabled === 'true' ? 'false' : 'true', {
+                  shouldDirty: true,
+                })
+              }
+              className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ${
+                blogEnabled === 'true' ? 'bg-black' : 'bg-gray-300'
+              }`}
+            >
+              <span
+                className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ${
+                  blogEnabled === 'true' ? 'translate-x-5' : 'translate-x-0'
+                }`}
+              />
+            </button>
           </div>
         </div>
       </section>

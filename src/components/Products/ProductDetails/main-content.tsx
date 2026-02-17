@@ -28,8 +28,10 @@ function MainContent({ product }: MainContentProps) {
         soldOutSticker,
         bestSellerSticker,
         offerSticker,
+        maxQty,
     } = product as any;
     const [quantityCount, setQuantityCount] = useState(1);
+    const effectiveMax = maxQty && maxQty > 0 ? maxQty : Infinity;
 
     const addToCartHandler = () => {
         useCartStore.getState().addItemToCart({
@@ -147,7 +149,9 @@ function MainContent({ product }: MainContentProps) {
                                                     userInput.toString() !==
                                                     'NaN'
                                                 ) {
-                                                    setQuantityCount(userInput);
+                                                    setQuantityCount(
+                                                        Math.min(userInput, effectiveMax)
+                                                    );
                                                 }
                                             }}
                                         />
@@ -155,10 +159,10 @@ function MainContent({ product }: MainContentProps) {
                                             type="button"
                                             className={`${qtybutton} inc top-1/2 -translate-y-1/2 right-[4px]`}
                                             onClick={() =>
-                                                setQuantityCount(
-                                                    quantityCount >= 0
-                                                        ? quantityCount + 1
-                                                        : quantityCount
+                                                setQuantityCount((prev) =>
+                                                    prev < effectiveMax
+                                                        ? prev + 1
+                                                        : prev
                                                 )
                                             }
                                         >

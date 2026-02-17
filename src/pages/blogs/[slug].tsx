@@ -5,6 +5,7 @@ import BlogDetail from '../../components/Blogs/BlogDetails';
 import FooterComps from '../../components/FooterComps';
 import { getAllItems } from '../../lib/ItemsUtil';
 import { getAllBlogs, getBlogBySlug } from '../../lib/blogs-db';
+import { isBlogEnabled } from '../../lib/blog-guard';
 
 interface BlogDetailPageProps {
     blog: MarkdownItem;
@@ -34,6 +35,10 @@ function BlogDetailPage({
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
+    if (!(await isBlogEnabled())) {
+        return { redirect: { destination: '/', permanent: false } };
+    }
+
     const { slug } = context.params as { slug: string };
 
     const headerItems = getAllItems('header');

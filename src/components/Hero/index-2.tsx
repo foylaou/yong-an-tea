@@ -6,11 +6,11 @@ import { useSettingsStore } from '../../store/settings/settings-slice';
 
 function HeroTwo() {
     const heroBoxedJson = useSettingsStore((s) => s.hero_boxed_json);
+    const siteName = useSettingsStore((s) => s.site_name);
     const heroBoxedItems = useMemo(() => {
         try { return JSON.parse(heroBoxedJson); } catch { return []; }
     }, [heroBoxedJson]);
 
-    let settings: Record<string, any>;
     const [activeIdx, setActiveId] = useState(0);
     const onSlideChange = (SwiperComps: any) => {
         const { activeIndex } = SwiperComps;
@@ -25,7 +25,9 @@ function HeroTwo() {
         setActiveId(activeIndex);
     };
 
-    settings = {
+    if (heroBoxedItems.length === 0) return null;
+
+    const settings: Record<string, any> = {
         autoplay: {
             delay: 4000,
             disableOnInteraction: false,
@@ -85,7 +87,7 @@ function HeroTwo() {
                                                         },
                                                     }}
                                                 >
-                                                    {heroBoxedItem.subtitle}
+                                                    {heroBoxedItem.subtitle || siteName}
                                                 </motion.span>
                                                 <motion.h2
                                                     className="relative tracking-full lg:text-[60px] md:text-[40px] text-[30px] leading-[1.1]"

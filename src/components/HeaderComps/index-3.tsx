@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { IoCallOutline } from 'react-icons/io5';
 import LogoComps from '../LogoComps';
 import HeaderRightTwo from './HeaderRightSideTwo';
+import { useSettingsStore } from '../../store/settings/settings-slice';
 import type { MarkdownItem } from '../../types';
 
 interface HeaderThreeProps {
@@ -11,6 +12,7 @@ interface HeaderThreeProps {
 }
 
 function HeaderThree({ headerItems, logoPath }: HeaderThreeProps) {
+    const phone = useSettingsStore((s) => s.phone);
     const header = useRef<HTMLElement>(null);
     useEffect(() => {
         window.addEventListener('scroll', isSticky);
@@ -37,18 +39,17 @@ function HeaderThree({ headerItems, logoPath }: HeaderThreeProps) {
                 <div className="grid grid-cols-12">
                     <div className="md:col-span-4 self-center hidden md:block">
                         <div className="header-contact">
-                            {headerItems[0]?.headerNumberInfo?.map((item) => (
+                            {phone && (
                                 <Link
-                                    href={item.numberUrl}
-                                    key={item.id}
+                                    href={`tel:${phone.replace(/[^\d+]/g, '')}`}
                                     className="flex transition-all hover:text-primary"
                                 >
                                     <IoCallOutline className="text-[18px] mr-[5px]" />
                                     <span className="font-normal">
-                                        {item.numberInText}
+                                        {phone}
                                     </span>
                                 </Link>
-                            ))}
+                            )}
                         </div>
                     </div>
                     <div className="md:col-span-4 hidden md:block">

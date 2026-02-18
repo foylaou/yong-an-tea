@@ -2,13 +2,8 @@ import { useEffect, useRef } from 'react';
 import SearchBarComps from '../SearchBarComps';
 import LogoComps from '../LogoComps';
 import HeaderRight from './HeaderRightSide';
-import type { MarkdownItem } from '../../types';
 
-interface TransparentHeaderProps {
-    headerItems: MarkdownItem[];
-}
-
-function TransparentHeader({ headerItems }: TransparentHeaderProps) {
+function TransparentHeader() {
     const header = useRef<HTMLElement>(null);
     useEffect(() => {
         window.addEventListener('scroll', isSticky);
@@ -38,13 +33,12 @@ function TransparentHeader({ headerItems }: TransparentHeaderProps) {
                     </div>
                     <div className="md:col-span-4 sm:col-span-6 col-span-4">
                         <LogoComps
-                            headerItems={headerItems}
                             headerLogoCName="flex md:justify-center"
                             logoPath="/"
                         />
                     </div>
                     <div className="md:col-span-4 sm:col-span-6 col-span-8 self-center">
-                        <HeaderRight headerItems={headerItems} />
+                        <HeaderRight />
                     </div>
                 </div>
             </div>

@@ -1,22 +1,22 @@
 import { useMemo } from 'react';
 import Link from 'next/link';
-import type { MarkdownItem } from '../../types';
 import { useSettingsStore } from '../../store/settings/settings-slice';
 
 interface HeaderMenuProps {
-    headerItems: MarkdownItem[];
     differentPositionCName: string;
 }
 
-function HeaderMenu({ headerItems, differentPositionCName }: HeaderMenuProps) {
+function HeaderMenu({ differentPositionCName }: HeaderMenuProps) {
     const blogEnabled = useSettingsStore((s) => s.blog_enabled);
+    const menuJson = useSettingsStore((s) => s.header_menu_json);
     const menuItems = useMemo(() => {
-        const items = headerItems[0]?.homeBoxedMenu ?? [];
+        let items: any[] = [];
+        try { items = JSON.parse(menuJson); } catch { items = []; }
         if (blogEnabled === 'false') {
             return items.filter((item: any) => !item.path?.includes('/blogs'));
         }
         return items;
-    }, [headerItems, blogEnabled]);
+    }, [menuJson, blogEnabled]);
 
     return (
         <div className={`${differentPositionCName} header-menu`}>
@@ -31,7 +31,7 @@ function HeaderMenu({ headerItems, differentPositionCName }: HeaderMenuProps) {
                             {menuOne.submenuCName && !menuOne.megamenuCName && (
                                 <ul className={`${menuOne.submenuCName}`}>
                                     {menuOne?.headerSubmenu?.map(
-                                        (submenuOne) => (
+                                        (submenuOne: any) => (
                                             <li key={submenuOne.id}>
                                                 <Link
                                                     href={`${submenuOne.submenuPath}`}
@@ -46,7 +46,7 @@ function HeaderMenu({ headerItems, differentPositionCName }: HeaderMenuProps) {
                             {menuOne.megamenuCName && !menuOne.submenuCName && (
                                 <ul className={`${menuOne.megamenuCName} flex`}>
                                     {menuOne?.headerMegamenu?.map(
-                                        (megamenuOne) => (
+                                        (megamenuOne: any) => (
                                             <li
                                                 className="basis-[22%] px-[15px]"
                                                 key={megamenuOne.id}
@@ -56,7 +56,7 @@ function HeaderMenu({ headerItems, differentPositionCName }: HeaderMenuProps) {
                                                 </span>
                                                 <ul>
                                                     {megamenuOne?.groupItems?.map(
-                                                        (groupItem) => (
+                                                        (groupItem: any) => (
                                                             <li
                                                                 className="mb-[10px] last:mb-0"
                                                                 key={

@@ -1,6 +1,5 @@
 import type { GetServerSideProps } from 'next';
 import type { MarkdownItem } from '../types';
-import { getAllItems } from '../lib/ItemsUtil';
 import { getAllProducts } from '../lib/products-db';
 import HeaderThree from '../components/HeaderComps/index-3';
 import HeroThree from '../components/Hero/index-3';
@@ -11,15 +10,11 @@ import { useSettingsStore } from '../store/settings/settings-slice';
 import { useShallow } from 'zustand/react/shallow';
 
 interface HomeCarouselPageProps {
-    footerItems: MarkdownItem[];
     products: MarkdownItem[];
-    headerItems: MarkdownItem[];
 }
 
 function HomeCarouselPage({
-    footerItems,
     products,
-    headerItems,
 }: HomeCarouselPageProps) {
     const t = useSettingsStore(useShallow((s) => ({
         newArrivalTitle: s.new_arrival_title,
@@ -32,7 +27,6 @@ function HomeCarouselPage({
         <>
             <HomeCarousel>
                 <HeaderThree
-                    headerItems={headerItems}
                     logoPath="/home-carousel"
                 />
                 <HeroThree />
@@ -45,21 +39,17 @@ function HomeCarouselPage({
                     products={products}
                 />
             </HomeCarousel>
-            <FooterCompsThree footerItems={footerItems} />
+            <FooterCompsThree />
         </>
     );
 }
 
 export const getServerSideProps: GetServerSideProps = async () => {
-    const headerItems = getAllItems('header');
     const products = await getAllProducts();
-    const footerItems = getAllItems('footer');
 
     return {
         props: {
-            headerItems,
             products,
-            footerItems,
         },
     };
 };

@@ -5,14 +5,8 @@ import LogoComps from '../LogoComps';
 import HeaderMenu from './HeaderMenu';
 import HeaderRightTwo from './HeaderRightSideTwo';
 import { useSettingsStore } from '../../store/settings/settings-slice';
-import type { MarkdownItem } from '../../types';
 
-interface HeaderTwoProps {
-    headerItems: MarkdownItem[];
-    logoPath?: string;
-}
-
-function HeaderTwo({ headerItems }: HeaderTwoProps) {
+function HeaderTwo() {
     const phone = useSettingsStore((s) => s.phone);
     const header = useRef<HTMLDivElement>(null);
     useEffect(() => {
@@ -36,7 +30,6 @@ function HeaderTwo({ headerItems }: HeaderTwoProps) {
             <div className="header-top hidden md:block">
                 <div className="homebox-container border-b border-[#dddddd] py-[50px] xl:mx-[100px] mx-[50px]">
                     <LogoComps
-                        headerItems={headerItems}
                         logoPath="/home-boxed"
                         headerLogoCName="flex justify-center"
                     />
@@ -60,19 +53,17 @@ function HeaderTwo({ headerItems }: HeaderTwoProps) {
                                 )}
                             </div>
                             <LogoComps
-                                headerItems={headerItems}
                                 logoPath="/home-boxed"
                                 headerLogoCName="sticky-logo"
                             />
                         </div>
                         <div className="lg:col-span-4 hidden lg:block">
                             <HeaderMenu
-                                headerItems={headerItems}
                                 differentPositionCName=""
                             />
                         </div>
                         <div className="lg:col-span-4 md:col-span-6 col-span-12 self-center">
-                            <HeaderRightTwo headerItems={headerItems} />
+                            <HeaderRightTwo />
                         </div>
                     </div>
                 </div>

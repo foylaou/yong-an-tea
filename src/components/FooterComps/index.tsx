@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import Link from 'next/link';
 import {
     IoLocationSharp,
@@ -8,14 +9,12 @@ import * as FaIcons from 'react-icons/fa';
 import { useSettingsStore } from '../../store/settings/settings-slice';
 import { useShallow } from 'zustand/react/shallow';
 import { buildSocialList } from './social-utils';
-import { MarkdownItem } from '../../types';
 
 interface FooterCompsProps {
     footerContainer: string;
-    footerItems: MarkdownItem[];
 }
 
-function FooterComps({ footerContainer, footerItems }: FooterCompsProps) {
+function FooterComps({ footerContainer }: FooterCompsProps) {
     const settings = useSettingsStore(useShallow((s) => ({
         loaded: s.loaded,
         address: s.address,
@@ -27,12 +26,21 @@ function FooterComps({ footerContainer, footerItems }: FooterCompsProps) {
         social_pinterest: s.social_pinterest,
         social_tumblr: s.social_tumblr,
         copyright_text: s.copyright_text,
+        footer_address_title: s.footer_address_title,
+        footer_info_title: s.footer_info_title,
+        footer_info_links_json: s.footer_info_links_json,
+        footer_about_title: s.footer_about_title,
+        footer_about_links_json: s.footer_about_links_json,
+        footer_newsletter_title: s.footer_newsletter_title,
+        footer_menu_links_json: s.footer_menu_links_json,
+        footer_social_title: s.footer_social_title,
+        footer_logo_alt: s.footer_logo_alt,
+        footer_logo_path: s.footer_logo_path,
     })));
-    const address = settings.loaded && settings.address ? settings.address : footerItems[0]?.address;
-    const phone = settings.loaded && settings.phone ? settings.phone : footerItems[0]?.contactNumberText;
-    const phoneHref = settings.loaded && settings.phone ? `tel:${settings.phone}` : footerItems[0]?.contactNumber;
-    const socialList = settings.loaded ? buildSocialList(settings) : footerItems[0]?.socialList;
-    const footerLogo = settings.logo_url || footerItems[0]?.footerLogo;
+    const socialList = buildSocialList(settings);
+    const infoList = useMemo(() => { try { return JSON.parse(settings.footer_info_links_json); } catch { return []; } }, [settings.footer_info_links_json]);
+    const aboutList = useMemo(() => { try { return JSON.parse(settings.footer_about_links_json); } catch { return []; } }, [settings.footer_about_links_json]);
+    const menuList = useMemo(() => { try { return JSON.parse(settings.footer_menu_links_json); } catch { return []; } }, [settings.footer_menu_links_json]);
 
     return (
         <footer>
@@ -42,22 +50,22 @@ function FooterComps({ footerContainer, footerItems }: FooterCompsProps) {
                         <div className="md:col-span-4 lm:col-span-6 col-span-12">
                             <div className="footer-widget">
                                 <h2 className="text-[18px] mb-[15px]">
-                                    {footerItems[0]?.addressTitle}
+                                    {settings.footer_address_title}
                                 </h2>
                                 <ul>
                                     <li className="flex items-center mb-[5px]">
                                         <IoLocationSharp />
                                         <span className="ml-[10px]">
-                                            {address}
+                                            {settings.address}
                                         </span>
                                     </li>
                                     <li className="flex items-center">
                                         <IoCallSharp />
                                         <Link
-                                            href={phoneHref}
+                                            href={`tel:${settings.phone}`}
                                             className="font-normal hover:text-primary transition-all ml-[10px]"
                                         >
-                                            {phone}
+                                            {settings.phone}
                                         </Link>
                                     </li>
                                 </ul>
@@ -84,10 +92,10 @@ function FooterComps({ footerContainer, footerItems }: FooterCompsProps) {
                         <div className="md:col-span-3 lm:col-span-6 col-span-12">
                             <div className="footer-widget">
                                 <h2 className="text-[18px] mb-[15px]">
-                                    {footerItems[0]?.infoTitle}
+                                    {settings.footer_info_title}
                                 </h2>
                                 <ul>
-                                    {footerItems[0]?.infoList?.map((item) => (
+                                    {infoList?.map((item: any) => (
                                         <li
                                             className="mb-[5px] last:mb-0"
                                             key={item.id}
@@ -106,10 +114,10 @@ function FooterComps({ footerContainer, footerItems }: FooterCompsProps) {
                         <div className="md:col-span-2 lm:col-span-6 col-span-12">
                             <div className="footer-widget">
                                 <h2 className="text-[18px] mb-[15px]">
-                                    {footerItems[0]?.aboutTitle}
+                                    {settings.footer_about_title}
                                 </h2>
                                 <ul>
-                                    {footerItems[0]?.aboutList?.map((item) => (
+                                    {aboutList?.map((item: any) => (
                                         <li
                                             className="mb-[5px] last:mb-0"
                                             key={item.id}
@@ -128,7 +136,7 @@ function FooterComps({ footerContainer, footerItems }: FooterCompsProps) {
                         <div className="md:col-span-3 lm:col-span-6 col-span-12">
                             <div className="footer-widget">
                                 <h2 className="text-[18px] mb-[15px]">
-                                    {footerItems[0]?.newsletterTitle}
+                                    {settings.footer_newsletter_title}
                                 </h2>
                                 <form>
                                     <div className="input-field relative max-w-[270px]">
@@ -147,7 +155,7 @@ function FooterComps({ footerContainer, footerItems }: FooterCompsProps) {
                                     </div>
                                 </form>
                                 <ul className="flex pt-[50px]">
-                                    {footerItems[0]?.menuList?.map((item) => (
+                                    {menuList?.map((item: any) => (
                                         <li
                                             className="xl:mr-[30px] mr-[20px] last:mr-0"
                                             key={item.id}
@@ -171,7 +179,7 @@ function FooterComps({ footerContainer, footerItems }: FooterCompsProps) {
                     <div className="grid grid-cols-12 md:gap-y-0 gap-y-[20px] items-center">
                         <div className="md:col-span-4 col-span-12">
                             <ul className="flex md:justify-start justify-center">
-                                {footerItems[0]?.menuList?.map((item) => (
+                                {menuList?.map((item: any) => (
                                     <li
                                         className="xl:mr-[30px] mr-[20px] last:mr-0"
                                         key={item.id}
@@ -188,10 +196,10 @@ function FooterComps({ footerContainer, footerItems }: FooterCompsProps) {
                         </div>
                         <div className="md:col-span-4 col-span-12">
                             <div className="footer-logo flex justify-center">
-                                <Link href={footerItems[0]?.footerLogoPath}>
+                                <Link href={settings.footer_logo_path}>
                                     <img
-                                        src={footerLogo}
-                                        alt={footerItems[0]?.footerLogoAlt}
+                                        src={settings.logo_url}
+                                        alt={settings.footer_logo_alt}
                                         width={120}
                                         height={30}
                                         className={`transition-opacity duration-300 ${settings.loaded ? 'opacity-100' : 'opacity-0'}`}
@@ -202,7 +210,7 @@ function FooterComps({ footerContainer, footerItems }: FooterCompsProps) {
                         <div className="md:col-span-4 col-span-12">
                             <div className="social-link flex md:justify-end justify-center">
                                 <h2 className="text-[16px] lg:pr-[65px] pr-[15px]">
-                                    {footerItems[0]?.socialTitle}
+                                    {settings.footer_social_title}
                                 </h2>
                                 <ul className="flex">
                                     {socialList?.map((item: any) => {
@@ -231,10 +239,8 @@ function FooterComps({ footerContainer, footerItems }: FooterCompsProps) {
                 <div className="container">
                     <div className="grid grid-cols-1">
                         <span className="flex justify-center items-center">
-                            {(settings.loaded && settings.copyright_text
-                                ? settings.copyright_text
-                                : '© {year} Helendo. 版權所有。'
-                            ).replace('{year}', String(new Date().getFullYear()))}
+                            {(settings.copyright_text || '© {year} Helendo. 版權所有。')
+                                .replace('{year}', String(new Date().getFullYear()))}
                         </span>
                     </div>
                 </div>

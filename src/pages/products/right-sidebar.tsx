@@ -9,23 +9,19 @@ import { getAllProducts, getCategories } from '../../lib/products-db';
 import { buildProductFilters } from '../../lib/build-filters';
 
 interface ProductLeftSidebarPageProps {
-    headerItems: MarkdownItem[];
     products: MarkdownItem[];
     productFilter: MarkdownItem[];
     gridTabItems: MarkdownItem[];
-    footerItems: MarkdownItem[];
 }
 
 function ProductLeftSidebarPage({
-    headerItems,
     products,
     productFilter,
     gridTabItems,
-    footerItems,
 }: ProductLeftSidebarPageProps) {
     return (
         <>
-            <HeaderOne headerItems={headerItems} headerContainer="container" />
+            <HeaderOne headerContainer="container" />
             <Breadcrumb
                 breadcrumbContainer="container"
                 title="商品"
@@ -41,27 +37,22 @@ function ProductLeftSidebarPage({
             />
             <FooterComps
                 footerContainer="container"
-                footerItems={footerItems}
             />
         </>
     );
 }
 
 export const getServerSideProps: GetServerSideProps = async () => {
-    const headerItems = getAllItems('header');
     const products = await getAllProducts();
     const categories = await getCategories();
     const productFilter = buildProductFilters(products, categories);
     const gridTabItems = getAllItems('grid-tab');
-    const footerItems = getAllItems('footer');
 
     return {
         props: {
-            headerItems,
             products,
             productFilter,
             gridTabItems,
-            footerItems,
         },
     };
 };

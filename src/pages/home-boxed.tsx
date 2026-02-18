@@ -8,26 +8,21 @@ import ProductTab from '../components/ProductTab';
 import Brand from '../components/Brand';
 import NewsletterCompsTwo from '../components/NewsletterComps/index-2';
 import FooterCompsTwo from '../components/FooterComps/index-2';
-import { getAllItems } from '../lib/ItemsUtil';
 import { getAllProducts, getCategories } from '../lib/products-db';
 import { buildProductFilters, buildProductTabs } from '../lib/build-filters';
 import { useSettingsStore } from '../store/settings/settings-slice';
 import { useShallow } from 'zustand/react/shallow';
 
 interface HomeBoxedPageProps {
-    headerItems: MarkdownItem[];
     products: MarkdownItem[];
     productTab: MarkdownItem[];
     productFilter: MarkdownItem[];
-    footerItems: MarkdownItem[];
 }
 
 function HomeBoxedPage({
-    headerItems,
     products,
     productTab,
     productFilter,
-    footerItems,
 }: HomeBoxedPageProps) {
     const t = useSettingsStore(useShallow((s) => ({
         popularProducts: s.section_title_popular_products,
@@ -37,7 +32,7 @@ function HomeBoxedPage({
 
     return (
         <HomeBoxed>
-            <HeaderTwo headerItems={headerItems} logoPath="/home-boxed" />
+            <HeaderTwo />
             <HeroTwo />
             <VideoModalTwo
                 containerCName="homebox-container xl:mx-[100px] mx-[15px]"
@@ -57,26 +52,22 @@ function HomeBoxedPage({
                 sectionDesc={t.newsletterDesc}
                 containerCName="homebox-container xl:mx-[100px] mx-[15px] bg-[#f4f5f7] py-[50px] lg:px-[70px] px-[15px]"
             />
-            <FooterCompsTwo footerItems={footerItems} />
+            <FooterCompsTwo />
         </HomeBoxed>
     );
 }
 
 export const getServerSideProps: GetServerSideProps = async () => {
-    const headerItems = getAllItems('header');
     const products = await getAllProducts();
     const categories = await getCategories();
     const productFilter = buildProductFilters(products, categories);
     const productTab = buildProductTabs(categories);
-    const footerItems = getAllItems('footer');
 
     return {
         props: {
-            headerItems,
             products,
             productFilter,
             productTab,
-            footerItems,
         },
     };
 };

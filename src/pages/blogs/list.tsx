@@ -4,20 +4,17 @@ import HeaderOne from '../../components/HeaderComps';
 import Breadcrumb from '../../components/Breadcrumb';
 import BlogList from '../../components/Blogs/BlogList';
 import FooterComps from '../../components/FooterComps';
-import { getAllItems } from '../../lib/ItemsUtil';
 import { getAllBlogs } from '../../lib/blogs-db';
 import { isBlogEnabled } from '../../lib/blog-guard';
 
 interface BlogListPageProps {
-    headerItems: MarkdownItem[];
     blogs: MarkdownItem[];
-    footerItems: MarkdownItem[];
 }
 
-function BlogListPage({ headerItems, blogs, footerItems }: BlogListPageProps) {
+function BlogListPage({ blogs }: BlogListPageProps) {
     return (
         <>
-            <HeaderOne headerItems={headerItems} headerContainer="container" />
+            <HeaderOne headerContainer="container" />
             <Breadcrumb
                 breadcrumbContainer="container"
                 title="部落格列表"
@@ -28,7 +25,6 @@ function BlogListPage({ headerItems, blogs, footerItems }: BlogListPageProps) {
             <BlogList blogs={blogs} />
             <FooterComps
                 footerContainer="container"
-                footerItems={footerItems}
             />
         </>
     );
@@ -39,15 +35,11 @@ export const getServerSideProps: GetServerSideProps = async () => {
         return { redirect: { destination: '/', permanent: false } };
     }
 
-    const headerItems = getAllItems('header');
     const blogs = await getAllBlogs();
-    const footerItems = getAllItems('footer');
 
     return {
         props: {
-            headerItems,
             blogs,
-            footerItems,
         },
     };
 };

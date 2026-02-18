@@ -16,6 +16,7 @@ const socialFields = [
   { key: 'social_facebook' as const, label: 'Facebook', placeholder: 'https://www.facebook.com/...' },
   { key: 'social_twitter' as const, label: 'Twitter', placeholder: 'https://twitter.com/...' },
   { key: 'social_instagram' as const, label: 'Instagram', placeholder: 'https://instagram.com/...' },
+  { key: 'social_line' as const, label: 'LINE 官方帳號', placeholder: 'https://line.me/R/ti/p/...' },
   { key: 'social_pinterest' as const, label: 'Pinterest', placeholder: 'https://pinterest.com/...' },
   { key: 'social_tumblr' as const, label: 'Tumblr', placeholder: 'https://www.tumblr.com/...' },
 ];
@@ -35,6 +36,7 @@ export default function SocialSettings({ initialData }: SocialSettingsProps) {
       social_facebook: (initialData.social_facebook as string) || '',
       social_twitter: (initialData.social_twitter as string) || '',
       social_instagram: (initialData.social_instagram as string) || '',
+      social_line: (initialData.social_line as string) || '',
       social_pinterest: (initialData.social_pinterest as string) || '',
       social_tumblr: (initialData.social_tumblr as string) || '',
     },

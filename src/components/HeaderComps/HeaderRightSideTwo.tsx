@@ -12,18 +12,13 @@ import Cart from '../Cart';
 import OffcanvasComps from './OffcanvasComps';
 import FullscreenSearchBar from './FullscreenSearchBar';
 import LogoComps from '../LogoComps';
-import type { MarkdownItem } from '../../types';
 
 let isInitial = true;
 
 const badge =
     'bg-primary text-[12px] text-center absolute bottom-[-10px] right-[-10px] h-[20px] leading-[20px] rounded-[20px] px-[6px] transition-all group-hover:text-white';
 
-interface HeaderRightTwoProps {
-    headerItems: MarkdownItem[];
-}
-
-function HeaderRightTwo({ headerItems }: HeaderRightTwoProps) {
+function HeaderRightTwo() {
     const [offcanvas, setOffcanvas] = useState(false);
     const showOffcanvas = () => setOffcanvas(!offcanvas);
 
@@ -46,7 +41,6 @@ function HeaderRightTwo({ headerItems }: HeaderRightTwoProps) {
             <div className="header-right-wrap max-lm:grid max-lm:grid-cols-12">
                 <div className="col-span-4">
                     <LogoComps
-                        headerItems={headerItems}
                         logoPath="/home-boxed"
                         headerLogoCName="flex justify-start md:hidden"
                     />
@@ -95,13 +89,11 @@ function HeaderRightTwo({ headerItems }: HeaderRightTwoProps) {
             </div>
 
             <OffcanvasComps
-                headerItems={headerItems}
                 offcanvas={offcanvas}
                 showOffcanvas={showOffcanvas}
             />
 
             <FullscreenSearchBar
-                headerItems={headerItems}
                 fullscreenSearch={fullscreenSearch}
                 showFullscreenSearch={showFullscreenSearch}
             />

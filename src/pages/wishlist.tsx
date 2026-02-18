@@ -7,19 +7,15 @@ import FooterComps from '../components/FooterComps';
 import { getAllItems } from '../lib/ItemsUtil';
 
 interface WishlistPageProps {
-    headerItems: MarkdownItem[];
     wishlistPageItems: MarkdownItem[];
-    footerItems: MarkdownItem[];
 }
 
 function WishlistPage({
-    headerItems,
     wishlistPageItems,
-    footerItems,
 }: WishlistPageProps) {
     return (
         <>
-            <HeaderOne headerItems={headerItems} headerContainer="container" />
+            <HeaderOne headerContainer="container" />
             <Breadcrumb
                 breadcrumbContainer="container"
                 title="願望清單"
@@ -32,22 +28,17 @@ function WishlistPage({
             />
             <FooterComps
                 footerContainer="container"
-                footerItems={footerItems}
             />
         </>
     );
 }
 
 export const getStaticProps: GetStaticProps = async () => {
-    const headerItems = getAllItems('header');
     const wishlistPageItems = getAllItems('wishlist-page');
-    const footerItems = getAllItems('footer');
 
     return {
         props: {
-            headerItems,
             wishlistPageItems,
-            footerItems,
         },
     };
 };

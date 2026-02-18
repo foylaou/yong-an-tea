@@ -45,6 +45,7 @@ export const socialSettingsSchema = z.object({
   social_instagram: optionalUrl,
   social_pinterest: optionalUrl,
   social_tumblr: optionalUrl,
+  social_line: optionalUrl,
 });
 
 export const sortOrderEnum = z.enum([
@@ -116,6 +117,58 @@ export const featuredSettingsSchema = z.object({
   featured_products_json: z.string().optional(),
 });
 
+export const shippingSettingsSchema = z.object({
+  shipping_fee: z.number().int().min(0, '運費不能為負數'),
+  free_shipping_threshold: z.number().int().min(0, '免運門檻不能為負數'),
+  shipping_note: z.string().optional(),
+});
+
+export const linePaySettingsSchema = z.object({
+  linepay_channel_id: z.string().optional(),
+  linepay_channel_secret: z.string().optional(),
+  linepay_sandbox: z.string().optional(),
+});
+
+export const lineLoginSettingsSchema = z.object({
+  line_login_channel_id: z.string().optional(),
+  line_login_channel_secret: z.string().optional(),
+});
+
+export const logisticsSettingsSchema = z.object({
+  tcat_customer_id: z.string().optional(),
+  tcat_password: z.string().optional(),
+  tcat_sandbox: z.string().optional(),
+  tcat_sender_name: z.string().optional(),
+  tcat_sender_phone: z.string().optional(),
+  tcat_sender_address: z.string().optional(),
+});
+
+export const smtpSettingsSchema = z.object({
+  smtp_host: z.string().min(1, 'SMTP 主機為必填'),
+  smtp_port: z.number().int().min(1).max(65535),
+  smtp_user: z.string().min(1, 'SMTP 帳號為必填'),
+  smtp_pass: z.string().min(1, 'SMTP 密碼為必填'),
+  smtp_from_name: z.string().min(1, '寄件人名稱為必填'),
+  smtp_from_email: z.string().email('寄件人 Email 格式不正確'),
+});
+
+export const headerFooterSettingsSchema = z.object({
+  header_menu_json: z.string().optional(),
+  header_contact_title: z.string().optional(),
+  header_social_title: z.string().optional(),
+  footer_address_title: z.string().optional(),
+  footer_info_title: z.string().optional(),
+  footer_info_links_json: z.string().optional(),
+  footer_about_title: z.string().optional(),
+  footer_about_links_json: z.string().optional(),
+  footer_newsletter_title: z.string().optional(),
+  footer_menu_links_json: z.string().optional(),
+  footer_social_title: z.string().optional(),
+  footer_social_media_title: z.string().optional(),
+  footer_logo_alt: z.string().optional(),
+  footer_logo_path: z.string().optional(),
+});
+
 export const aboutSettingsSchema = z.object({
   // video banner
   about_video_banner: z.string().optional(),
@@ -156,6 +209,12 @@ export type BrandsSettingsData = z.infer<typeof brandsSettingsSchema>;
 export type HeroSettingsData = z.infer<typeof heroSettingsSchema>;
 export type FeaturedSettingsData = z.infer<typeof featuredSettingsSchema>;
 export type AboutSettingsData = z.infer<typeof aboutSettingsSchema>;
+export type ShippingSettingsData = z.infer<typeof shippingSettingsSchema>;
+export type LinePaySettingsData = z.infer<typeof linePaySettingsSchema>;
+export type LineLoginSettingsData = z.infer<typeof lineLoginSettingsSchema>;
+export type LogisticsSettingsData = z.infer<typeof logisticsSettingsSchema>;
+export type SmtpSettingsData = z.infer<typeof smtpSettingsSchema>;
+export type HeaderFooterSettingsData = z.infer<typeof headerFooterSettingsSchema>;
 
 // --- API Schemas (for server-side validation, accepts array for currencies) ---
 
@@ -167,7 +226,7 @@ export const currencyApiSchema = z.object({
 });
 
 export const settingsUpdateApiSchema = z.object({
-  group: z.enum(['general', 'homepage', 'currency', 'contact', 'social', 'product_display', 'content', 'video', 'offer', 'brands', 'hero', 'featured', 'about']),
+  group: z.enum(['general', 'homepage', 'currency', 'contact', 'social', 'product_display', 'content', 'video', 'offer', 'brands', 'hero', 'featured', 'about', 'shipping', 'linepay', 'line_login', 'logistics', 'smtp', 'header_footer']),
   settings: z.record(z.string(), z.unknown()),
 });
 
@@ -187,6 +246,12 @@ export const settingsSchemaMap: Record<string, z.ZodType> = {
   hero: heroSettingsSchema,
   featured: featuredSettingsSchema,
   about: aboutSettingsSchema,
+  shipping: shippingSettingsSchema,
+  linepay: linePaySettingsSchema,
+  line_login: lineLoginSettingsSchema,
+  logistics: logisticsSettingsSchema,
+  smtp: smtpSettingsSchema,
+  header_footer: headerFooterSettingsSchema,
 };
 
 // --- Group labels (Chinese) ---
@@ -195,6 +260,7 @@ export const groupLabels: Record<string, string> = {
   general: '一般設定',
   homepage: '首頁設定',
   currency: '幣別設定',
+  branches: '分店管理',
   contact: '聯絡資訊',
   social: '社群媒體',
   product_display: '商品顯示',
@@ -205,7 +271,13 @@ export const groupLabels: Record<string, string> = {
   hero: 'Hero Banner',
   featured: '精選商品',
   about: '關於我們',
+  shipping: '運費設定',
+  linepay: 'LINE Pay',
+  line_login: 'LINE 登入',
+  logistics: '物流設定',
+  smtp: 'SMTP 郵件',
+  header_footer: 'Header / Footer',
 };
 
-export const groupKeys = ['general', 'homepage', 'currency', 'contact', 'social', 'product_display', 'content', 'video', 'offer', 'brands', 'hero', 'featured', 'about'] as const;
+export const groupKeys = ['general', 'homepage', 'currency', 'branches', 'contact', 'social', 'product_display', 'content', 'video', 'offer', 'brands', 'hero', 'featured', 'about', 'shipping', 'linepay', 'line_login', 'logistics', 'smtp', 'header_footer'] as const;
 export type SettingsGroup = (typeof groupKeys)[number];

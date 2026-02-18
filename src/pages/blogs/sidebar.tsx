@@ -4,7 +4,6 @@ import HeaderOne from '../../components/HeaderComps';
 import Breadcrumb from '../../components/Breadcrumb';
 import BlogWithSidebar from '../../components/Blogs/BlogWithSidebar';
 import FooterComps from '../../components/FooterComps';
-import { getAllItems } from '../../lib/ItemsUtil';
 import { getAllBlogs, getBlogCategories, getBlogTags } from '../../lib/blogs-db';
 import { isBlogEnabled } from '../../lib/blog-guard';
 
@@ -20,23 +19,19 @@ interface BlogTag {
 }
 
 interface BlogSidebarPageProps {
-    headerItems: MarkdownItem[];
     blogs: MarkdownItem[];
     categories: BlogCategory[];
     tags: BlogTag[];
-    footerItems: MarkdownItem[];
 }
 
 function BlogSidebarPage({
-    headerItems,
     blogs,
     categories,
     tags,
-    footerItems,
 }: BlogSidebarPageProps) {
     return (
         <>
-            <HeaderOne headerItems={headerItems} headerContainer="container" />
+            <HeaderOne headerContainer="container" />
             <Breadcrumb
                 breadcrumbContainer="container"
                 title="部落格側邊欄"
@@ -51,7 +46,6 @@ function BlogSidebarPage({
             />
             <FooterComps
                 footerContainer="container"
-                footerItems={footerItems}
             />
         </>
     );
@@ -62,21 +56,17 @@ export const getServerSideProps: GetServerSideProps = async () => {
         return { redirect: { destination: '/', permanent: false } };
     }
 
-    const headerItems = getAllItems('header');
     const [blogs, categories, tags] = await Promise.all([
         getAllBlogs(),
         getBlogCategories(),
         getBlogTags(),
     ]);
-    const footerItems = getAllItems('footer');
 
     return {
         props: {
-            headerItems,
             blogs,
             categories,
             tags,
-            footerItems,
         },
     };
 };

@@ -4,12 +4,14 @@ import Layout from '../components/Layout';
 import '../styles/globals.css';
 import { ScrollToTop } from '../components/ScrollComps';
 import SettingsProvider from '../components/SettingsProvider';
+import CartWishlistSyncProvider from '../components/CartWishlistSyncProvider';
 import DynamicHead from '../components/DynamicHead';
 
 function MyApp({ Component, pageProps }: AppProps) {
     return (
         <Layout>
             <SettingsProvider />
+            <CartWishlistSyncProvider />
             <DynamicHead />
             <Head>
                 <meta

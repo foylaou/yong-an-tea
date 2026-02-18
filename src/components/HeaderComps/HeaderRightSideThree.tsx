@@ -9,18 +9,13 @@ import { useCartStore } from '../../store/cart/cart-slice';
 import Cart from '../Cart';
 import OffcanvasComps from './OffcanvasComps';
 import FullscreenSearchBar from './FullscreenSearchBar';
-import type { MarkdownItem } from '../../types';
 
 let isInitial = true;
 
 const badge =
     'bg-primary text-[12px] text-center absolute bottom-[-10px] right-[-10px] h-[20px] leading-[20px] rounded-[20px] px-[6px] transition-all group-hover:text-white';
 
-interface HeaderRightThreeProps {
-    headerItems: MarkdownItem[];
-}
-
-function HeaderRightThree({ headerItems }: HeaderRightThreeProps) {
+function HeaderRightThree() {
     const [fullscreenSearch, setFullscreenSearch] = useState(false);
     const showFullscreenSearch = () => setFullscreenSearch(!fullscreenSearch);
 
@@ -73,12 +68,10 @@ function HeaderRightThree({ headerItems }: HeaderRightThreeProps) {
             </div>
 
             <OffcanvasComps
-                headerItems={headerItems}
                 offcanvas={offcanvas}
                 showOffcanvas={showOffcanvas}
             />
             <FullscreenSearchBar
-                headerItems={headerItems}
                 fullscreenSearch={fullscreenSearch}
                 showFullscreenSearch={showFullscreenSearch}
             />

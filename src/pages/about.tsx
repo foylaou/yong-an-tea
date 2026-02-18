@@ -7,15 +7,13 @@ import FooterComps from '../components/FooterComps';
 import { getAllItems } from '../lib/ItemsUtil';
 
 interface AboutPageProps {
-    headerItems: MarkdownItem[];
     aboutItems: MarkdownItem[];
-    footerItems: MarkdownItem[];
 }
 
-function AboutPage({ headerItems, aboutItems, footerItems }: AboutPageProps) {
+function AboutPage({ aboutItems }: AboutPageProps) {
     return (
         <>
-            <HeaderOne headerItems={headerItems} headerContainer="container" />
+            <HeaderOne headerContainer="container" />
             <Breadcrumb
                 breadcrumbContainer="container"
                 title="關於我們"
@@ -26,22 +24,17 @@ function AboutPage({ headerItems, aboutItems, footerItems }: AboutPageProps) {
             <AboutUs aboutItems={aboutItems} />
             <FooterComps
                 footerContainer="container"
-                footerItems={footerItems}
             />
         </>
     );
 }
 
 export const getStaticProps: GetStaticProps = async () => {
-    const headerItems = getAllItems('header');
     const aboutItems = getAllItems('about');
-    const footerItems = getAllItems('footer');
 
     return {
         props: {
-            headerItems,
             aboutItems,
-            footerItems,
         },
     };
 };

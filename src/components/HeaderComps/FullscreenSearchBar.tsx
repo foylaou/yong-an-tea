@@ -1,13 +1,11 @@
 import { IoCloseOutline, IoSearchOutline } from 'react-icons/io5';
-import type { MarkdownItem } from '../../types';
 
 interface SearchBarProps {
-    headerItems: MarkdownItem[];
     fullscreenSearch: boolean;
     showFullscreenSearch: () => void;
 }
 
-function SearchBar({ headerItems, fullscreenSearch, showFullscreenSearch }: SearchBarProps) {
+function SearchBar({ fullscreenSearch, showFullscreenSearch }: SearchBarProps) {
     return (
         <div
             className={
@@ -26,17 +24,6 @@ function SearchBar({ headerItems, fullscreenSearch, showFullscreenSearch }: Sear
                 </div>
                 <form className="filter-form pt-[60px]">
                     <div className="inner-form lg:w-[875px] md:w-[710px] mx-auto">
-                        <div className="product-category-list flex flex-wrap justify-center">
-                            {headerItems[0]?.categoryList?.map((item) => (
-                                <button
-                                    key={item.id}
-                                    className="lm:mr-[40px] mr-[15px] last:mr-0"
-                                    type="button"
-                                >
-                                    {item.title}
-                                </button>
-                            ))}
-                        </div>
                         <div className="single-field relative pt-[65px]">
                             <input
                                 type="search"

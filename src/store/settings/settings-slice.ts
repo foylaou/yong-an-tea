@@ -91,6 +91,21 @@ interface SiteSettings {
   about_address_desc_one: string;
   about_address_title_two: string;
   about_address_desc_two: string;
+  // header / footer
+  header_menu_json: string;
+  header_contact_title: string;
+  header_social_title: string;
+  footer_address_title: string;
+  footer_info_title: string;
+  footer_info_links_json: string;
+  footer_about_title: string;
+  footer_about_links_json: string;
+  footer_newsletter_title: string;
+  footer_menu_links_json: string;
+  footer_social_title: string;
+  footer_social_media_title: string;
+  footer_logo_alt: string;
+  footer_logo_path: string;
   // state
   loaded: boolean;
 }
@@ -224,6 +239,48 @@ export const useSettingsStore = create<SiteSettings & SettingsActions>()((set) =
   about_address_desc_one: '台北市信義區信義路五段7號 <br/> (02) 2345-6789 <br/> info@helendo.com',
   about_address_title_two: '台中',
   about_address_desc_two: '台中市西屯區台灣大道三段99號 <br/> (04) 2345-6789 <br/> office@helendo.com',
+  // header / footer defaults
+  header_menu_json: JSON.stringify([
+    { id: 1, title: '首頁', path: '/', holderCName: '', },
+    { id: 2, title: '商品', path: '/products/left-sidebar', holderCName: 'header-submenu-holder group', submenuCName: 'header-submenu', headerSubmenu: [
+      { id: 'product-categories', submenuTitle: '商品分類', submenuPath: '/products/categories' },
+      { id: 'cart', submenuTitle: '購物車', submenuPath: '/cart' },
+      { id: 'wishlist', submenuTitle: '願望清單', submenuPath: '/wishlist' },
+    ]},
+    { id: 3, title: '部落格', path: '/blogs/sidebar', holderCName: '' },
+    { id: 4, title: '頁面', path: '/', holderCName: 'header-submenu-holder group', submenuCName: 'header-submenu', headerSubmenu: [
+      { id: 'about', submenuTitle: '關於我們', submenuPath: '/about' },
+      { id: 'contact', submenuTitle: '聯絡我們', submenuPath: '/contact' },
+      { id: 'faq', submenuTitle: '常見問題', submenuPath: '/faq' },
+    ]},
+  ]),
+  header_contact_title: '聯繫我們',
+  header_social_title: '追蹤我們的社群',
+  footer_address_title: '地址',
+  footer_info_title: '幫助與資訊',
+  footer_info_links_json: JSON.stringify([
+    { id: 1, title: '幫助與聯繫', path: '/contact' },
+    { id: 2, title: '退換貨政策', path: '/contact' },
+    { id: 3, title: '線上商店', path: '/' },
+    { id: 4, title: '服務條款', path: '/contact' },
+  ]),
+  footer_about_title: '關於我們',
+  footer_about_links_json: JSON.stringify([
+    { id: 1, title: '關於我們', path: '/about' },
+    { id: 2, title: '我們的服務', path: '/about' },
+    { id: 3, title: '常見問題', path: '/faq' },
+    { id: 4, title: '聯絡我們', path: '/contact' },
+  ]),
+  footer_newsletter_title: '電子報',
+  footer_menu_links_json: JSON.stringify([
+    { id: 1, title: '服務條款', path: '/about' },
+    { id: 2, title: '隱私權政策', path: '/about' },
+    { id: 3, title: '地圖', path: '/contact' },
+  ]),
+  footer_social_title: '追蹤我們的社群',
+  footer_social_media_title: '社群媒體',
+  footer_logo_alt: '頁尾標誌',
+  footer_logo_path: '/',
   // state
   loaded: false,
 

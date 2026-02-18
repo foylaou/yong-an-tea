@@ -4,14 +4,12 @@ import { IoCallOutline } from 'react-icons/io5';
 import LogoComps from '../LogoComps';
 import HeaderRightTwo from './HeaderRightSideTwo';
 import { useSettingsStore } from '../../store/settings/settings-slice';
-import type { MarkdownItem } from '../../types';
 
 interface HeaderThreeProps {
-    headerItems: MarkdownItem[];
     logoPath: string;
 }
 
-function HeaderThree({ headerItems, logoPath }: HeaderThreeProps) {
+function HeaderThree({ logoPath }: HeaderThreeProps) {
     const phone = useSettingsStore((s) => s.phone);
     const header = useRef<HTMLElement>(null);
     useEffect(() => {
@@ -54,13 +52,12 @@ function HeaderThree({ headerItems, logoPath }: HeaderThreeProps) {
                     </div>
                     <div className="md:col-span-4 hidden md:block">
                         <LogoComps
-                            headerItems={headerItems}
                             logoPath={logoPath}
                             headerLogoCName="flex justify-center"
                         />
                     </div>
                     <div className="md:col-span-4 col-span-12 self-center">
-                        <HeaderRightTwo headerItems={headerItems} />
+                        <HeaderRightTwo />
                     </div>
                 </div>
             </div>

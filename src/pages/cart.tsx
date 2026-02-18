@@ -7,15 +7,13 @@ import FooterComps from '../components/FooterComps';
 import { getAllItems } from '../lib/ItemsUtil';
 
 interface CartPageProps {
-    headerItems: MarkdownItem[];
     cartPageItems: MarkdownItem[];
-    footerItems: MarkdownItem[];
 }
 
-function CartPage({ headerItems, cartPageItems, footerItems }: CartPageProps) {
+function CartPage({ cartPageItems }: CartPageProps) {
     return (
         <>
-            <HeaderOne headerItems={headerItems} headerContainer="container" />
+            <HeaderOne headerContainer="container" />
             <Breadcrumb
                 breadcrumbContainer="container"
                 title="購物車"
@@ -26,22 +24,17 @@ function CartPage({ headerItems, cartPageItems, footerItems }: CartPageProps) {
             <CartPageComps cartPageItems={cartPageItems} />
             <FooterComps
                 footerContainer="container"
-                footerItems={footerItems}
             />
         </>
     );
 }
 
 export const getStaticProps: GetStaticProps = async () => {
-    const headerItems = getAllItems('header');
     const cartPageItems = getAllItems('cart-page');
-    const footerItems = getAllItems('footer');
 
     return {
         props: {
-            headerItems,
             cartPageItems,
-            footerItems,
         },
     };
 };

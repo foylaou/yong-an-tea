@@ -1,8 +1,20 @@
+import { useState, useEffect } from 'react';
 import * as IoIcon from 'react-icons/io5';
 import ProgressBar from '../ProgressBar';
 import VideoModal from '../VideoModal';
 import { MarkdownItem } from '../../types';
 import { useSettingsStore } from '../../store/settings/settings-slice';
+
+interface BranchInfo {
+    id: string;
+    name: string;
+    phone: string;
+    email: string;
+    address: string;
+    business_hours: string;
+    image_url: string;
+    is_primary: boolean;
+}
 
 interface AboutUsProps {
     aboutItems: MarkdownItem[];
@@ -32,10 +44,16 @@ function AboutUs({ aboutItems }: AboutUsProps) {
     const aboutBannerThree = useSettingsStore((s) => s.about_banner_three);
     const aboutBannerFour = useSettingsStore((s) => s.about_banner_four);
     const aboutBannerFive = useSettingsStore((s) => s.about_banner_five);
-    const aboutAddrTitleOne = useSettingsStore((s) => s.about_address_title_one);
-    const aboutAddrDescOne = useSettingsStore((s) => s.about_address_desc_one);
-    const aboutAddrTitleTwo = useSettingsStore((s) => s.about_address_title_two);
-    const aboutAddrDescTwo = useSettingsStore((s) => s.about_address_desc_two);
+    const [branches, setBranches] = useState<BranchInfo[]>([]);
+
+    useEffect(() => {
+        fetch('/api/branches')
+            .then((res) => res.json())
+            .then((data) => {
+                if (data.branches) setBranches(data.branches);
+            })
+            .catch(() => {});
+    }, []);
 
     const md = aboutItems[0];
 
@@ -73,12 +91,6 @@ function AboutUs({ aboutItems }: AboutUsProps) {
         four: (loaded && aboutBannerFour) || md?.aboutBannerFour,
         five: (loaded && aboutBannerFive) || md?.aboutBannerFive,
     };
-
-    // Addresses
-    const addrTitleOne = (loaded && aboutAddrTitleOne) || md?.addressTitleOne;
-    const addrDescOne = (loaded && aboutAddrDescOne) || md?.addressDescOne;
-    const addrTitleTwo = (loaded && aboutAddrTitleTwo) || md?.addressTitleTwo;
-    const addrDescTwo = (loaded && aboutAddrDescTwo) || md?.addressDescTwo;
 
     return (
         <div className="about border-b border-[#ededed] lg:py-[90px] md:py-[80px] py-[50px]">
@@ -197,32 +209,28 @@ function AboutUs({ aboutItems }: AboutUsProps) {
                     </div>
                 </div>
             </div>
-            <div className="address pt-[60px]">
-                <div className="container">
-                    <div className="grid grid-cols-12 gap-x-[30px] max-sm:gap-y-[30px]">
-                        <div className="lm:col-span-7 col-span-12">
-                            <h2 className="text-[30px]">
-                                {addrTitleOne}
-                            </h2>
-                            <p
-                                dangerouslySetInnerHTML={{
-                                    __html: addrDescOne,
-                                }}
-                            />
-                        </div>
-                        <div className="lm:col-span-5 col-span-12">
-                            <h2 className="text-[30px]">
-                                {addrTitleTwo}
-                            </h2>
-                            <p
-                                dangerouslySetInnerHTML={{
-                                    __html: addrDescTwo,
-                                }}
-                            />
+            {branches.length > 0 && (
+                <div className="address pt-[60px]">
+                    <div className="container">
+                        <div className="grid grid-cols-12 gap-x-[30px] max-sm:gap-y-[30px]">
+                            {branches.map((branch) => (
+                                <div
+                                    key={branch.id}
+                                    className={`col-span-12 ${branches.length === 1 ? '' : 'lm:col-span-6'}`}
+                                >
+                                    <h2 className="text-[30px]">{branch.name}</h2>
+                                    <p>
+                                        {branch.address && <>{branch.address}<br /></>}
+                                        {branch.phone && <>{branch.phone}<br /></>}
+                                        {branch.email && <>{branch.email}<br /></>}
+                                        {branch.business_hours && <>{branch.business_hours}</>}
+                                    </p>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>
-            </div>
+            )}
         </div>
     );
 }

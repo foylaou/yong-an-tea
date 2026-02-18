@@ -7,7 +7,6 @@ import ProductTab from '../components/ProductTab';
 import LatestBlogTwo from '../components/HomePage/LatestBlogTwo';
 import NewsletterCompsTwo from '../components/NewsletterComps/index-2';
 import FooterComps from '../components/FooterComps';
-import { getAllItems } from '../lib/ItemsUtil';
 import { getAllProducts, getCategories } from '../lib/products-db';
 import { buildProductFilters, buildProductTabs } from '../lib/build-filters';
 import { getAllBlogs } from '../lib/blogs-db';
@@ -15,21 +14,17 @@ import { useSettingsStore } from '../store/settings/settings-slice';
 import { useShallow } from 'zustand/react/shallow';
 
 interface HomeCategoriesPageProps {
-    headerItems: MarkdownItem[];
     products: MarkdownItem[];
     productFilter: MarkdownItem[];
     productTab: MarkdownItem[];
     blogs: MarkdownItem[];
-    footerItems: MarkdownItem[];
 }
 
 function HomeCategoriesPage({
-    headerItems,
     products,
     productFilter,
     productTab,
     blogs,
-    footerItems,
 }: HomeCategoriesPageProps) {
     const t = useSettingsStore(useShallow((s) => ({
         popularProducts: s.section_title_popular_products,
@@ -41,7 +36,7 @@ function HomeCategoriesPage({
 
     return (
         <>
-            <HeaderOne headerItems={headerItems} headerContainer="container" />
+            <HeaderOne headerContainer="container" />
             <CategoriesBanner
                 categoryBannerCName="category-banner-area pt-[25px]"
                 products={products}
@@ -71,29 +66,24 @@ function HomeCategoriesPage({
             />
             <FooterComps
                 footerContainer="container"
-                footerItems={footerItems}
             />
         </>
     );
 }
 
 export const getServerSideProps: GetServerSideProps = async () => {
-    const headerItems = getAllItems('header');
     const products = await getAllProducts();
     const categories = await getCategories();
     const productFilter = buildProductFilters(products, categories);
     const productTab = buildProductTabs(categories);
     const blogs = await getAllBlogs();
-    const footerItems = getAllItems('footer');
 
     return {
         props: {
-            headerItems,
             products,
             productFilter,
             productTab,
             blogs,
-            footerItems,
         },
     };
 };

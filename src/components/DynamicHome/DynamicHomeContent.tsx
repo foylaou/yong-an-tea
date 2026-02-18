@@ -46,8 +46,6 @@ import NewsletterCompsThree from '../NewsletterComps/index-3';
 import NewArrivalTwo from '../NewArrival/index-2';
 
 export interface DynamicHomeContentProps {
-    headerItems: MarkdownItem[];
-    footerItems: MarkdownItem[];
     // Shared
     products: MarkdownItem[];
     productFilter: MarkdownItem[];
@@ -82,7 +80,7 @@ function DynamicHomeContent(props: DynamicHomeContentProps) {
         case 2:
             return (
                 <HomeBoxed>
-                    <HeaderTwo headerItems={props.headerItems} logoPath="/" />
+                    <HeaderTwo />
                     <HeroTwo />
                     <VideoModalTwo
                         containerCName="homebox-container xl:mx-[100px] mx-[15px]"
@@ -102,7 +100,7 @@ function DynamicHomeContent(props: DynamicHomeContentProps) {
                         sectionDesc={t.newsletterDesc}
                         containerCName="homebox-container xl:mx-[100px] mx-[15px] bg-[#f4f5f7] py-[50px] lg:px-[70px] px-[15px]"
                     />
-                    <FooterCompsTwo footerItems={props.footerItems} />
+                    <FooterCompsTwo />
                 </HomeBoxed>
             );
         case 3:
@@ -110,7 +108,6 @@ function DynamicHomeContent(props: DynamicHomeContentProps) {
                 <>
                     <HomeCarousel>
                         <HeaderThree
-                            headerItems={props.headerItems}
                             logoPath="/"
                         />
                         <HeroThree />
@@ -123,14 +120,13 @@ function DynamicHomeContent(props: DynamicHomeContentProps) {
                             products={props.products}
                         />
                     </HomeCarousel>
-                    <FooterCompsThree footerItems={props.footerItems} />
+                    <FooterCompsThree />
                 </>
             );
         case 4:
             return (
                 <>
                     <HeaderOne
-                        headerItems={props.headerItems}
                         headerContainer="container"
                     />
                     <CategoriesBanner
@@ -164,7 +160,6 @@ function DynamicHomeContent(props: DynamicHomeContentProps) {
                     />
                     <FooterComps
                         footerContainer="container"
-                        footerItems={props.footerItems}
                     />
                 </>
             );
@@ -172,7 +167,7 @@ function DynamicHomeContent(props: DynamicHomeContentProps) {
             return (
                 <>
                     <HomeCollection>
-                        <HeaderFour headerItems={props.headerItems} />
+                        <HeaderFour />
                         <HeroFour btnText={t.shopNow} />
                         <NewsletterCompsThree
                             newsletterCName="newsletter-area lg:pt-[95px] md:pt-[75px] pt-[45px]"
@@ -186,13 +181,13 @@ function DynamicHomeContent(props: DynamicHomeContentProps) {
                             btnText={t.shopNow}
                         />
                     </HomeCollection>
-                    <FooterCompsThree footerItems={props.footerItems} />
+                    <FooterCompsThree />
                 </>
             );
         default:
             return (
                 <>
-                    <TransparentHeader headerItems={props.headerItems} />
+                    <TransparentHeader />
                     <HeroOne />
                     <FeaturedProduct />
                     <BestSellingProduct
@@ -208,7 +203,6 @@ function DynamicHomeContent(props: DynamicHomeContentProps) {
                     <NewsletterComps sectionTitle={t.newsletter} />
                     <FooterComps
                         footerContainer="container"
-                        footerItems={props.footerItems}
                     />
                 </>
             );

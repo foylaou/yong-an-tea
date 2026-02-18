@@ -9,24 +9,19 @@ import { getAllProducts, getCategories } from '../../lib/products-db';
 import { buildProductFilters } from '../../lib/build-filters';
 
 interface ProductFiveColumnsPageProps {
-    headerItems: MarkdownItem[];
     products: MarkdownItem[];
     productFilter: MarkdownItem[];
     gridTabItems: MarkdownItem[];
-    footerItems: MarkdownItem[];
 }
 
 function ProductFiveColumnsPage({
-    headerItems,
     products,
     productFilter,
     gridTabItems,
-    footerItems,
 }: ProductFiveColumnsPageProps) {
     return (
         <>
             <HeaderOne
-                headerItems={headerItems}
                 headerContainer="container-fluid xxl:px-[100px] px-[15px]"
             />
             <Breadcrumb
@@ -45,27 +40,22 @@ function ProductFiveColumnsPage({
             />
             <FooterComps
                 footerContainer="container-fluid xxl:px-[100px] px-[15px]"
-                footerItems={footerItems}
             />
         </>
     );
 }
 
 export const getServerSideProps: GetServerSideProps = async () => {
-    const headerItems = getAllItems('header');
     const products = await getAllProducts();
     const categories = await getCategories();
     const productFilter = buildProductFilters(products, categories);
     const gridTabItems = getAllItems('grid-tab-3');
-    const footerItems = getAllItems('footer');
 
     return {
         props: {
-            headerItems,
             products,
             productFilter,
             gridTabItems,
-            footerItems,
         },
     };
 };

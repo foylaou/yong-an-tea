@@ -2,27 +2,43 @@ import type { GetServerSideProps } from 'next';
 import type { MarkdownItem } from '../../types';
 import { getAllItems } from '../../lib/ProductUtil';
 import { getProductBySlug } from '../../lib/products-db';
+import { getSEOByEntity, type SEOData } from '../../lib/seo-db';
+import { buildProductJsonLd } from '../../lib/seo-jsonld';
 import HeaderOne from '../../components/HeaderComps';
 import BreadcrumbV2 from '../../components/Breadcrumb/index-2';
 import ProductDetails from '../../components/Products/ProductDetails';
 import FooterComps from '../../components/FooterComps';
+import SEOHead from '../../components/SEOHead';
+import JsonLd from '../../components/JsonLd';
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
 
 interface ProductDetailPageProps {
     product: MarkdownItem;
-    headerItems: MarkdownItem[];
     productDetailTabItems: MarkdownItem[];
-    footerItems: MarkdownItem[];
+    seo: SEOData | null;
 }
 
 function ProductDetailPage({
     product,
-    headerItems,
     productDetailTabItems,
-    footerItems,
+    seo,
 }: ProductDetailPageProps) {
+    const productJsonLd = buildProductJsonLd(product, SITE_URL);
+
     return (
         <>
-            <HeaderOne headerItems={headerItems} headerContainer="container" />
+            <SEOHead
+                seo={seo}
+                fallback={{
+                    title: product.title,
+                    description: product.desc,
+                    image: product.mdImage || product.smImage,
+                }}
+                path={`/products/${product.slug}`}
+            />
+            <JsonLd data={seo?.structured_data || productJsonLd} />
+            <HeaderOne headerContainer="container" />
             <BreadcrumbV2
                 breadcrumbContainer="container"
                 product={product}
@@ -36,7 +52,6 @@ function ProductDetailPage({
             />
             <FooterComps
                 footerContainer="container"
-                footerItems={footerItems}
             />
         </>
     );
@@ -50,16 +65,15 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
         return { notFound: true };
     }
 
-    const headerItems = getAllItems('header');
+    const seo = await getSEOByEntity('product', product.uuid);
+
     const productDetailTabItems = getAllItems('product-detail-tab');
-    const footerItems = getAllItems('footer');
 
     return {
         props: {
-            headerItems,
             product,
             productDetailTabItems,
-            footerItems,
+            seo,
         },
     };
 };

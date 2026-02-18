@@ -7,15 +7,13 @@ import FooterComps from '../components/FooterComps';
 import { getAllItems } from '../lib/ItemsUtil';
 
 interface ContactPageProps {
-    headerItems: MarkdownItem[];
     contactItems: MarkdownItem[];
-    footerItems: MarkdownItem[];
 }
 
-function ContactPage({ headerItems, contactItems, footerItems }: ContactPageProps) {
+function ContactPage({ contactItems }: ContactPageProps) {
     return (
         <>
-            <HeaderOne headerItems={headerItems} headerContainer="container" />
+            <HeaderOne headerContainer="container" />
             <Breadcrumb
                 breadcrumbContainer="container"
                 title="聯絡我們"
@@ -26,22 +24,17 @@ function ContactPage({ headerItems, contactItems, footerItems }: ContactPageProp
             <ContactUs contactItems={contactItems} />
             <FooterComps
                 footerContainer="container"
-                footerItems={footerItems}
             />
         </>
     );
 }
 
 export const getStaticProps: GetStaticProps = async () => {
-    const headerItems = getAllItems('header');
     const contactItems = getAllItems('contact');
-    const footerItems = getAllItems('footer');
 
     return {
         props: {
-            headerItems,
             contactItems,
-            footerItems,
         },
     };
 };

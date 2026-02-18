@@ -54,10 +54,33 @@ export async function updateSession(request: NextRequest) {
     }
   }
 
-  // If logged in, redirect away from auth pages
-  if (pathname.startsWith('/auth') && user) {
+  // Account pages: require login
+  if (pathname.startsWith('/account') && !user) {
     const url = request.nextUrl.clone();
-    url.pathname = '/';
+    url.pathname = '/auth';
+    url.searchParams.set('redirect', pathname);
+    return NextResponse.redirect(url);
+  }
+
+  // Checkout: require login
+  if (pathname === '/checkout' && !user) {
+    const url = request.nextUrl.clone();
+    url.pathname = '/auth';
+    url.searchParams.set('redirect', '/checkout');
+    return NextResponse.redirect(url);
+  }
+
+  // If logged in, redirect away from auth pages (except password reset)
+  if (pathname.startsWith('/auth') && user) {
+    const tab = request.nextUrl.searchParams.get('tab');
+    if (tab === 'reset') {
+      // Allow access — user arrived via password reset email link
+      return supabaseResponse;
+    }
+    const redirectTo = request.nextUrl.searchParams.get('redirect');
+    const url = request.nextUrl.clone();
+    url.pathname = redirectTo || '/';
+    url.search = '';
     return NextResponse.redirect(url);
   }
 

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 import Link from 'next/link';
 import {
     IoLocationSharp,
@@ -9,13 +9,8 @@ import * as FaIcons from 'react-icons/fa';
 import { useSettingsStore } from '../../store/settings/settings-slice';
 import { useShallow } from 'zustand/react/shallow';
 import { buildSocialList } from './social-utils';
-import { MarkdownItem } from '../../types';
 
-interface FooterCompsThreeProps {
-    footerItems: MarkdownItem[];
-}
-
-function FooterCompsThree({ footerItems }: FooterCompsThreeProps) {
+function FooterCompsThree() {
     const settings = useSettingsStore(useShallow((s) => ({
         loaded: s.loaded,
         address: s.address,
@@ -27,12 +22,21 @@ function FooterCompsThree({ footerItems }: FooterCompsThreeProps) {
         social_pinterest: s.social_pinterest,
         social_tumblr: s.social_tumblr,
         copyright_text: s.copyright_text,
+        footer_info_title: s.footer_info_title,
+        footer_info_links_json: s.footer_info_links_json,
+        footer_about_title: s.footer_about_title,
+        footer_about_links_json: s.footer_about_links_json,
+        footer_newsletter_title: s.footer_newsletter_title,
+        footer_menu_links_json: s.footer_menu_links_json,
+        footer_social_title: s.footer_social_title,
+        footer_logo_alt: s.footer_logo_alt,
+        footer_logo_path: s.footer_logo_path,
     })));
-    const address = settings.loaded && settings.address ? settings.address : footerItems[0]?.address;
-    const phone = settings.loaded && settings.phone ? settings.phone : footerItems[0]?.contactNumberText;
-    const phoneHref = settings.loaded && settings.phone ? `tel:${settings.phone}` : footerItems[0]?.contactNumber;
-    const socialList = settings.loaded ? buildSocialList(settings) : footerItems[0]?.socialList;
-    const footerLogo = settings.logo_url || footerItems[0]?.footerLogo;
+    const socialList = buildSocialList(settings);
+    const infoList = useMemo(() => { try { return JSON.parse(settings.footer_info_links_json); } catch { return []; } }, [settings.footer_info_links_json]);
+    const aboutList = useMemo(() => { try { return JSON.parse(settings.footer_about_links_json); } catch { return []; } }, [settings.footer_about_links_json]);
+    const menuList = useMemo(() => { try { return JSON.parse(settings.footer_menu_links_json); } catch { return []; } }, [settings.footer_menu_links_json]);
+
     const footer = useRef<HTMLElement>(null);
     useEffect(() => {
         window.addEventListener('scroll', isSticky);
@@ -42,7 +46,7 @@ function FooterCompsThree({ footerItems }: FooterCompsThreeProps) {
         };
     }, []);
 
-    const isSticky = (e: Event) => {
+    const isSticky = () => {
         const scrollTop = window.scrollY;
 
         scrollTop < 0
@@ -60,10 +64,10 @@ function FooterCompsThree({ footerItems }: FooterCompsThreeProps) {
                         <div className="lg:col-span-3 sm:col-span-6 col-span-12 lg:self-center">
                             <div className="footer-widget">
                                 <div className="footer-logo mb-[15px]">
-                                    <Link href={footerItems[0]?.footerLogoPath}>
+                                    <Link href={settings.footer_logo_path}>
                                         <img
-                                            src={footerLogo}
-                                            alt={footerItems[0]?.footerLogoAlt}
+                                            src={settings.logo_url}
+                                            alt={settings.footer_logo_alt}
                                             width={120}
                                             height={30}
                                             className={`transition-opacity duration-300 ${settings.loaded ? 'opacity-100' : 'opacity-0'}`}
@@ -74,16 +78,16 @@ function FooterCompsThree({ footerItems }: FooterCompsThreeProps) {
                                     <li className="flex items-center mb-[5px]">
                                         <IoLocationSharp />
                                         <span className="ml-[10px]">
-                                            {address}
+                                            {settings.address}
                                         </span>
                                     </li>
                                     <li className="flex items-center">
                                         <IoCallSharp />
                                         <Link
-                                            href={phoneHref}
+                                            href={`tel:${settings.phone}`}
                                             className="font-normal hover:text-primary transition-all ml-[10px]"
                                         >
-                                            {phone}
+                                            {settings.phone}
                                         </Link>
                                     </li>
                                 </ul>
@@ -92,10 +96,10 @@ function FooterCompsThree({ footerItems }: FooterCompsThreeProps) {
                         <div className="lg:col-span-3 sm:col-span-6 col-span-12">
                             <div className="footer-widget">
                                 <h2 className="text-[18px] mb-[15px]">
-                                    {footerItems[0]?.infoTitle}
+                                    {settings.footer_info_title}
                                 </h2>
                                 <ul>
-                                    {footerItems[0]?.infoList?.map((item) => (
+                                    {infoList?.map((item: any) => (
                                         <li
                                             className="mb-[5px] last:mb-0"
                                             key={item.id}
@@ -114,10 +118,10 @@ function FooterCompsThree({ footerItems }: FooterCompsThreeProps) {
                         <div className="lg:col-span-2 sm:col-span-6 col-span-12">
                             <div className="footer-widget">
                                 <h2 className="text-[18px] mb-[15px]">
-                                    {footerItems[0]?.aboutTitle}
+                                    {settings.footer_about_title}
                                 </h2>
                                 <ul>
-                                    {footerItems[0]?.aboutList?.map((item) => (
+                                    {aboutList?.map((item: any) => (
                                         <li
                                             className="mb-[5px] last:mb-0"
                                             key={item.id}
@@ -136,7 +140,7 @@ function FooterCompsThree({ footerItems }: FooterCompsThreeProps) {
                         <div className="lg:col-span-4 sm:col-span-6 col-span-12">
                             <div className="footer-widget lm:max-w-[410px] mx-auto">
                                 <h2 className="text-[18px] mb-[15px]">
-                                    {footerItems[0]?.newsletterTitle}
+                                    {settings.footer_newsletter_title}
                                 </h2>
                                 <form>
                                     <div className="input-field relative ">
@@ -155,7 +159,7 @@ function FooterCompsThree({ footerItems }: FooterCompsThreeProps) {
                                     </div>
                                 </form>
                                 <ul className="flex pt-[50px]">
-                                    {footerItems[0]?.menuList?.map((item) => (
+                                    {menuList?.map((item: any) => (
                                         <li
                                             className="xl:mr-[30px] mr-[20px] last:mr-0"
                                             key={item.id}
@@ -180,16 +184,14 @@ function FooterCompsThree({ footerItems }: FooterCompsThreeProps) {
                         <div className="grid grid-cols-12">
                             <div className="lg:col-span-6 col-span-12 max-md:order-2">
                                 <span className="flex lg:justify-start justify-center items-center pt-[10px]">
-                                    {(settings.loaded && settings.copyright_text
-                                        ? settings.copyright_text
-                                        : '© {year} Helendo. 版權所有。'
-                                    ).replace('{year}', String(new Date().getFullYear()))}
+                                    {(settings.copyright_text || '© {year} Helendo. 版權所有。')
+                                        .replace('{year}', String(new Date().getFullYear()))}
                                 </span>
                             </div>
                             <div className="lg:col-span-6 col-span-12 max-md:order-1">
                                 <div className="social-link flex lg:justify-end justify-center">
                                     <h2 className="text-[16px] pr-[65px]">
-                                        {footerItems[0]?.socialTitle}
+                                        {settings.footer_social_title}
                                     </h2>
                                     <ul className="flex">
                                         {socialList?.map(

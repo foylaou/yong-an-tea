@@ -13,22 +13,25 @@ export default async function UsersPage() {
     perPage: 1000,
   });
 
-  // Fetch profiles
+  // Fetch profiles — only admins
   const { data: profiles } = await adminClient
     .from('profiles')
-    .select('id, full_name, role');
+    .select('id, full_name, role')
+    .eq('role', 'admin');
 
+  const adminIds = new Set((profiles || []).map((p: any) => p.id));
   const profileMap = new Map(
     (profiles || []).map((p: any) => [p.id, p])
   );
 
-  // Merge
+  // Merge — only admin users
   const merged = (authUsers || [])
+    .filter((u: any) => adminIds.has(u.id))
     .map((u: any) => ({
       id: u.id,
       email: u.email || '',
       full_name: profileMap.get(u.id)?.full_name || '',
-      role: profileMap.get(u.id)?.role || 'customer',
+      role: profileMap.get(u.id)?.role || 'admin',
       created_at: u.created_at,
     }))
     .sort((a: any, b: any) =>
@@ -39,6 +42,7 @@ export default async function UsersPage() {
     <UserTable
       initialUsers={merged}
       currentUserId={user?.id || ''}
+      mode="admin"
     />
   );
 }

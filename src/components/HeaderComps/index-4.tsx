@@ -2,13 +2,8 @@ import { useEffect, useRef } from 'react';
 import LogoComps from '../LogoComps';
 import HeaderRightThree from './HeaderRightSideThree';
 import HeaderMenu from './HeaderMenu';
-import type { MarkdownItem } from '../../types';
 
-interface HeaderFourProps {
-    headerItems: MarkdownItem[];
-}
-
-function HeaderFour({ headerItems }: HeaderFourProps) {
+function HeaderFour() {
     // Header Sticky Activation
     const header = useRef<HTMLElement>(null);
     useEffect(() => {
@@ -37,19 +32,17 @@ function HeaderFour({ headerItems }: HeaderFourProps) {
                 <div className="grid grid-cols-12">
                     <div className="lg:col-span-4 col-span-6 self-center">
                         <LogoComps
-                            headerItems={headerItems}
                             headerLogoCName="flex"
                             logoPath="/home-collection"
                         />
                     </div>
                     <div className="lg:col-span-4 hidden lg:block">
                         <HeaderMenu
-                            headerItems={headerItems}
                             differentPositionCName="home-collection-megamenu-holder flex justify-center"
                         />
                     </div>
                     <div className="lg:col-span-4 col-span-6 self-center">
-                        <HeaderRightThree headerItems={headerItems} />
+                        <HeaderRightThree />
                     </div>
                 </div>
             </div>

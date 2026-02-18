@@ -7,6 +7,7 @@ import {
   aboutSettingsSchema,
   type AboutSettingsData,
 } from '@/lib/validations/settings';
+import AdminImageUploader from '@/components/admin/common/AdminImageUploader';
 
 interface SupportInfoItem {
   id: string;
@@ -62,6 +63,8 @@ export default function AboutSettings({ initialData }: AboutSettingsProps) {
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<AboutSettingsData>({
     resolver: zodResolver(aboutSettingsSchema),
@@ -77,10 +80,6 @@ export default function AboutSettings({ initialData }: AboutSettingsProps) {
       about_banner_three: (initialData.about_banner_three as string) || '',
       about_banner_four: (initialData.about_banner_four as string) || '',
       about_banner_five: (initialData.about_banner_five as string) || '',
-      about_address_title_one: (initialData.about_address_title_one as string) || '',
-      about_address_desc_one: (initialData.about_address_desc_one as string) || '',
-      about_address_title_two: (initialData.about_address_title_two as string) || '',
-      about_address_desc_two: (initialData.about_address_desc_two as string) || '',
     },
   });
 
@@ -269,59 +268,62 @@ export default function AboutSettings({ initialData }: AboutSettingsProps) {
             <input type="text" {...register('about_banner_alt')} className={inputClass} />
           </div>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">大圖 1 (780x770)</label>
-              <input type="text" {...register('about_banner_one')} className={inputClass} />
-            </div>
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">小圖 2 (380x380)</label>
-              <input type="text" {...register('about_banner_two')} className={inputClass} />
-            </div>
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">小圖 3 (380x380)</label>
-              <input type="text" {...register('about_banner_three')} className={inputClass} />
-            </div>
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">小圖 4 (380x380)</label>
-              <input type="text" {...register('about_banner_four')} className={inputClass} />
-            </div>
+            <AdminImageUploader
+              label="大圖 1"
+              hint="建議尺寸 780x770 (約 1:1)"
+              slug="about"
+              imageType="banner-one"
+              bucket="site-assets"
+              value={watch('about_banner_one')}
+              onChange={(url) => setValue('about_banner_one', url, { shouldDirty: true })}
+              targetWidth={780}
+              targetHeight={770}
+            />
+            <AdminImageUploader
+              label="小圖 2"
+              hint="建議尺寸 380x380 (1:1)"
+              slug="about"
+              imageType="banner-two"
+              bucket="site-assets"
+              value={watch('about_banner_two')}
+              onChange={(url) => setValue('about_banner_two', url, { shouldDirty: true })}
+              targetWidth={380}
+              targetHeight={380}
+            />
+            <AdminImageUploader
+              label="小圖 3"
+              hint="建議尺寸 380x380 (1:1)"
+              slug="about"
+              imageType="banner-three"
+              bucket="site-assets"
+              value={watch('about_banner_three')}
+              onChange={(url) => setValue('about_banner_three', url, { shouldDirty: true })}
+              targetWidth={380}
+              targetHeight={380}
+            />
+            <AdminImageUploader
+              label="小圖 4"
+              hint="建議尺寸 380x380 (1:1)"
+              slug="about"
+              imageType="banner-four"
+              bucket="site-assets"
+              value={watch('about_banner_four')}
+              onChange={(url) => setValue('about_banner_four', url, { shouldDirty: true })}
+              targetWidth={380}
+              targetHeight={380}
+            />
             <div className="md:col-span-2">
-              <label className="mb-1 block text-sm font-medium text-gray-700">大圖 5 (780x380)</label>
-              <input type="text" {...register('about_banner_five')} className={inputClass} />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Address Section */}
-      <section className="rounded-lg bg-white p-6 shadow">
-        <h2 className="mb-4 text-lg font-semibold text-gray-900">門市地址</h2>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          <div className="space-y-3">
-            <h3 className="text-sm font-semibold text-gray-900">門市一</h3>
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">名稱</label>
-              <input type="text" {...register('about_address_title_one')} className={inputClass} />
-            </div>
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">地址 / 電話 / Email</label>
-              <textarea {...register('about_address_desc_one')} rows={3} className={inputClass} />
-              <p className="mt-1 text-xs text-gray-500">可用 &lt;br/&gt; 換行</p>
-              {errors.about_address_desc_one && (
-                <p className="mt-1 text-sm text-red-600">{errors.about_address_desc_one.message}</p>
-              )}
-            </div>
-          </div>
-          <div className="space-y-3">
-            <h3 className="text-sm font-semibold text-gray-900">門市二</h3>
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">名稱</label>
-              <input type="text" {...register('about_address_title_two')} className={inputClass} />
-            </div>
-            <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">地址 / 電話 / Email</label>
-              <textarea {...register('about_address_desc_two')} rows={3} className={inputClass} />
-              <p className="mt-1 text-xs text-gray-500">可用 &lt;br/&gt; 換行</p>
+              <AdminImageUploader
+                label="大圖 5"
+                hint="建議尺寸 780x380 (約 2:1)"
+                slug="about"
+                imageType="banner-five"
+                bucket="site-assets"
+                value={watch('about_banner_five')}
+                onChange={(url) => setValue('about_banner_five', url, { shouldDirty: true })}
+                targetWidth={780}
+                targetHeight={380}
+              />
             </div>
           </div>
         </div>

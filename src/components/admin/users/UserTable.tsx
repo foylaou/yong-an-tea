@@ -14,9 +14,10 @@ interface User {
 interface UserTableProps {
   initialUsers: User[];
   currentUserId: string;
+  mode?: 'admin' | 'member' | 'all';
 }
 
-export default function UserTable({ initialUsers, currentUserId }: UserTableProps) {
+export default function UserTable({ initialUsers, currentUserId, mode = 'all' }: UserTableProps) {
   const [users, setUsers] = useState<User[]>(initialUsers);
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
@@ -48,13 +49,18 @@ export default function UserTable({ initialUsers, currentUserId }: UserTableProp
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
 
+  const pageTitle = mode === 'admin' ? '管理員' : mode === 'member' ? '會員管理' : '用戶管理';
+  const createLabel = mode === 'admin' ? '新增管理員' : mode === 'member' ? '新增會員' : '新增用戶';
+  const defaultCreateRole = mode === 'admin' ? 'admin' : 'customer';
+
   async function fetchUsers(params: { search?: string; role?: string }) {
     setLoading(true);
     const s = params.search ?? search;
     const r = params.role ?? roleFilter;
+    const fixedRole = mode === 'admin' ? 'admin' : mode === 'member' ? 'customer' : r;
     const qs = new URLSearchParams({
       ...(s && { search: s }),
-      ...(r && { role: r }),
+      ...(fixedRole && { role: fixedRole }),
     });
     try {
       const res = await fetch(`/api/admin/users?${qs}`);
@@ -190,12 +196,15 @@ export default function UserTable({ initialUsers, currentUserId }: UserTableProp
     <div>
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-gray-900">用戶管理</h1>
+        <h1 className="text-2xl font-semibold text-gray-900">{pageTitle}</h1>
         <button
-          onClick={() => setShowCreate(true)}
+          onClick={() => {
+            setShowCreate(true);
+            setCreateRole(defaultCreateRole);
+          }}
           className="rounded-md bg-black px-4 py-2 text-sm text-white hover:bg-gray-800"
         >
-          新增用戶
+          {createLabel}
         </button>
       </div>
 
@@ -216,18 +225,20 @@ export default function UserTable({ initialUsers, currentUserId }: UserTableProp
             搜尋
           </button>
         </form>
-        <select
-          value={roleFilter}
-          onChange={(e) => {
-            setRoleFilter(e.target.value);
-            fetchUsers({ role: e.target.value });
-          }}
-          className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-        >
-          <option value="">全部角色</option>
-          <option value="admin">管理員</option>
-          <option value="customer">一般用戶</option>
-        </select>
+        {mode === 'all' && (
+          <select
+            value={roleFilter}
+            onChange={(e) => {
+              setRoleFilter(e.target.value);
+              fetchUsers({ role: e.target.value });
+            }}
+            className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          >
+            <option value="">全部角色</option>
+            <option value="admin">管理員</option>
+            <option value="customer">會員</option>
+          </select>
+        )}
       </div>
 
       {/* Table */}
@@ -242,9 +253,11 @@ export default function UserTable({ initialUsers, currentUserId }: UserTableProp
                 <th className="w-[150px] px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
                   名稱
                 </th>
-                <th className="w-[100px] px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
-                  角色
-                </th>
+                {mode === 'all' && (
+                  <th className="w-[100px] px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                    角色
+                  </th>
+                )}
                 <th className="w-[150px] px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
                   建立時間
                 </th>
@@ -256,13 +269,13 @@ export default function UserTable({ initialUsers, currentUserId }: UserTableProp
             <tbody className="divide-y divide-gray-200">
               {loading ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-sm text-gray-500">
+                  <td colSpan={mode === 'all' ? 5 : 4} className="px-4 py-8 text-center text-sm text-gray-500">
                     載入中...
                   </td>
                 </tr>
               ) : users.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-4 py-8 text-center text-sm text-gray-500">
+                  <td colSpan={mode === 'all' ? 5 : 4} className="px-4 py-8 text-center text-sm text-gray-500">
                     沒有找到用戶
                   </td>
                 </tr>
@@ -289,28 +302,30 @@ export default function UserTable({ initialUsers, currentUserId }: UserTableProp
                         </span>
                       )}
                     </td>
-                    <td className="px-4 py-3">
-                      {editingId === user.id ? (
-                        <select
-                          value={editRole}
-                          onChange={(e) => setEditRole(e.target.value)}
-                          className="rounded border border-gray-300 px-2 py-1 text-sm"
-                        >
-                          <option value="admin">管理員</option>
-                          <option value="customer">一般用戶</option>
-                        </select>
-                      ) : (
-                        <span
-                          className={`inline-block rounded-full px-2 py-1 text-xs font-medium ${
-                            user.role === 'admin'
-                              ? 'bg-purple-100 text-purple-800'
-                              : 'bg-gray-100 text-gray-600'
-                          }`}
-                        >
-                          {user.role === 'admin' ? '管理員' : '一般用戶'}
-                        </span>
-                      )}
-                    </td>
+                    {mode === 'all' && (
+                      <td className="px-4 py-3">
+                        {editingId === user.id ? (
+                          <select
+                            value={editRole}
+                            onChange={(e) => setEditRole(e.target.value)}
+                            className="rounded border border-gray-300 px-2 py-1 text-sm"
+                          >
+                            <option value="admin">管理員</option>
+                            <option value="customer">會員</option>
+                          </select>
+                        ) : (
+                          <span
+                            className={`inline-block rounded-full px-2 py-1 text-xs font-medium ${
+                              user.role === 'admin'
+                                ? 'bg-purple-100 text-purple-800'
+                                : 'bg-green-100 text-green-700'
+                            }`}
+                          >
+                            {user.role === 'admin' ? '管理員' : '會員'}
+                          </span>
+                        )}
+                      </td>
+                    )}
                     <td className="px-4 py-3 text-sm text-gray-500">
                       {new Date(user.created_at).toLocaleDateString('zh-TW')}
                     </td>
@@ -475,14 +490,23 @@ export default function UserTable({ initialUsers, currentUserId }: UserTableProp
                   <label className="mb-1 block text-sm font-medium text-gray-700">
                     角色
                   </label>
-                  <select
-                    value={createRole}
-                    onChange={(e) => setCreateRole(e.target.value)}
-                    className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  >
-                    <option value="customer">一般用戶</option>
-                    <option value="admin">管理員</option>
-                  </select>
+                  {mode === 'all' ? (
+                    <select
+                      value={createRole}
+                      onChange={(e) => setCreateRole(e.target.value)}
+                      className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    >
+                      <option value="customer">會員</option>
+                      <option value="admin">管理員</option>
+                    </select>
+                  ) : (
+                    <input
+                      type="text"
+                      readOnly
+                      value={mode === 'admin' ? '管理員' : '會員'}
+                      className="w-full rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-600"
+                    />
+                  )}
                 </div>
                 {createError && (
                   <p className="text-sm text-red-600">{createError}</p>

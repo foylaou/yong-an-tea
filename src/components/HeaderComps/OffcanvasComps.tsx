@@ -5,17 +5,14 @@ import OffcanvasMenu from './OffcanvasMenu';
 import { useSettingsStore } from '../../store/settings/settings-slice';
 import { useShallow } from 'zustand/react/shallow';
 import { buildSocialList } from '../FooterComps/social-utils';
-import type { MarkdownItem } from '../../types';
 
 interface OffcanvasCompsProps {
-    headerItems: MarkdownItem[];
     offcanvas: boolean;
     showOffcanvas: () => void;
 }
 
-function OffcanvasComps({ headerItems, offcanvas, showOffcanvas }: OffcanvasCompsProps) {
+function OffcanvasComps({ offcanvas, showOffcanvas }: OffcanvasCompsProps) {
     const settings = useSettingsStore(useShallow((s) => ({
-        loaded: s.loaded,
         address: s.address,
         phone: s.phone,
         email: s.email,
@@ -24,11 +21,11 @@ function OffcanvasComps({ headerItems, offcanvas, showOffcanvas }: OffcanvasComp
         social_instagram: s.social_instagram,
         social_pinterest: s.social_pinterest,
         social_tumblr: s.social_tumblr,
+        header_contact_title: s.header_contact_title,
+        header_social_title: s.header_social_title,
     })));
-    const contactInfo = settings.loaded && (settings.address || settings.phone || settings.email)
-        ? [settings.address, settings.phone, settings.email].filter(Boolean).join('<br />')
-        : headerItems[0]?.contactInfo;
-    const socialList = settings.loaded ? buildSocialList(settings) : headerItems[0]?.socialList;
+    const contactInfo = [settings.address, settings.phone, settings.email].filter(Boolean).join('<br />');
+    const socialList = buildSocialList(settings);
 
     return (
         <div
@@ -48,68 +45,22 @@ function OffcanvasComps({ headerItems, offcanvas, showOffcanvas }: OffcanvasComp
                         <IoCloseOutline onClick={showOffcanvas} />
                     </button>
                 </div>
-                {((headerItems[0]?.languageList?.length ?? 0) > 1 || (headerItems[0]?.currencyList?.length ?? 0) > 1) && (
-                <div className="offcanvas-setting grid grid-cols-2 pt-[40px]">
-                    {(headerItems[0]?.languageList?.length ?? 0) > 1 && (
-                    <div className="language-widget">
-                        <h3 className="text-[16px] mb-[15px]">
-                            {headerItems[0]?.languageTitle}
-                        </h3>
-                        <ul>
-                            {headerItems[0]?.languageList?.map((items) => (
-                                <li
-                                    className="mb-[10px] last:mb-0"
-                                    key={items.id}
-                                >
-                                    <Link
-                                        href={items.path || '/'}
-                                        className="text-[#999999] font-normal transition-all hover:text-primary block"
-                                    >
-                                        {items.text}
-                                    </Link>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                    )}
-                    {(headerItems[0]?.currencyList?.length ?? 0) > 1 && (
-                    <div className="currency-widget">
-                        <h3 className="text-[16px] mb-[10px]">
-                            {headerItems[0]?.currencyTitle}
-                        </h3>
-                        <ul>
-                            {headerItems[0]?.currencyList?.map((items) => (
-                                <li
-                                    className="mb-[15px] last:mb-0"
-                                    key={items.id}
-                                >
-                                    <Link
-                                        href={items.path || '/'}
-                                        className="text-[#999999] font-normal transition-all hover:text-primary block"
-                                    >
-                                        {items.text}
-                                    </Link>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                    )}
-                </div>
-                )}
                 <OffcanvasMenu />
                 <div className="offcanvas-contact-info pt-[60px]">
                     <h3 className="text-[16px]">
-                        {headerItems[0]?.contactInfoTitle}
+                        {settings.header_contact_title}
                     </h3>
-                    <p
-                        className="text-[#666666] pt-[20px]"
-                        dangerouslySetInnerHTML={{
-                            __html: contactInfo,
-                        }}
-                    />
+                    {contactInfo && (
+                        <p
+                            className="text-[#666666] pt-[20px]"
+                            dangerouslySetInnerHTML={{
+                                __html: contactInfo,
+                            }}
+                        />
+                    )}
                     <div className="offcanvas-social-link flex justify-between items-center pt-[55px]">
                         <h3 className="text-[16px]">
-                            {headerItems[0]?.socialTitle}
+                            {settings.header_social_title}
                         </h3>
                         <ul className="flex">
                             {socialList?.map((item: any) => {

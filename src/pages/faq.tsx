@@ -7,15 +7,13 @@ import FooterComps from '../components/FooterComps';
 import { getAllItems } from '../lib/ItemsUtil';
 
 interface FAQPageProps {
-    headerItems: MarkdownItem[];
     faqItems: MarkdownItem[];
-    footerItems: MarkdownItem[];
 }
 
-function FAQPage({ headerItems, faqItems, footerItems }: FAQPageProps) {
+function FAQPage({ faqItems }: FAQPageProps) {
     return (
         <>
-            <HeaderOne headerItems={headerItems} headerContainer="container" />
+            <HeaderOne headerContainer="container" />
             <Breadcrumb
                 breadcrumbContainer="container"
                 title="常見問題"
@@ -30,22 +28,17 @@ function FAQPage({ headerItems, faqItems, footerItems }: FAQPageProps) {
             />
             <FooterComps
                 footerContainer="container"
-                footerItems={footerItems}
             />
         </>
     );
 }
 
 export const getStaticProps: GetStaticProps = async () => {
-    const headerItems = getAllItems('header');
     const faqItems = getAllItems('faq');
-    const footerItems = getAllItems('footer');
 
     return {
         props: {
-            headerItems,
             faqItems,
-            footerItems,
         },
     };
 };

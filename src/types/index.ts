@@ -16,3 +16,14 @@ export type {
 } from './header';
 export type { FooterData, FooterListItem, FooterSocialItem } from './footer';
 export type { HeroItem, FeaturedProductData, MarkdownItem } from './common';
+export type {
+    Order,
+    OrderItem,
+    OrderStatus,
+    PaymentMethod,
+    PaymentStatus,
+    ShippingAddress,
+    Payment,
+    Address,
+} from './order';
+export type { Coupon, DiscountType } from './coupon';

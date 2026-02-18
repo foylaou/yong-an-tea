@@ -7,15 +7,13 @@ import FooterComps from '../components/FooterComps';
 import { getAllItems } from '../lib/ItemsUtil';
 
 interface AuthPageProps {
-    headerItems: MarkdownItem[];
     authItems: MarkdownItem[];
-    footerItems: MarkdownItem[];
 }
 
-function AuthPage({ headerItems, authItems, footerItems }: AuthPageProps) {
+function AuthPage({ authItems }: AuthPageProps) {
     return (
         <>
-            <HeaderOne headerItems={headerItems} headerContainer="container" />
+            <HeaderOne headerContainer="container" />
             <Breadcrumb
                 breadcrumbContainer="container"
                 title="登入"
@@ -26,22 +24,17 @@ function AuthPage({ headerItems, authItems, footerItems }: AuthPageProps) {
             <AuthForm authItems={authItems} />
             <FooterComps
                 footerContainer="container"
-                footerItems={footerItems}
             />
         </>
     );
 }
 
 export const getStaticProps: GetStaticProps = async () => {
-    const headerItems = getAllItems('header');
     const authItems = getAllItems('auth-data');
-    const footerItems = getAllItems('footer');
 
     return {
         props: {
-            headerItems,
             authItems,
-            footerItems,
         },
     };
 };

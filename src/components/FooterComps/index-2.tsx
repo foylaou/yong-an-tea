@@ -1,16 +1,12 @@
+import { useMemo } from 'react';
 import Link from 'next/link';
 import { IoArrowForwardOutline } from 'react-icons/io5';
 import * as FaIcons from 'react-icons/fa';
 import { useSettingsStore } from '../../store/settings/settings-slice';
 import { useShallow } from 'zustand/react/shallow';
 import { buildSocialList } from './social-utils';
-import { MarkdownItem } from '../../types';
 
-interface FooterCompsTwoProps {
-    footerItems: MarkdownItem[];
-}
-
-function FooterCompsTwo({ footerItems }: FooterCompsTwoProps) {
+function FooterCompsTwo() {
     const settings = useSettingsStore(useShallow((s) => ({
         loaded: s.loaded,
         social_facebook: s.social_facebook,
@@ -19,11 +15,20 @@ function FooterCompsTwo({ footerItems }: FooterCompsTwoProps) {
         social_pinterest: s.social_pinterest,
         social_tumblr: s.social_tumblr,
         copyright_text: s.copyright_text,
+        footer_info_title: s.footer_info_title,
+        footer_info_links_json: s.footer_info_links_json,
+        footer_about_title: s.footer_about_title,
+        footer_about_links_json: s.footer_about_links_json,
+        footer_social_media_title: s.footer_social_media_title,
+        footer_newsletter_title: s.footer_newsletter_title,
+        footer_menu_links_json: s.footer_menu_links_json,
+        footer_social_title: s.footer_social_title,
     })));
-    const socialList = settings.loaded ? buildSocialList(settings) : footerItems[0]?.socialList;
-    const socialMediaList = settings.loaded
-        ? buildSocialList(settings).map((item) => ({ id: item.id, path: item.path, title: item.title }))
-        : footerItems[0]?.socialMediaList;
+    const socialList = buildSocialList(settings);
+    const socialMediaList = socialList.map((item) => ({ id: item.id, path: item.path, title: item.title }));
+    const infoList = useMemo(() => { try { return JSON.parse(settings.footer_info_links_json); } catch { return []; } }, [settings.footer_info_links_json]);
+    const aboutList = useMemo(() => { try { return JSON.parse(settings.footer_about_links_json); } catch { return []; } }, [settings.footer_about_links_json]);
+    const menuList = useMemo(() => { try { return JSON.parse(settings.footer_menu_links_json); } catch { return []; } }, [settings.footer_menu_links_json]);
 
     return (
         <footer>
@@ -33,10 +38,10 @@ function FooterCompsTwo({ footerItems }: FooterCompsTwoProps) {
                         <div className="md:col-span-3 sm:col-span-6 col-span-12">
                             <div className="footer-widget">
                                 <h2 className="text-[18px] mb-[15px]">
-                                    {footerItems[0]?.infoTitle}
+                                    {settings.footer_info_title}
                                 </h2>
                                 <ul>
-                                    {footerItems[0]?.infoList?.map((item) => (
+                                    {infoList?.map((item: any) => (
                                         <li
                                             className="mb-[5px] last:mb-0"
                                             key={item.id}
@@ -55,10 +60,10 @@ function FooterCompsTwo({ footerItems }: FooterCompsTwoProps) {
                         <div className="md:col-span-3 sm:col-span-6 col-span-12">
                             <div className="footer-widget">
                                 <h2 className="text-[18px] mb-[15px]">
-                                    {footerItems[0]?.aboutTitle}
+                                    {settings.footer_about_title}
                                 </h2>
                                 <ul>
-                                    {footerItems[0]?.aboutList?.map((item) => (
+                                    {aboutList?.map((item: any) => (
                                         <li
                                             className="mb-[5px] last:mb-0"
                                             key={item.id}
@@ -77,7 +82,7 @@ function FooterCompsTwo({ footerItems }: FooterCompsTwoProps) {
                         <div className="md:col-span-3 sm:col-span-6 col-span-12">
                             <div className="footer-widget">
                                 <h2 className="text-[18px] mb-[15px]">
-                                    {footerItems[0]?.socialMediaTitle}
+                                    {settings.footer_social_media_title}
                                 </h2>
                                 <ul>
                                     {socialMediaList?.map(
@@ -101,7 +106,7 @@ function FooterCompsTwo({ footerItems }: FooterCompsTwoProps) {
                         <div className="md:col-span-3 sm:col-span-6 col-span-12">
                             <div className="footer-widget">
                                 <h2 className="text-[18px] mb-[15px]">
-                                    {footerItems[0]?.newsletterTitle}
+                                    {settings.footer_newsletter_title}
                                 </h2>
                                 <form>
                                     <div className="input-field relative max-w-[270px]">
@@ -120,7 +125,7 @@ function FooterCompsTwo({ footerItems }: FooterCompsTwoProps) {
                                     </div>
                                 </form>
                                 <ul className="flex flex-wrap pt-[50px]">
-                                    {footerItems[0]?.menuList?.map((item) => (
+                                    {menuList?.map((item: any) => (
                                         <li
                                             className="xl:mr-[30px] mr-[15px] last:mr-0"
                                             key={item.id}
@@ -145,16 +150,14 @@ function FooterCompsTwo({ footerItems }: FooterCompsTwoProps) {
                         <div className="grid grid-cols-12">
                             <div className="md:col-span-6 col-span-12 max-lm:order-2">
                                 <span className="sm:flex md:justify-start justify-center items-center">
-                                    {(settings.loaded && settings.copyright_text
-                                        ? settings.copyright_text
-                                        : '© {year} Helendo. 版權所有。'
-                                    ).replace('{year}', String(new Date().getFullYear()))}
+                                    {(settings.copyright_text || '© {year} Helendo. 版權所有。')
+                                        .replace('{year}', String(new Date().getFullYear()))}
                                 </span>
                             </div>
                             <div className="md:col-span-6 col-span-12 max-lm:order-1">
                                 <div className="social-link flex md:justify-end justify-center max-lm:mb-[10px]">
                                     <h2 className="text-[16px] pr-[65px]">
-                                        {footerItems[0]?.socialTitle}
+                                        {settings.footer_social_title}
                                     </h2>
                                     <ul className="flex">
                                         {socialList?.map(

@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { IoAddSharp, IoHeartOutline, IoRemoveSharp } from 'react-icons/io5';
+import { IoAddSharp, IoHeartOutline, IoHeart, IoRemoveSharp } from 'react-icons/io5';
 import { useCartStore } from '../../../store/cart/cart-slice';
+import { useFlyAnimationStore } from '../../../store/cart/fly-to-cart';
 import { useWishlistStore } from '../../../store/wishlist/wishlist-slice';
 import { formatPrice } from '../../../store/settings/settings-slice';
 import { MarkdownItem } from '../../../types';
@@ -33,7 +34,9 @@ function MainContent({ product }: MainContentProps) {
     const [quantityCount, setQuantityCount] = useState(1);
     const effectiveMax = maxQty && maxQty > 0 ? maxQty : Infinity;
 
-    const addToCartHandler = () => {
+    const addToCartHandler = (e: React.MouseEvent) => {
+        const img = (product as any)?.xsImage || (product as any)?.mdImage;
+        useFlyAnimationStore.getState().trigger('cart', img, e.clientX - 30, e.clientY - 30);
         useCartStore.getState().addItemToCart({
             id,
             title,
@@ -45,15 +48,25 @@ function MainContent({ product }: MainContentProps) {
         });
     };
 
-    const addToWishlistHandler = () => {
-        useWishlistStore.getState().addItemToWishlist({
-            id,
-            title,
-            price,
-            totalPrice,
-            image: (product as any)?.xsImage,
-            slug: `/products/${product?.slug}`,
-        });
+    const isInWishlist = useWishlistStore((state) =>
+        state.items.some((item) => item.id === id)
+    );
+
+    const toggleWishlistHandler = (e: React.MouseEvent) => {
+        if (isInWishlist) {
+            useWishlistStore.getState().removeItemFromWishlist(id);
+        } else {
+            const img = (product as any)?.xsImage || (product as any)?.mdImage;
+            useFlyAnimationStore.getState().trigger('wishlist', img, e.clientX - 30, e.clientY - 30);
+            useWishlistStore.getState().addItemToWishlist({
+                id,
+                title,
+                price,
+                totalPrice,
+                image: (product as any)?.xsImage,
+                slug: `/products/${product?.slug}`,
+            });
+        }
     };
 
     return (
@@ -190,11 +203,11 @@ function MainContent({ product }: MainContentProps) {
                                     </button>
                                 </div>
                                 <button
-                                    onClick={addToWishlistHandler}
+                                    onClick={toggleWishlistHandler}
                                     type="button"
-                                    className={`${wishlistBtn}`}
+                                    className={`${wishlistBtn} ${isInWishlist ? 'text-red-500 border-red-200' : ''}`}
                                 >
-                                    <IoHeartOutline />
+                                    {isInWishlist ? <IoHeart /> : <IoHeartOutline />}
                                 </button>
                             </div>
                             <div className="other-info">

@@ -102,6 +102,18 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: message }, { status: 400 });
   }
 
+  // Save company invoice info if provided
+  if (data.company_name && data.company_tax_id) {
+    const adminClient2 = createAdminClient();
+    await adminClient2
+      .from('orders')
+      .update({
+        company_name: data.company_name,
+        company_tax_id: data.company_tax_id,
+      })
+      .eq('id', orderResult.order_id);
+  }
+
   // Record coupon usage after order created
   if (couponResult?.valid && couponResult.coupon) {
     await recordCouponUsage(

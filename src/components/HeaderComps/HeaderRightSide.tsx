@@ -57,10 +57,49 @@ function HeaderRight() {
         router.push('/');
     };
 
-    const cartQuantity = useCartStore((state) => state.totalQuantity);
-    const wishlistQuantity = useWishlistStore(
-        (state) => state.totalQuantity
-    );
+    const cartItemCount = useCartStore((state) => state.items.length);
+    const wishlistItemCount = useWishlistStore((state) => state.items.length);
+
+    // Cart badge bounce — only when a NEW item is added (items count increases)
+    const [cartBounce, setCartBounce] = useState(false);
+    const [showCartPlus, setShowCartPlus] = useState(false);
+    const prevCartItemCount = useRef(cartItemCount);
+    useEffect(() => {
+        if (cartItemCount > prevCartItemCount.current) {
+            setCartBounce(true);
+            setShowCartPlus(true);
+            const t1 = setTimeout(() => setCartBounce(false), 600);
+            const t2 = setTimeout(() => setShowCartPlus(false), 900);
+            return () => { clearTimeout(t1); clearTimeout(t2); };
+        }
+        prevCartItemCount.current = cartItemCount;
+    }, [cartItemCount]);
+
+    // Wishlist badge bounce animation
+    const [wishBounce, setWishBounce] = useState(false);
+    const [showWishPlus, setShowWishPlus] = useState(false);
+    const prevWishItemCount = useRef(wishlistItemCount);
+    useEffect(() => {
+        if (wishlistItemCount > prevWishItemCount.current) {
+            setWishBounce(true);
+            setShowWishPlus(true);
+            const t1 = setTimeout(() => setWishBounce(false), 600);
+            const t2 = setTimeout(() => setShowWishPlus(false), 900);
+            return () => { clearTimeout(t1); clearTimeout(t2); };
+        }
+        prevWishItemCount.current = wishlistItemCount;
+    }, [wishlistItemCount]);
+
+    const plusStyle: React.CSSProperties = {
+        position: 'absolute',
+        top: -18,
+        right: -8,
+        fontSize: 13,
+        fontWeight: 700,
+        color: '#f14705',
+        animation: 'cartPlusFloat 0.9s ease forwards',
+        pointerEvents: 'none',
+    };
 
     return (
         <>
@@ -118,7 +157,15 @@ function HeaderRight() {
                         className="block text-2xl relative group hover:text-primary transition-all"
                     >
                         <IoHeartOutline />
-                        <span className={badge}>{wishlistQuantity}</span>
+                        <span
+                            className={badge}
+                            style={wishBounce ? {
+                                animation: 'cartBadgeBounce 0.6s ease',
+                            } : undefined}
+                        >
+                            {wishlistItemCount}
+                        </span>
+                        {showWishPlus && <span style={plusStyle}>+1</span>}
                     </Link>
                 </div>
                 <div className="minicart-item md:mr-[35px] sm:mr-[25px] mr-[15px]">
@@ -128,7 +175,15 @@ function HeaderRight() {
                         onClick={showMiniCart}
                     >
                         <IoBagHandleOutline />
-                        <span className={badge}>{cartQuantity}</span>
+                        <span
+                            className={badge}
+                            style={cartBounce ? {
+                                animation: 'cartBadgeBounce 0.6s ease',
+                            } : undefined}
+                        >
+                            {cartItemCount}
+                        </span>
+                        {showCartPlus && <span style={plusStyle}>+1</span>}
                     </button>
                 </div>
                 <div className="menu-item">

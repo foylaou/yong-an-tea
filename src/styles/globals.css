@@ -426,3 +426,18 @@ label {
 .cart-table th.product-remove {
     @apply min-w-[70px];
 }
+
+/* Cart badge bounce animation */
+@keyframes cartBadgeBounce {
+    0%   { transform: scale(1); }
+    30%  { transform: scale(1.6); }
+    50%  { transform: scale(0.85); }
+    70%  { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+/* "+1" float-up animation */
+@keyframes cartPlusFloat {
+    0%   { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-20px); }
+}

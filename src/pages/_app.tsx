@@ -6,6 +6,7 @@ import { ScrollToTop } from '../components/ScrollComps';
 import SettingsProvider from '../components/SettingsProvider';
 import CartWishlistSyncProvider from '../components/CartWishlistSyncProvider';
 import DynamicHead from '../components/DynamicHead';
+import FlyToCart from '../components/FlyToCart';
 
 function MyApp({ Component, pageProps }: AppProps) {
     return (
@@ -20,6 +21,7 @@ function MyApp({ Component, pageProps }: AppProps) {
                 />
             </Head>
             <Component {...pageProps} />
+            <FlyToCart />
             <ScrollToTop />
         </Layout>
     );

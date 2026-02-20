@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import {
     IoMenuOutline,
     IoBagHandleOutline,
@@ -28,7 +28,22 @@ function HeaderRightTwo() {
     const [minicart, setMiniCart] = useState(false);
     const showMiniCart = () => setMiniCart(!minicart);
 
-    const cartQuantity = useCartStore((state) => state.totalQuantity);
+    const cartItemCount = useCartStore((state) => state.items.length);
+
+    // Cart badge bounce — only when a NEW item is added
+    const [cartBounce, setCartBounce] = useState(false);
+    const [showPlus, setShowPlus] = useState(false);
+    const prevCartItemCount = useRef(cartItemCount);
+    useEffect(() => {
+        if (cartItemCount > prevCartItemCount.current) {
+            setCartBounce(true);
+            setShowPlus(true);
+            const t1 = setTimeout(() => setCartBounce(false), 600);
+            const t2 = setTimeout(() => setShowPlus(false), 900);
+            return () => { clearTimeout(t1); clearTimeout(t2); };
+        }
+        prevCartItemCount.current = cartItemCount;
+    }, [cartItemCount]);
 
     useEffect(() => {
         if (isInitial) {
@@ -72,7 +87,30 @@ function HeaderRightTwo() {
                                 onClick={showMiniCart}
                             >
                                 <IoBagHandleOutline />
-                                <span className={badge}>{cartQuantity}</span>
+                                <span
+                                    className={badge}
+                                    style={cartBounce ? {
+                                        animation: 'cartBadgeBounce 0.6s ease',
+                                    } : undefined}
+                                >
+                                    {cartItemCount}
+                                </span>
+                                {showPlus && (
+                                    <span
+                                        style={{
+                                            position: 'absolute',
+                                            top: -18,
+                                            right: -8,
+                                            fontSize: 13,
+                                            fontWeight: 700,
+                                            color: '#f14705',
+                                            animation: 'cartPlusFloat 0.9s ease forwards',
+                                            pointerEvents: 'none',
+                                        }}
+                                    >
+                                        +1
+                                    </span>
+                                )}
                             </button>
                         </div>
                         <div className="menu-item">

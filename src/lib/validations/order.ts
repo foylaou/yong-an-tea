@@ -15,7 +15,16 @@ export const checkoutFormSchema = z.object({
   note: z.string().optional(),
   save_address: z.boolean().optional(),
   coupon_code: z.string().optional(),
-});
+  is_company: z.boolean().optional(),
+  company_name: z.string().optional(),
+  company_tax_id: z.string().optional(),
+}).refine(
+  (data) => !data.is_company || (data.company_name && data.company_name.length > 0),
+  { message: '公司抬頭為必填', path: ['company_name'] }
+).refine(
+  (data) => !data.is_company || (data.company_tax_id && /^\d{8}$/.test(data.company_tax_id)),
+  { message: '統一編號必須為 8 碼數字', path: ['company_tax_id'] }
+);
 
 export type CheckoutFormData = z.infer<typeof checkoutFormSchema>;
 
@@ -40,6 +49,8 @@ export const createOrderApiSchema = z.object({
     quantity: z.number().int().min(1),
   })).min(1, '購物車不能為空'),
   coupon_code: z.string().optional(),
+  company_name: z.string().optional(),
+  company_tax_id: z.string().regex(/^\d{8}$/, '統一編號必須為 8 碼數字').optional().or(z.literal('')),
 });
 
 export type CreateOrderApiData = z.infer<typeof createOrderApiSchema>;

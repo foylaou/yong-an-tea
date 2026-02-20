@@ -51,7 +51,7 @@ export const useCartStore = create<CartState & CartActions>()(
                                     id: payload.id,
                                     price: payload.price,
                                     quantity: itemQuantity,
-                                    totalPrice: payload.price,
+                                    totalPrice: payload.price * itemQuantity,
                                     name: payload.title,
                                     image: payload.image,
                                     slug: payload.slug,
@@ -60,6 +60,7 @@ export const useCartStore = create<CartState & CartActions>()(
                         };
                     }
 
+                    // 已在購物車中，累加數量
                     return {
                         totalQuantity: state.totalQuantity + itemQuantity,
                         changed: true,
@@ -67,9 +68,9 @@ export const useCartStore = create<CartState & CartActions>()(
                             item.id === payload.id
                                 ? {
                                       ...item,
-                                      quantity: item.quantity + 1,
+                                      quantity: item.quantity + itemQuantity,
                                       totalPrice:
-                                          item.totalPrice + payload.price,
+                                          (item.quantity + itemQuantity) * item.price,
                                   }
                                 : item
                         ),

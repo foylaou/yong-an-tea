@@ -26,7 +26,7 @@ function HeaderRightThree() {
     const showMiniCart = () => setMiniCart(!minicart);
 
     const cart = useCartStore();
-    const cartQuantity = useCartStore((state) => state.totalQuantity);
+    const cartItemCount = useCartStore((state) => state.items.length);
 
     useEffect(() => {
         if (isInitial) {
@@ -53,7 +53,7 @@ function HeaderRightThree() {
                         onClick={showMiniCart}
                     >
                         <IoBagHandleOutline />
-                        <span className={badge}>{cartQuantity}</span>
+                        <span className={badge}>{cartItemCount}</span>
                     </button>
                 </div>
                 <div className="menu-item">

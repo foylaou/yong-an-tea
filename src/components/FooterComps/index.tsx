@@ -200,7 +200,7 @@ function FooterComps({ footerContainer }: FooterCompsProps) {
                                     <img
                                         src={settings.logo_url}
                                         alt={settings.footer_logo_alt}
-                                        width={120}
+                                        width={180}
                                         height={30}
                                         className={`transition-opacity duration-300 ${settings.loaded ? 'opacity-100' : 'opacity-0'}`}
                                     />

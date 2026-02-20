@@ -1,5 +1,7 @@
 'use client';
 
+import { useState } from 'react';
+import { useRouter } from 'next/router';
 import Link from 'next/link';
 import type { Order, OrderItem } from '../../types/order';
 import { formatPrice } from '../../store/settings/settings-slice';
@@ -7,6 +9,8 @@ import { formatPrice } from '../../store/settings/settings-slice';
 interface OrderDetailProps {
   order: Order & { order_items: OrderItem[] };
 }
+
+const CUSTOMER_CANCELLABLE = ['pending', 'paid'];
 
 const statusLabel: Record<string, string> = {
   pending: '待付款',
@@ -34,7 +38,44 @@ const paymentMethodLabel: Record<string, string> = {
   cod: '貨到付款',
 };
 
-function OrderDetail({ order }: OrderDetailProps) {
+function OrderDetail({ order: initialOrder }: OrderDetailProps) {
+  const [order, setOrder] = useState(initialOrder);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [cancelReason, setCancelReason] = useState('');
+  const [cancelling, setCancelling] = useState(false);
+  const [cancelError, setCancelError] = useState('');
+  const router = useRouter();
+
+  const canCancel = CUSTOMER_CANCELLABLE.includes(order.status);
+
+  const handleCancel = async () => {
+    if (!cancelReason.trim()) {
+      setCancelError('請填寫取消原因');
+      return;
+    }
+    setCancelling(true);
+    setCancelError('');
+    try {
+      const res = await fetch(`/api/orders/${order.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ cancel_reason: cancelReason.trim() }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setOrder({ ...order, ...data.order, order_items: order.order_items });
+        setShowCancelModal(false);
+        setCancelReason('');
+      } else {
+        setCancelError(data.error || '取消失敗');
+      }
+    } catch {
+      setCancelError('網路錯誤');
+    } finally {
+      setCancelling(false);
+    }
+  };
+
   const timeline = [
     { label: '下單時間', time: order.created_at },
     { label: '付款時間', time: order.paid_at },
@@ -82,6 +123,16 @@ function OrderDetail({ order }: OrderDetailProps) {
             </div>
           )}
         </div>
+        {canCancel && (
+          <div className="mt-4 pt-4 border-t border-[#e8e8e8]">
+            <button
+              onClick={() => setShowCancelModal(true)}
+              className="rounded-md border border-red-300 px-4 py-1.5 text-sm text-red-600 hover:bg-red-50"
+            >
+              取消訂單
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Timeline */}
@@ -182,6 +233,59 @@ function OrderDetail({ order }: OrderDetailProps) {
         <div className="mt-6 p-4 bg-[#f6f6f6] rounded text-sm">
           <span className="text-gray-500">備註：</span>
           {order.note}
+        </div>
+      )}
+
+      {order.status === 'cancelled' && order.cancel_reason && (
+        <div className="mt-6 p-4 bg-red-50 border border-red-200 rounded text-sm">
+          <p className="font-medium text-red-700 mb-1">取消原因</p>
+          <p className="text-red-600">{order.cancel_reason}</p>
+          {order.cancelled_at && (
+            <p className="text-xs text-red-400 mt-1">
+              取消時間：{new Date(order.cancelled_at).toLocaleString('zh-TW')}
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Cancel modal */}
+      {showCancelModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+            <h3 className="text-lg font-medium mb-4">取消訂單</h3>
+            <p className="text-sm text-gray-500 mb-3">
+              請告訴我們取消的原因，以便我們改善服務。
+            </p>
+            <textarea
+              value={cancelReason}
+              onChange={(e) => setCancelReason(e.target.value)}
+              placeholder="請輸入取消原因..."
+              rows={3}
+              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-black focus:outline-none"
+            />
+            {cancelError && (
+              <p className="text-sm text-red-500 mt-2">{cancelError}</p>
+            )}
+            <div className="flex justify-end gap-3 mt-4">
+              <button
+                onClick={() => {
+                  setShowCancelModal(false);
+                  setCancelReason('');
+                  setCancelError('');
+                }}
+                className="rounded-md border border-gray-300 px-4 py-2 text-sm hover:bg-gray-50"
+              >
+                返回
+              </button>
+              <button
+                onClick={handleCancel}
+                disabled={cancelling}
+                className="rounded-md bg-red-600 px-4 py-2 text-sm text-white hover:bg-red-700 disabled:opacity-50"
+              >
+                {cancelling ? '處理中...' : '確認取消'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

@@ -5,11 +5,13 @@ import {
     IoBagHandleOutline,
     IoPricetagOutline,
     IoHeartOutline,
+    IoHeart,
     IoRemoveSharp,
 } from 'react-icons/io5';
 import QuickView from '../QuickView';
 
 import { useCartStore } from '../../store/cart/cart-slice';
+import { useFlyAnimationStore } from '../../store/cart/fly-to-cart';
 import { useFilterStore } from '../../store/product-filter/filter-slice';
 import { useWishlistStore } from '../../store/wishlist/wishlist-slice';
 import { formatPrice } from '../../store/settings/settings-slice';
@@ -56,7 +58,9 @@ function ProductItem({ product, productFilter, productFilterPath }: ProductItemP
     const [quantityCount, setQuantityCount] = useState(1);
     const effectiveMax = (product as any)?.maxQty && (product as any).maxQty > 0 ? (product as any).maxQty : Infinity;
 
-    const addToCartHandler = () => {
+    const addToCartHandler = (e: React.MouseEvent) => {
+        const img = (product as any)?.xsImage || productImageSrc;
+        useFlyAnimationStore.getState().trigger('cart', img, e.clientX - 30, e.clientY - 30);
         useCartStore.getState().addItemToCart({
             id,
             title,
@@ -76,15 +80,25 @@ function ProductItem({ product, productFilter, productFilterPath }: ProductItemP
         }
     };
 
-    const addToWishlistHandler = () => {
-        useWishlistStore.getState().addItemToWishlist({
-            id,
-            title,
-            price,
-            totalPrice,
-            image: (product as any)?.xsImage,
-            slug: `/products/${product?.slug}`,
-        });
+    const isInWishlist = useWishlistStore((state) =>
+        state.items.some((item) => item.id === id)
+    );
+
+    const toggleWishlistHandler = (e: React.MouseEvent) => {
+        if (isInWishlist) {
+            useWishlistStore.getState().removeItemFromWishlist(id);
+        } else {
+            const img = (product as any)?.xsImage || productImageSrc;
+            useFlyAnimationStore.getState().trigger('wishlist', img, e.clientX - 30, e.clientY - 30);
+            useWishlistStore.getState().addItemToWishlist({
+                id,
+                title,
+                price,
+                totalPrice,
+                image: (product as any)?.xsImage,
+                slug: `/products/${product?.slug}`,
+            });
+        }
     };
 
     return (
@@ -167,11 +181,11 @@ function ProductItem({ product, productFilter, productFilterPath }: ProductItemP
                             )}
                         </div>
                         <button
-                            onClick={addToWishlistHandler}
+                            onClick={toggleWishlistHandler}
                             type="button"
-                            className={`${addActionButton} group-hover:delay-300`}
+                            className={`${addActionButton} group-hover:delay-300 ${isInWishlist ? 'text-red-500' : ''}`}
                         >
-                            <IoHeartOutline />
+                            {isInWishlist ? <IoHeart /> : <IoHeartOutline />}
                         </button>
                     </div>
                 </div>
@@ -345,11 +359,11 @@ function ProductItem({ product, productFilter, productFilterPath }: ProductItemP
                                     </button>
                                 </div>
                                 <button
-                                    onClick={addToWishlistHandler}
+                                    onClick={toggleWishlistHandler}
                                     type="button"
-                                    className={`${wishlistBtn}`}
+                                    className={`${wishlistBtn} ${isInWishlist ? 'text-red-500 border-red-200' : ''}`}
                                 >
-                                    <IoHeartOutline />
+                                    {isInWishlist ? <IoHeart /> : <IoHeartOutline />}
                                 </button>
                             </div>
                             <div className="sku-wrap font-medium">

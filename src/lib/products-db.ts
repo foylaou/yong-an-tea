@@ -50,6 +50,8 @@ function mapProductRow(row: any): MarkdownItem {
         content: row.content ?? '',
         // category slug from the joined categories table (first match)
         category: row.product_categories?.[0]?.categories?.slug ?? '',
+        avgRating: Number(row.avg_rating) || 0,
+        reviewCount: row.review_count ?? 0,
     };
 }
 

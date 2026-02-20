@@ -27,3 +27,7 @@ export type {
     Address,
 } from './order';
 export type { Coupon, DiscountType } from './coupon';
+export type { Review, ReviewStatus } from './review';
+export type {
+    SalesAnalytics, DailyRevenue, TopProduct, StatusDist, PaymentDist,
+} from './analytics';

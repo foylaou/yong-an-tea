@@ -43,38 +43,24 @@ export const useWishlistStore = create<WishlistState & WishlistActions>()(
                         (item) => item.id === payload.id
                     );
 
-                    if (!existingItem) {
-                        return {
-                            totalQuantity: state.totalQuantity + 1,
-                            changed: true,
-                            items: [
-                                ...state.items,
-                                {
-                                    id: payload.id,
-                                    price: payload.price,
-                                    quantity: 1,
-                                    totalPrice: payload.price,
-                                    name: payload.title,
-                                    image: payload.image,
-                                    slug: payload.slug,
-                                },
-                            ],
-                        };
-                    }
+                    // 已在願望清單中，不重複加入
+                    if (existingItem) return state;
 
                     return {
                         totalQuantity: state.totalQuantity + 1,
                         changed: true,
-                        items: state.items.map((item) =>
-                            item.id === payload.id
-                                ? {
-                                      ...item,
-                                      quantity: item.quantity + 1,
-                                      totalPrice:
-                                          item.totalPrice + payload.price,
-                                  }
-                                : item
-                        ),
+                        items: [
+                            ...state.items,
+                            {
+                                id: payload.id,
+                                price: payload.price,
+                                quantity: 1,
+                                totalPrice: payload.price,
+                                name: payload.title,
+                                image: payload.image,
+                                slug: payload.slug,
+                            },
+                        ],
                     };
                 }),
 

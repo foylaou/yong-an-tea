@@ -14,14 +14,33 @@ const paymentMethodLabel: Record<string, string> = {
   cod: '貨到付款',
 };
 
-const STATUS_TRANSITIONS: Record<string, string[]> = {
-  pending: ['paid', 'cancelled'],
-  paid: ['processing', 'cancelled', 'refunded'],
-  processing: ['shipped', 'cancelled'],
-  shipped: ['completed'],
-  completed: ['refunded'],
-  cancelled: [],
-  refunded: [],
+const STATUS_TRANSITIONS: Record<string, Record<string, string[]>> = {
+  line_pay: {
+    pending: ['paid', 'cancelled'],
+    paid: ['processing', 'cancelled', 'refunded'],
+    processing: ['shipped', 'cancelled'],
+    shipped: ['completed'],
+    completed: ['refunded'],
+    cancelled: [],
+    refunded: [],
+  },
+  bank_transfer: {
+    pending: ['paid', 'cancelled'],
+    paid: ['processing', 'cancelled', 'refunded'],
+    processing: ['shipped', 'cancelled'],
+    shipped: ['completed'],
+    completed: ['refunded'],
+    cancelled: [],
+    refunded: [],
+  },
+  cod: {
+    pending: ['processing', 'cancelled'],
+    processing: ['shipped', 'cancelled'],
+    shipped: ['completed'],
+    completed: ['refunded'],
+    cancelled: [],
+    refunded: [],
+  },
 };
 
 export default function AdminOrderDetail({ order: initialOrder }: AdminOrderDetailProps) {
@@ -30,7 +49,8 @@ export default function AdminOrderDetail({ order: initialOrder }: AdminOrderDeta
   const [trackingNumber, setTrackingNumber] = useState(order.tracking_number || '');
   const [message, setMessage] = useState('');
 
-  const allowedTransitions = STATUS_TRANSITIONS[order.status] || [];
+  const transitions = STATUS_TRANSITIONS[order.payment_method] || STATUS_TRANSITIONS.bank_transfer;
+  const allowedTransitions = transitions[order.status] || [];
 
   const handleStatusUpdate = async (newStatus: string) => {
     if (!confirm(`確定要將狀態更新為「${statusLabel[newStatus] || newStatus}」嗎？`)) return;
@@ -127,6 +147,17 @@ export default function AdminOrderDetail({ order: initialOrder }: AdminOrderDeta
               <div className="mt-4 p-3 bg-gray-50 rounded text-sm">
                 <span className="text-gray-500">備註：</span>
                 {order.note}
+              </div>
+            )}
+            {order.status === 'cancelled' && order.cancel_reason && (
+              <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded text-sm">
+                <p className="font-medium text-red-700 mb-1">取消原因</p>
+                <p className="text-red-600">{order.cancel_reason}</p>
+                {order.cancelled_at && (
+                  <p className="text-xs text-red-400 mt-1">
+                    取消時間：{new Date(order.cancelled_at).toLocaleString('zh-TW')}
+                  </p>
+                )}
               </div>
             )}
           </div>
@@ -234,6 +265,23 @@ export default function AdminOrderDetail({ order: initialOrder }: AdminOrderDeta
               <p className="text-gray-500">{order.customer_phone}</p>
             </div>
           </div>
+
+          {/* Company invoice */}
+          {order.company_name && order.company_tax_id && (
+            <div className="rounded-lg border border-gray-200 p-5">
+              <h2 className="text-lg font-medium mb-4">公司發票</h2>
+              <div className="text-sm space-y-2">
+                <p>
+                  <span className="text-gray-500">公司抬頭：</span>
+                  <span className="font-medium">{order.company_name}</span>
+                </p>
+                <p>
+                  <span className="text-gray-500">統一編號：</span>
+                  <span className="font-mono font-medium">{order.company_tax_id}</span>
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Shipping address */}
           <div className="rounded-lg border border-gray-200 p-5">

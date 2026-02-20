@@ -167,7 +167,14 @@ export default function OrderTable({
                 <tr key={order.id} className="hover:bg-gray-50">
                   <td className="px-4 py-3 text-sm font-mono">{order.order_number}</td>
                   <td className="px-4 py-3 text-sm">
-                    <div>{order.customer_name}</div>
+                    <div className="flex items-center gap-1">
+                      {order.customer_name}
+                      {order.company_tax_id && (
+                        <span className="text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded" title={`${order.company_name} (${order.company_tax_id})`}>
+                          公司
+                        </span>
+                      )}
+                    </div>
                     <div className="text-xs text-gray-400">{order.customer_email}</div>
                   </td>
                   <td className="px-4 py-3">

@@ -48,9 +48,11 @@ export interface Order {
   customer_phone: string;
   shipping_address: ShippingAddress;
   note: string | null;
+  cancel_reason: string | null;
   paid_at: string | null;
   shipped_at: string | null;
   completed_at: string | null;
+  cancelled_at: string | null;
   created_at: string;
   updated_at: string;
   order_items?: OrderItem[];

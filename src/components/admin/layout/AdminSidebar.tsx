@@ -7,6 +7,8 @@ const navItems = [
   { href: '/admin', label: '儀表板', icon: '📊' },
   { href: '/admin/products', label: '商品管理', icon: '📦' },
   { href: '/admin/orders', label: '訂單管理', icon: '🛒' },
+  { href: '/admin/reviews', label: '評價管理', icon: '⭐' },
+  { href: '/admin/analytics', label: '銷售分析', icon: '📈' },
   { href: '/admin/coupons', label: '優惠券', icon: '🎟️' },
   { href: '/admin/categories', label: '商品分類', icon: '📁' },
   { href: '/admin/blogs', label: '部落格管理', icon: '📝' },

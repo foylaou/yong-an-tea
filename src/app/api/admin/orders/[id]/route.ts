@@ -40,15 +40,34 @@ export async function GET(
   return NextResponse.json({ order });
 }
 
-// Valid status transitions
-const STATUS_TRANSITIONS: Record<string, string[]> = {
-  pending: ['paid', 'cancelled'],
-  paid: ['processing', 'cancelled', 'refunded'],
-  processing: ['shipped', 'cancelled'],
-  shipped: ['completed'],
-  completed: ['refunded'],
-  cancelled: [],
-  refunded: [],
+// Valid status transitions per payment method
+const STATUS_TRANSITIONS: Record<string, Record<string, string[]>> = {
+  line_pay: {
+    pending: ['paid', 'cancelled'],
+    paid: ['processing', 'cancelled', 'refunded'],
+    processing: ['shipped', 'cancelled'],
+    shipped: ['completed'],
+    completed: ['refunded'],
+    cancelled: [],
+    refunded: [],
+  },
+  bank_transfer: {
+    pending: ['paid', 'cancelled'],
+    paid: ['processing', 'cancelled', 'refunded'],
+    processing: ['shipped', 'cancelled'],
+    shipped: ['completed'],
+    completed: ['refunded'],
+    cancelled: [],
+    refunded: [],
+  },
+  cod: {
+    pending: ['processing', 'cancelled'],
+    processing: ['shipped', 'cancelled'],
+    shipped: ['completed'],
+    completed: ['refunded'],
+    cancelled: [],
+    refunded: [],
+  },
 };
 
 export async function PUT(
@@ -75,7 +94,7 @@ export async function PUT(
   // Get current order
   const { data: currentOrder, error: fetchError } = await supabase
     .from('orders')
-    .select('status')
+    .select('status, payment_method')
     .eq('id', id)
     .single();
 
@@ -83,8 +102,9 @@ export async function PUT(
     return NextResponse.json({ error: '訂單不存在' }, { status: 404 });
   }
 
-  // Validate status transition
-  const allowedTransitions = STATUS_TRANSITIONS[currentOrder.status] || [];
+  // Validate status transition based on payment method
+  const transitions = STATUS_TRANSITIONS[currentOrder.payment_method] || STATUS_TRANSITIONS.bank_transfer;
+  const allowedTransitions = transitions[currentOrder.status] || [];
   if (!allowedTransitions.includes(result.data.status)) {
     return NextResponse.json(
       {
@@ -114,6 +134,9 @@ export async function PUT(
       break;
     case 'completed':
       updateData.completed_at = new Date().toISOString();
+      break;
+    case 'cancelled':
+      updateData.cancelled_at = new Date().toISOString();
       break;
     case 'refunded':
       updateData.payment_status = 'refunded';

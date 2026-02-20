@@ -76,6 +76,9 @@ function CheckoutForm({ addresses, shippingSettings, userEmail, userName }: Chec
       address_line1: '',
       payment_method: 'line_pay',
       save_address: false,
+      is_company: false,
+      company_name: '',
+      company_tax_id: '',
     },
   });
 
@@ -159,6 +162,10 @@ function CheckoutForm({ addresses, shippingSettings, userEmail, userName }: Chec
             quantity: item.quantity,
           })),
           ...(appliedCoupon && { coupon_code: appliedCoupon.code }),
+          ...(formData.is_company && {
+            company_name: formData.company_name,
+            company_tax_id: formData.company_tax_id,
+          }),
         }),
       });
 
@@ -270,6 +277,52 @@ function CheckoutForm({ addresses, shippingSettings, userEmail, userName }: Chec
                       <p className={errorClass}>{errors.customer_email.message}</p>
                     )}
                   </div>
+
+                  {/* Company invoice */}
+                  <div>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        {...register('is_company')}
+                        className="w-4 h-4"
+                      />
+                      <span className="text-sm font-medium">公司發票（需填寫公司抬頭及統一編號）</span>
+                    </label>
+                  </div>
+                  {watch('is_company') && (
+                    <div className="grid grid-cols-2 gap-[20px]">
+                      <div>
+                        <label htmlFor="company_name" className={labelClass}>
+                          公司抬頭 *
+                        </label>
+                        <input
+                          {...register('company_name')}
+                          className={inputField}
+                          id="company_name"
+                          placeholder="公司名稱"
+                        />
+                        {errors.company_name && (
+                          <p className={errorClass}>{errors.company_name.message}</p>
+                        )}
+                      </div>
+                      <div>
+                        <label htmlFor="company_tax_id" className={labelClass}>
+                          統一編號 *
+                        </label>
+                        <input
+                          {...register('company_tax_id')}
+                          className={inputField}
+                          id="company_tax_id"
+                          placeholder="12345678"
+                          maxLength={8}
+                          inputMode="numeric"
+                        />
+                        {errors.company_tax_id && (
+                          <p className={errorClass}>{errors.company_tax_id.message}</p>
+                        )}
+                      </div>
+                    </div>
+                  )}
 
                   <TaiwanAddressSelector
                     postalCodeValue={watch('postal_code') ?? ''}

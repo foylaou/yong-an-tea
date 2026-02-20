@@ -16,7 +16,7 @@ function LogoComps({ headerLogoCName, logoPath }: LogoCompsProps) {
                 <img
                     src={logoSrc}
                     alt="網站標誌"
-                    width={120}
+                    width={180}
                     height={30}
                     className={`transition-opacity duration-300 ${loaded ? 'opacity-100' : 'opacity-0'}`}
                 />

@@ -1,3 +1,5 @@
+import { useState } from 'react';
+import { useRouter } from 'next/router';
 import { IoCloseOutline, IoSearchOutline } from 'react-icons/io5';
 
 interface SearchBarProps {
@@ -6,6 +8,18 @@ interface SearchBarProps {
 }
 
 function SearchBar({ fullscreenSearch, showFullscreenSearch }: SearchBarProps) {
+    const [query, setQuery] = useState('');
+    const router = useRouter();
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        const q = query.trim();
+        if (!q) return;
+        router.push(`/search?q=${encodeURIComponent(q)}`);
+        setQuery('');
+        showFullscreenSearch();
+    };
+
     return (
         <div
             className={
@@ -22,13 +36,15 @@ function SearchBar({ fullscreenSearch, showFullscreenSearch }: SearchBarProps) {
                         onClick={showFullscreenSearch}
                     />
                 </div>
-                <form className="filter-form pt-[60px]">
+                <form className="filter-form pt-[60px]" onSubmit={handleSubmit}>
                     <div className="inner-form lg:w-[875px] md:w-[710px] mx-auto">
                         <div className="single-field relative pt-[65px]">
                             <input
                                 type="search"
+                                value={query}
+                                onChange={(e) => setQuery(e.target.value)}
                                 className="input-field w-full outline-hidden border-0 border-b h-[40px] p-[15px_50px_15px_0]"
-                                placeholder="搜尋..."
+                                placeholder="搜尋商品..."
                             />
                             <button
                                 type="submit"

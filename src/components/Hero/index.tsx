@@ -63,7 +63,7 @@ function HeroOne() {
                         return (
                         <Slide key={heroDefaultItem.id}>
                             <div
-                                className="relative flex items-center bg-cover bg-center bg-no-repeat md:h-[800px] h-[540px]"
+                                className="relative flex items-center bg-cover bg-center bg-no-repeat md:h-[800px] h-[540px] pt-[60px] md:pt-0"
                                 style={{ backgroundImage: `url('${heroDefaultItem.backgroundImage}')` }}
                             >
                                 {heroDefaultItem.overlayOpacity > 0 && (

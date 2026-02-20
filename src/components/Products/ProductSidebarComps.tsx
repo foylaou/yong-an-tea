@@ -149,7 +149,6 @@ function ProductSidebarComps({ productFilter }: ProductSidebarCompsProps) {
                                 className="w-full focus:outline-hidden"
                                 placeholder="0"
                                 min="0"
-                                max="90"
                             />
                         </div>
                     </div>
@@ -167,9 +166,8 @@ function ProductSidebarComps({ productFilter }: ProductSidebarCompsProps) {
                                 onChange={(e) => setToPrice(e.target.value)}
                                 type="number"
                                 className="w-full focus:outline-hidden"
-                                placeholder="90"
+                                placeholder="10000"
                                 min="0"
-                                max="90"
                             />
                         </div>
                     </div>

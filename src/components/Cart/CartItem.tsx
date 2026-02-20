@@ -27,14 +27,14 @@ function CartItem({ item }: CartItemProps) {
     return (
         <li className="item flex items-start justify-between border-b border-[#dddddd] pb-[25px] mb-[20px] last:mb-0 last:pb-0 last:border-b-0">
             <div className="item-img">
-                <Link href={slug} className="product-img">
+                <Link href={`/products/${slug}`} className="product-img">
                     <img src={image} alt={title} />
                 </Link>
             </div>
             <div className="item-content w-[calc(100%-88px)] pl-[20px]">
                 <h3 className="leading-[21px]">
                     <Link
-                        href={slug}
+                        href={`/products/${slug}`}
                         className="text-[15px] transition-all hover:text-primary"
                     >
                         {title}

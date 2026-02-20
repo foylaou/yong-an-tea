@@ -7,15 +7,12 @@ import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createClient } from '@/lib/supabase/client';
+import { useSettingsStore } from '../../store/settings/settings-slice';
 
 interface AuthTabMenuItem {
     id: string;
     tabStateNo: number;
     authMenuName: string;
-}
-
-interface AuthFormProps {
-    authItems: { authTabMenu?: AuthTabMenuItem[]; [key: string]: any }[];
 }
 
 const loginSchema = z.object({
@@ -52,8 +49,12 @@ const inputField = `border border-[#cccccc] focus-visible:outline-0 text-[#66666
 const secondaryButton =
     'flex items-center justify-center bg-secondary text-white leading-[38px] text-[15px] h-[50px] w-full  transition-all hover:bg-[#212529] px-[40px]';
 
-function AuthForm({ authItems }: AuthFormProps) {
+function AuthForm() {
     const router = useRouter();
+    const authTabMenuJson = useSettingsStore((s) => s.auth_tab_menu_json);
+    const authTabMenu: AuthTabMenuItem[] = (() => {
+        try { return JSON.parse(authTabMenuJson); } catch { return []; }
+    })();
     const [authTabState, setAuthTabState] = useState(1);
     const [message, setMessage] = useState<{
         type: 'success' | 'error';
@@ -252,7 +253,7 @@ function AuthForm({ authItems }: AuthFormProps) {
         <div className="border-b border-[#ededed] xl:py-[155px] lg:py-[100px] md:py-[80px] py-[50px]">
             <div className="container md:max-w-lg">
                 <ul className="auth-menu flex justify-center pb-[50px]">
-                    {authItems[0]?.authTabMenu?.map((singleTabMenu) => (
+                    {authTabMenu.map((singleTabMenu) => (
                         <li
                             key={singleTabMenu.id}
                             className={`${

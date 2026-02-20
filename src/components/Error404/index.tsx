@@ -1,48 +1,30 @@
 import Link from 'next/link';
 import { IoSearchOutline } from 'react-icons/io5';
-import { MarkdownItem } from '../../types';
+import { useSettingsStore } from '../../store/settings/settings-slice';
 
-interface ErrorItem {
-    image: string;
-    imageAlt: string;
-    title: string;
-    descInfo: {
-        id: string;
-        desc: string;
-        path: string;
-        pathText: string;
-    }[];
-    [key: string]: unknown;
-}
+function Error404() {
+    const image = useSettingsStore((s) => s.error404_image);
+    const imageAlt = useSettingsStore((s) => s.error404_image_alt);
+    const title = useSettingsStore((s) => s.error404_title);
+    const desc = useSettingsStore((s) => s.error404_desc);
+    const linkPath = useSettingsStore((s) => s.error404_link_path);
+    const linkText = useSettingsStore((s) => s.error404_link_text);
 
-interface Error404Props {
-    errorItems: MarkdownItem[];
-}
-
-function Error404({ errorItems }: Error404Props) {
     return (
-        <div className="error-404 border-b border-[#ededed] pt-[180px] pb-[180px]">
+        <div className="error-404 border-b border-[#ededed] pt-[20px] pb-[80px]">
             <div className="container">
                 <div className="content flex flex-col items-center">
-                    <img
-                        src={errorItems[0]?.image}
-                        alt={errorItems[0]?.imageAlt}
-                    />
-                    <h1 className="mb-[10px]">{errorItems[0]?.title}</h1>
-                    {errorItems[0]?.descInfo?.map((item) => (
-                        <p
-                            className="text-[18px] leading-[31px] mb-[45px]"
-                            key={item.id}
+                    <img src={image} alt={imageAlt} className="mb-[30px] max-h-[450px] w-auto object-contain" />
+                    <h1 className="mb-[10px]">{title}</h1>
+                    <p className="text-[18px] leading-[31px] mb-[45px]">
+                        {desc}
+                        <Link
+                            href={linkPath}
+                            className="text-primary border-b border-primary ml-[5px]"
                         >
-                            {item.desc}
-                            <Link
-                                href={item.path}
-                                className="text-primary border-b border-primary ml-[5px]"
-                            >
-                                {item.pathText}
-                            </Link>
-                        </p>
-                    ))}
+                            {linkText}
+                        </Link>
+                    </p>
 
                     <form>
                         <div className="input-field relative w-[400px]">

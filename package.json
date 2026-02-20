@@ -26,7 +26,6 @@
         "@tailwindcss/postcss": "^4.1.18",
         "disqus-react": "^1.1.7",
         "framer-motion": "^8.5.5",
-        "gray-matter": "^4.0.3",
         "line-pay-merchant": "^0.9.0",
         "next": "16.1.6",
         "nodemailer": "^8.0.1",

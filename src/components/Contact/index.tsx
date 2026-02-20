@@ -3,31 +3,6 @@ import Link from 'next/link';
 import GoogleMap from '../GoogleMap';
 import { useSettingsStore } from '../../store/settings/settings-slice';
 
-interface ContactItem {
-    singleContactInfo?: {
-        id: string;
-        infoIcon: string;
-        title: string;
-        desc: string;
-    }[];
-    formTitle?: string;
-    formDesc?: string;
-    infoTitle?: string;
-    infoDesc?: string;
-    contactAddress?: string;
-    socialTitle?: string;
-    socialList?: {
-        id: string;
-        socialIcon: string;
-        path: string;
-    }[];
-    [key: string]: unknown;
-}
-
-interface ContactUsProps {
-    contactItems: ContactItem[];
-}
-
 /** Map settings store social keys to IoIcon names */
 const socialIconMap: { key: string; icon: string; label: string }[] = [
     { key: 'social_facebook', icon: 'IoLogoFacebook', label: 'Facebook' },
@@ -37,61 +12,54 @@ const socialIconMap: { key: string; icon: string; label: string }[] = [
     { key: 'social_tumblr', icon: 'IoLogoTumblr', label: 'Tumblr' },
 ];
 
-function ContactUs({ contactItems }: ContactUsProps) {
+function ContactUs() {
     const settings = useSettingsStore();
-    const md = contactItems[0];
 
-    // Build the 4 info cards from settings store (fallback to markdown)
-    const infoCards = settings.loaded
-        ? [
-              {
-                  id: '01',
-                  infoIcon: 'IoStopwatchOutline',
-                  title: '營業時間',
-                  desc: settings.business_hours
-                      ? settings.business_hours.replace(/\n/g, ' <br/> ')
-                      : md?.singleContactInfo?.[0]?.desc || '',
-              },
-              {
-                  id: '02',
-                  infoIcon: 'IoCallOutline',
-                  title: '電話號碼',
-                  desc: settings.phone || md?.singleContactInfo?.[1]?.desc || '',
-              },
-              {
-                  id: '03',
-                  infoIcon: 'IoMailOpenOutline',
-                  title: '電子郵件',
-                  desc: settings.email || md?.singleContactInfo?.[2]?.desc || '',
-              },
-              {
-                  id: '04',
-                  infoIcon: 'IoLocationOutline',
-                  title: '門市地址',
-                  desc: settings.address
-                      ? settings.address.replace(/\n/g, ' <br/> ')
-                      : md?.singleContactInfo?.[3]?.desc || '',
-              },
-          ]
-        : md?.singleContactInfo || [];
+    // Build the 4 info cards from settings store
+    const infoCards = [
+        {
+            id: '01',
+            infoIcon: 'IoStopwatchOutline',
+            title: '營業時間',
+            desc: settings.business_hours
+                ? settings.business_hours.replace(/\n/g, ' <br/> ')
+                : '',
+        },
+        {
+            id: '02',
+            infoIcon: 'IoCallOutline',
+            title: '電話號碼',
+            desc: settings.phone || '',
+        },
+        {
+            id: '03',
+            infoIcon: 'IoMailOpenOutline',
+            title: '電子郵件',
+            desc: settings.email || '',
+        },
+        {
+            id: '04',
+            infoIcon: 'IoLocationOutline',
+            title: '門市地址',
+            desc: settings.address
+                ? settings.address.replace(/\n/g, ' <br/> ')
+                : '',
+        },
+    ];
 
     // Build the right-side contact address from settings
-    const contactAddress = settings.loaded
-        ? [settings.address, settings.phone, settings.email]
-              .filter(Boolean)
-              .join(' <br/> ')
-        : md?.contactAddress || '';
+    const contactAddress = [settings.address, settings.phone, settings.email]
+        .filter(Boolean)
+        .join(' <br/> ');
 
-    // Build social links from settings store (fallback to markdown)
-    const socialList = settings.loaded
-        ? socialIconMap
-              .filter((s) => settings[s.key as keyof typeof settings])
-              .map((s) => ({
-                  id: s.key,
-                  socialIcon: s.icon,
-                  path: settings[s.key as keyof typeof settings] as string,
-              }))
-        : md?.socialList || [];
+    // Build social links from settings store
+    const socialList = socialIconMap
+        .filter((s) => settings[s.key as keyof typeof settings])
+        .map((s) => ({
+            id: s.key,
+            socialIcon: s.icon,
+            path: settings[s.key as keyof typeof settings] as string,
+        }));
 
     const singleField = `flex w-full`;
     const inputField = `border border-[#e8e8e8] focus-visible:outline-0 placeholder:text-[#7b7975] py-[10px] px-[20px] w-full h-[50px]`;
@@ -140,10 +108,10 @@ function ContactUs({ contactItems }: ContactUsProps) {
                         <div className="md:col-span-7 col-span-12 max-lm:order-2">
                             <div className="contact-form-wrap">
                                 <h2 className="text-[24px] mb-[10px]">
-                                    {md?.formTitle}
+                                    {settings.contact_form_title}
                                 </h2>
                                 <p className="mb-[30px]">
-                                    {md?.formDesc}
+                                    {settings.contact_form_desc}
                                 </p>
                                 <form>
                                     <div className="group-field flex mb-[20px]">
@@ -194,9 +162,9 @@ function ContactUs({ contactItems }: ContactUsProps) {
                         <div className="md:col-span-5 col-span-12 lg:pl-[120px] md:pl-[30px] max-lm:order-1">
                             <div className="contact-info">
                                 <h2 className="text-[24px] mb-[10px]">
-                                    {md?.infoTitle}
+                                    {settings.contact_info_title}
                                 </h2>
-                                <p>{md?.infoDesc}</p>
+                                <p>{settings.contact_info_desc}</p>
                                 <p
                                     className="mt-[25px]"
                                     dangerouslySetInnerHTML={{
@@ -205,7 +173,7 @@ function ContactUs({ contactItems }: ContactUsProps) {
                                 />
                                 <div className="social-link flex items-center pt-[60px]">
                                     <h2 className="text-[16px] font-normal lg:pr-[65px] pr-[45px]">
-                                        {md?.socialTitle}
+                                        {settings.contact_social_title}
                                     </h2>
                                     <ul className="flex">
                                         {socialList.map((items) => {

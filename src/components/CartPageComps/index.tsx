@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useCartStore } from '../../store/cart/cart-slice';
-import { formatPrice } from '../../store/settings/settings-slice';
+import { formatPrice, useSettingsStore } from '../../store/settings/settings-slice';
 import Link from 'next/link';
 import {
     IoArrowBackSharp,
@@ -9,17 +9,23 @@ import {
     IoRemoveSharp,
 } from 'react-icons/io5';
 import EmptyCart from './EmptyCart';
-import { MarkdownItem } from '../../types';
 
-interface CartPageCompsProps {
-    cartPageItems: MarkdownItem[];
-    products?: MarkdownItem[];
+function parseJSON<T>(raw: string | undefined, fallback: T): T {
+    try {
+        if (raw) return JSON.parse(raw);
+        return fallback;
+    } catch {
+        return fallback;
+    }
 }
 
 const qtybutton = `cursor-pointer text-center absolute`;
 const qtyButtonWrap = `relative inline-flex`;
 
-function CartPageComps({ cartPageItems }: CartPageCompsProps) {
+function CartPageComps() {
+    const settings = useSettingsStore();
+    const cartThList = parseJSON<any[]>(settings.cart_th_list_json, []);
+
     const cartItems = useCartStore((state) => state.items);
     const [quantityCount, setQuantityCount] = useState<Record<string, number | boolean>>({
         empty: true,
@@ -68,7 +74,7 @@ function CartPageComps({ cartPageItems }: CartPageCompsProps) {
                                 <table className="cart-table w-full text-sm text-left">
                                     <thead className="text-[18px] bg-[#f4f5f7]">
                                         <tr>
-                                            {(cartPageItems[0] as any)?.cartThList?.map(
+                                            {cartThList.map(
                                                 (singleCartTh: any) => (
                                                     <th
                                                         key={singleCartTh.id}
@@ -227,7 +233,7 @@ function CartPageComps({ cartPageItems }: CartPageCompsProps) {
                                     className="inline-flex items-center bg-black text-white h-[46px] sm:px-[42px] px-[12px] transition-all hover:bg-[#222222]"
                                 >
                                     <IoArrowBackSharp className="mr-[5px]" />
-                                    {(cartPageItems[0] as any)?.shopPageBtnText}
+                                    {settings.cart_shop_page_btn_text}
                                 </Link>
                                 <div className="btn-wrap">
                                     <button
@@ -235,7 +241,7 @@ function CartPageComps({ cartPageItems }: CartPageCompsProps) {
                                         type="button"
                                         className="inline-flex items-center border border-black h-[46px] sm:px-[42px] px-[12px] transition-all hover:bg-[#222222] hover:text-white"
                                     >
-                                        {(cartPageItems[0] as any)?.clearCartBtnText}
+                                        {settings.cart_clear_btn_text}
                                     </button>
                                 </div>
                             </div>
@@ -244,10 +250,10 @@ function CartPageComps({ cartPageItems }: CartPageCompsProps) {
                                     <div className="md:col-span-6 col-span-12">
                                         <div className="coupon flex flex-col lg:max-w-[400px]">
                                             <h2 className="title text-[18px] mb-[30px]">
-                                                {(cartPageItems[0] as any)?.couponTitle}
+                                                {settings.cart_coupon_title}
                                             </h2>
                                             <p className="desc mb-[15px]">
-                                                {(cartPageItems[0] as any)?.couponDesc}
+                                                {settings.cart_coupon_desc}
                                             </p>
                                             <input
                                                 type="text"
@@ -260,10 +266,7 @@ function CartPageComps({ cartPageItems }: CartPageCompsProps) {
                                                     type="submit"
                                                     className=" border border-black h-[46px] px-[42px] transition-all hover:bg-[#222222] hover:text-white"
                                                 >
-                                                    {
-                                                        (cartPageItems[0] as any)
-                                                            ?.couponBtnText
-                                                    }
+                                                    {settings.cart_coupon_btn_text}
                                                 </button>
                                             </div>
                                         </div>
@@ -295,10 +298,7 @@ function CartPageComps({ cartPageItems }: CartPageCompsProps) {
                                                     href="/checkout"
                                                     className="bg-black text-white h-[46px] leading-[46px] w-full text-center px-[42px] transition-all hover:bg-[#222222]"
                                                 >
-                                                    {
-                                                        (cartPageItems[0] as any)
-                                                            ?.proceedBtnText
-                                                    }
+                                                    {settings.cart_proceed_btn_text}
                                                 </Link>
                                             </div>
                                         </div>

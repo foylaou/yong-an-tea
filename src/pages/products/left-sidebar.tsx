@@ -4,20 +4,17 @@ import HeaderOne from '../../components/HeaderComps';
 import Breadcrumb from '../../components/Breadcrumb';
 import ProductLeftSideBar from '../../components/Products/ProductLeftSideBar';
 import FooterComps from '../../components/FooterComps';
-import { getAllItems } from '../../lib/ProductUtil';
 import { getAllProducts, getCategories } from '../../lib/products-db';
 import { buildProductFilters } from '../../lib/build-filters';
 
 interface ProductLeftSidebarPageProps {
     products: MarkdownItem[];
     productFilter: MarkdownItem[];
-    gridTabItems: MarkdownItem[];
 }
 
 function ProductLeftSidebarPage({
     products,
     productFilter,
-    gridTabItems,
 }: ProductLeftSidebarPageProps) {
     return (
         <>
@@ -32,7 +29,7 @@ function ProductLeftSidebarPage({
             <ProductLeftSideBar
                 products={products}
                 productFilter={productFilter}
-                gridTabItems={gridTabItems}
+                gridTabKey="grid_tab_2col_json"
                 productFilterPath="left-sidebar"
             />
             <FooterComps
@@ -46,13 +43,11 @@ export const getServerSideProps: GetServerSideProps = async () => {
     const products = await getAllProducts();
     const categories = await getCategories();
     const productFilter = buildProductFilters(products, categories);
-    const gridTabItems = getAllItems('grid-tab');
 
     return {
         props: {
             products,
             productFilter,
-            gridTabItems,
         },
     };
 };

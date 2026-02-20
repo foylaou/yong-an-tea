@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 
 interface LinkItem {
   id: number;
@@ -54,8 +54,70 @@ export default function HeaderFooterSettings({ initialData }: HeaderFooterSettin
   const [serverError, setServerError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  // Menu JSON preview
-  const menuJsonPreview = useMemo(() => JSON.stringify(menuItems, null, 2), [menuItems]);
+  // --- Menu item helpers ---
+  function addMenuItem() {
+    setMenuItems([...menuItems, {
+      id: Date.now(),
+      title: '',
+      path: '/',
+      holderCName: '',
+    }]);
+  }
+
+  function removeMenuItem(index: number) {
+    setMenuItems(menuItems.filter((_, i) => i !== index));
+  }
+
+  function updateMenuItem(index: number, field: keyof MenuItem, value: string) {
+    const updated = [...menuItems];
+    updated[index] = { ...updated[index], [field]: value };
+    setMenuItems(updated);
+  }
+
+  function addSubmenuItem(menuIndex: number) {
+    const updated = [...menuItems];
+    const item = { ...updated[menuIndex] };
+    const submenu = [...(item.headerSubmenu || [])];
+    submenu.push({ id: `sub-${Date.now()}`, submenuTitle: '', submenuPath: '/' });
+    item.headerSubmenu = submenu;
+    item.holderCName = 'header-submenu-holder group';
+    item.submenuCName = 'header-submenu';
+    updated[menuIndex] = item;
+    setMenuItems(updated);
+  }
+
+  function removeSubmenuItem(menuIndex: number, subIndex: number) {
+    const updated = [...menuItems];
+    const item = { ...updated[menuIndex] };
+    const submenu = (item.headerSubmenu || []).filter((_, i) => i !== subIndex);
+    item.headerSubmenu = submenu.length > 0 ? submenu : undefined;
+    item.holderCName = submenu.length > 0 ? 'header-submenu-holder group' : '';
+    item.submenuCName = submenu.length > 0 ? 'header-submenu' : undefined;
+    updated[menuIndex] = item;
+    setMenuItems(updated);
+  }
+
+  function updateSubmenuItem(menuIndex: number, subIndex: number, field: 'submenuTitle' | 'submenuPath', value: string) {
+    const updated = [...menuItems];
+    const item = { ...updated[menuIndex] };
+    const submenu = [...(item.headerSubmenu || [])];
+    submenu[subIndex] = { ...submenu[subIndex], [field]: value };
+    item.headerSubmenu = submenu;
+    updated[menuIndex] = item;
+    setMenuItems(updated);
+  }
+
+  // Collapsible state for submenus
+  const [expandedMenus, setExpandedMenus] = useState<Set<number>>(() => new Set());
+
+  function toggleExpanded(index: number) {
+    setExpandedMenus(prev => {
+      const next = new Set(prev);
+      if (next.has(index)) next.delete(index);
+      else next.add(index);
+      return next;
+    });
+  }
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -135,17 +197,67 @@ export default function HeaderFooterSettings({ initialData }: HeaderFooterSettin
             </div>
           </div>
 
+          {/* Navigation Menu Visual Editor */}
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">導航選單 (JSON)</label>
-            <textarea
-              value={menuJsonPreview}
-              onChange={(e) => {
-                try { setMenuItems(JSON.parse(e.target.value)); } catch { /* ignore invalid JSON while typing */ }
-              }}
-              rows={10}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 font-mono text-xs focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
-            />
-            <p className="mt-1 text-xs text-gray-500">每項包含 id, title, path, holderCName, 可選 submenuCName 和 headerSubmenu</p>
+            <div className="mb-3 flex items-center justify-between">
+              <label className="block text-sm font-medium text-gray-700">導航選單</label>
+              <button type="button" onClick={addMenuItem}
+                className="rounded-md bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200">
+                + 新增選單項目
+              </button>
+            </div>
+            {menuItems.length === 0 ? (
+              <p className="py-4 text-center text-sm text-gray-400">尚無選單項目，請點擊「新增選單項目」</p>
+            ) : (
+              <div className="space-y-3">
+                {menuItems.map((item, index) => (
+                  <div key={item.id} className="rounded-md border border-gray-200 bg-gray-50 p-4">
+                    <div className="flex items-start gap-2">
+                      <div className="grid flex-1 grid-cols-1 gap-2 md:grid-cols-2">
+                        <div>
+                          <label className="mb-1 block text-xs text-gray-500">標題</label>
+                          <input type="text" value={item.title} onChange={(e) => updateMenuItem(index, 'title', e.target.value)}
+                            placeholder="選單名稱" className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black" />
+                        </div>
+                        <div>
+                          <label className="mb-1 block text-xs text-gray-500">路徑</label>
+                          <input type="text" value={item.path} onChange={(e) => updateMenuItem(index, 'path', e.target.value)}
+                            placeholder="/path" className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black" />
+                        </div>
+                      </div>
+                      <button type="button" onClick={() => removeMenuItem(index)}
+                        className="mt-5 text-xs text-red-600 hover:text-red-800">刪除</button>
+                    </div>
+
+                    {/* Submenu section */}
+                    <div className="mt-3 border-t border-gray-200 pt-3">
+                      <div className="flex items-center justify-between">
+                        <button type="button" onClick={() => toggleExpanded(index)}
+                          className="text-xs font-medium text-gray-600 hover:text-gray-800">
+                          {expandedMenus.has(index) ? '▼' : '▶'} 子選單 ({(item.headerSubmenu || []).length} 項)
+                        </button>
+                        <button type="button" onClick={() => addSubmenuItem(index)}
+                          className="text-xs text-blue-600 hover:text-blue-800">+ 新增子選單</button>
+                      </div>
+                      {expandedMenus.has(index) && (item.headerSubmenu || []).length > 0 && (
+                        <div className="mt-2 space-y-2 pl-4">
+                          {(item.headerSubmenu || []).map((sub, subIndex) => (
+                            <div key={sub.id} className="flex items-center gap-2">
+                              <input type="text" value={sub.submenuTitle} onChange={(e) => updateSubmenuItem(index, subIndex, 'submenuTitle', e.target.value)}
+                                placeholder="子選單標題" className="flex-1 rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black" />
+                              <input type="text" value={sub.submenuPath} onChange={(e) => updateSubmenuItem(index, subIndex, 'submenuPath', e.target.value)}
+                                placeholder="/path" className="flex-1 rounded-md border border-gray-300 px-3 py-1.5 text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black" />
+                              <button type="button" onClick={() => removeSubmenuItem(index, subIndex)}
+                                className="text-xs text-red-600 hover:text-red-800">刪除</button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </section>

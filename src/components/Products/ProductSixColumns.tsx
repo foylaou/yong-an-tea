@@ -10,14 +10,14 @@ import { MarkdownItem } from '../../types';
 interface ProductSixColumnsProps {
     productSixColumnsContainer?: string;
     products: MarkdownItem[];
-    gridTabItems: MarkdownItem[];
+    gridTabKey: 'grid_tab_2col_json' | 'grid_tab_3col_json' | 'grid_tab_3col_alt_json';
     productFilter: MarkdownItem[];
     productFilterPath: string;
 }
 
 function ProductSixColumns({
     products,
-    gridTabItems,
+    gridTabKey,
     productSixColumnsContainer,
     productFilter,
     productFilterPath,
@@ -148,7 +148,7 @@ function ProductSixColumns({
                             productTab={productTab}
                             tabState={tabState}
                             setTabState={setTabState}
-                            gridTabItems={gridTabItems}
+                            gridTabKey={gridTabKey}
                         />
                         <div
                             className={

@@ -1,18 +1,9 @@
-import type { GetStaticProps } from 'next';
-import type { MarkdownItem } from '../types';
 import HeaderOne from '../components/HeaderComps';
 import Breadcrumb from '../components/Breadcrumb';
 import WishlistPageComps from '../components/WishlistPageComps';
 import FooterComps from '../components/FooterComps';
-import { getAllItems } from '../lib/ItemsUtil';
 
-interface WishlistPageProps {
-    wishlistPageItems: MarkdownItem[];
-}
-
-function WishlistPage({
-    wishlistPageItems,
-}: WishlistPageProps) {
+function WishlistPage() {
     return (
         <>
             <HeaderOne headerContainer="container" />
@@ -23,24 +14,12 @@ function WishlistPage({
                 itemPath="/"
                 activeItem="願望清單"
             />
-            <WishlistPageComps
-                wishlistPageItems={wishlistPageItems}
-            />
+            <WishlistPageComps />
             <FooterComps
                 footerContainer="container"
             />
         </>
     );
 }
-
-export const getStaticProps: GetStaticProps = async () => {
-    const wishlistPageItems = getAllItems('wishlist-page');
-
-    return {
-        props: {
-            wishlistPageItems,
-        },
-    };
-};
 
 export default WishlistPage;

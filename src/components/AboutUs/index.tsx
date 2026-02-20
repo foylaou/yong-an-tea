@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import * as IoIcon from 'react-icons/io5';
 import ProgressBar from '../ProgressBar';
 import VideoModal from '../VideoModal';
-import { MarkdownItem } from '../../types';
 import { useSettingsStore } from '../../store/settings/settings-slice';
 
 interface BranchInfo {
@@ -16,10 +15,6 @@ interface BranchInfo {
     is_primary: boolean;
 }
 
-interface AboutUsProps {
-    aboutItems: MarkdownItem[];
-}
-
 function parseJSON<T>(raw: string | undefined, fallback: T): T {
     try {
         if (raw) return JSON.parse(raw);
@@ -29,8 +24,7 @@ function parseJSON<T>(raw: string | undefined, fallback: T): T {
     }
 }
 
-function AboutUs({ aboutItems }: AboutUsProps) {
-    const loaded = useSettingsStore((s) => s.loaded);
+function AboutUs() {
     const aboutVideoUrl = useSettingsStore((s) => s.about_video_url);
     const aboutVideoBanner = useSettingsStore((s) => s.about_video_banner);
     const aboutVideoBannerAlt = useSettingsStore((s) => s.about_video_banner_alt);
@@ -55,42 +49,12 @@ function AboutUs({ aboutItems }: AboutUsProps) {
             .catch(() => {});
     }, []);
 
-    const md = aboutItems[0];
-
-    // Video banner
-    const videoBanner = (loaded && aboutVideoBanner) || md?.videoBanner;
-    const videoBannerAlt = (loaded && aboutVideoBannerAlt) || md?.videoBannerAlt;
-    const videoUrl = (loaded && aboutVideoUrl) || 'https://www.youtube.com/embed/fkoEj95puX0';
-
-    // Support info
-    const supportInfo = loaded
-        ? parseJSON(aboutSupportInfoJson, md?.singleSupportInfo || [])
-        : md?.singleSupportInfo || [];
-
-    // Perfection
-    const perfTitle = (loaded && aboutPerfectionTitle) || md?.perfectionTitle;
-    const perfDesc = (loaded && aboutPerfectionDesc) || md?.perfectionDesc;
-    const progressBars = loaded
-        ? parseJSON(aboutProgressJson, [
-              { title: '創意', progressText: '82%' },
-              { title: '行銷', progressText: '82%' },
-              { title: '設計', progressText: '70%' },
-          ])
-        : [
-              { title: '創意', progressText: '82%' },
-              { title: '行銷', progressText: '82%' },
-              { title: '設計', progressText: '70%' },
-          ];
-
-    // Gallery
-    const bannerAlt = (loaded && aboutBannerAlt) || md?.aboutBannerAlt;
-    const banners = {
-        one: (loaded && aboutBannerOne) || md?.aboutBannerOne,
-        two: (loaded && aboutBannerTwo) || md?.aboutBannerTwo,
-        three: (loaded && aboutBannerThree) || md?.aboutBannerThree,
-        four: (loaded && aboutBannerFour) || md?.aboutBannerFour,
-        five: (loaded && aboutBannerFive) || md?.aboutBannerFive,
-    };
+    const supportInfo = parseJSON(aboutSupportInfoJson, []);
+    const progressBars = parseJSON(aboutProgressJson, [
+        { title: '創意', progressText: '82%' },
+        { title: '行銷', progressText: '82%' },
+        { title: '設計', progressText: '70%' },
+    ]);
 
     return (
         <div className="about border-b border-[#ededed] lg:py-[90px] md:py-[80px] py-[50px]">
@@ -99,12 +63,12 @@ function AboutUs({ aboutItems }: AboutUsProps) {
                     <div className="blog-img relative flex overflow-hidden after:transition-all after:duration-500 after:bg-[rgba(0,0,0,.4)] after:absolute after:top-0 after:left-0 after:w-full after:h-full after:opacity-0 hover:after:opacity-100 group">
                         <img
                             className="object-cover object-center w-full transition-all duration-500 group-hover:scale-[1.05]"
-                            src={videoBanner}
-                            alt={videoBannerAlt}
+                            src={aboutVideoBanner}
+                            alt={aboutVideoBannerAlt}
                             width={1170}
                             height={680}
                         />
-                        <VideoModal videoUrl={videoUrl} />
+                        <VideoModal videoUrl={aboutVideoUrl} />
                     </div>
                 </div>
             </div>
@@ -144,9 +108,9 @@ function AboutUs({ aboutItems }: AboutUsProps) {
                     <div className="grid grid-cols-12 lm:gap-x-[40px] max-sm:gap-y-[30px]">
                         <div className="lm:col-span-7 col-span-12">
                             <h2 className="text-[24px] mb-[10px]">
-                                {perfTitle}
+                                {aboutPerfectionTitle}
                             </h2>
-                            <p>{perfDesc}</p>
+                            <p>{aboutPerfectionDesc}</p>
                         </div>
                         <div className="lm:col-span-5 col-span-12">
                             {progressBars.map((bar: any, index: number) => (
@@ -167,8 +131,8 @@ function AboutUs({ aboutItems }: AboutUsProps) {
                             <div className="single-img overflow-hidden">
                                 <img
                                     className="w-full block transition-all duration-500 hover:scale-[1.05]"
-                                    src={banners.one}
-                                    alt={bannerAlt}
+                                    src={aboutBannerOne}
+                                    alt={aboutBannerAlt}
                                 />
                             </div>
                         </div>
@@ -176,15 +140,15 @@ function AboutUs({ aboutItems }: AboutUsProps) {
                             <div className="single-img overflow-hidden mb-[10px]">
                                 <img
                                     className="w-full block transition-all duration-500 hover:scale-[1.05]"
-                                    src={banners.two}
-                                    alt={bannerAlt}
+                                    src={aboutBannerTwo}
+                                    alt={aboutBannerAlt}
                                 />
                             </div>
                             <div className="single-img overflow-hidden">
                                 <img
                                     className="w-full block transition-all duration-500 hover:scale-[1.05]"
-                                    src={banners.three}
-                                    alt={bannerAlt}
+                                    src={aboutBannerThree}
+                                    alt={aboutBannerAlt}
                                 />
                             </div>
                         </div>
@@ -192,8 +156,8 @@ function AboutUs({ aboutItems }: AboutUsProps) {
                             <div className="single-img overflow-hidden">
                                 <img
                                     className="w-full block transition-all duration-500 hover:scale-[1.05]"
-                                    src={banners.four}
-                                    alt={bannerAlt}
+                                    src={aboutBannerFour}
+                                    alt={aboutBannerAlt}
                                 />
                             </div>
                         </div>
@@ -201,8 +165,8 @@ function AboutUs({ aboutItems }: AboutUsProps) {
                             <div className="single-img overflow-hidden">
                                 <img
                                     className="w-full block transition-all duration-500 hover:scale-[1.05]"
-                                    src={banners.five}
-                                    alt={bannerAlt}
+                                    src={aboutBannerFive}
+                                    alt={aboutBannerAlt}
                                 />
                             </div>
                         </div>

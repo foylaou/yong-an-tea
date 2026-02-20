@@ -4,18 +4,14 @@ import { MarkdownItem } from '../../../types';
 
 interface ProductDetailsProps {
     product: MarkdownItem;
-    productDetailTabItems: MarkdownItem[];
     productFilterPath?: string;
 }
 
-function ProductDetails({ product, productDetailTabItems }: ProductDetailsProps) {
+function ProductDetails({ product }: ProductDetailsProps) {
     return (
         <main>
             <MainContent product={product} />
-            <ProductDetailTab
-                product={product}
-                productDetailTabItems={productDetailTabItems}
-            />
+            <ProductDetailTab product={product} />
         </main>
     );
 }

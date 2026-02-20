@@ -5,21 +5,18 @@ import Breadcrumb from '../../components/Breadcrumb';
 import CategoriesBanner from '../../components/CategoriesBanner';
 import ProductThreeColumns from '../../components/Products/ProductThreeColumns';
 import FooterComps from '../../components/FooterComps';
-import { getAllItems } from '../../lib/ProductUtil';
 import { getAllProducts, getCategories } from '../../lib/products-db';
 import { buildProductFilters } from '../../lib/build-filters';
 
-interface ProductThreeColumnsPageProps {
+interface ProductCategoriesPageProps {
     products: MarkdownItem[];
     productFilter: MarkdownItem[];
-    gridTabItems: MarkdownItem[];
 }
 
-function ProductThreeColumnsPage({
+function ProductCategoriesPage({
     products,
     productFilter,
-    gridTabItems,
-}: ProductThreeColumnsPageProps) {
+}: ProductCategoriesPageProps) {
     return (
         <>
             <HeaderOne headerContainer="container" />
@@ -36,7 +33,7 @@ function ProductThreeColumnsPage({
             />
             <ProductThreeColumns
                 products={products}
-                gridTabItems={gridTabItems}
+                gridTabKey="grid_tab_3col_json"
                 productFilter={productFilter}
                 productFilterPath="/categories"
             />
@@ -51,15 +48,13 @@ export const getServerSideProps: GetServerSideProps = async () => {
     const products = await getAllProducts();
     const categories = await getCategories();
     const productFilter = buildProductFilters(products, categories);
-    const gridTabItems = getAllItems('grid-tab-2');
 
     return {
         props: {
             products,
             productFilter,
-            gridTabItems,
         },
     };
 };
 
-export default ProductThreeColumnsPage;
+export default ProductCategoriesPage;

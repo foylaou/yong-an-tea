@@ -1,16 +1,22 @@
 import Link from 'next/link';
 import { IoCloseOutline } from 'react-icons/io5';
 import { useWishlistStore } from '../../store/wishlist/wishlist-slice';
-import { formatPrice } from '../../store/settings/settings-slice';
+import { formatPrice, useSettingsStore } from '../../store/settings/settings-slice';
 import EmptyWishlist from './EmptyWishlist';
-import { MarkdownItem } from '../../types';
 
-interface WishlistPageCompsProps {
-    wishlistPageItems: MarkdownItem[];
-    products?: MarkdownItem[];
+function parseJSON<T>(raw: string | undefined, fallback: T): T {
+    try {
+        if (raw) return JSON.parse(raw);
+        return fallback;
+    } catch {
+        return fallback;
+    }
 }
 
-function WishlistPageComps({ wishlistPageItems }: WishlistPageCompsProps) {
+function WishlistPageComps() {
+    const settings = useSettingsStore();
+    const wishlistThList = parseJSON<any[]>(settings.wishlist_th_list_json, []);
+
     const initialValue = 0;
 
     const wishlistItems = useWishlistStore((state) => state.items);
@@ -34,7 +40,7 @@ function WishlistPageComps({ wishlistPageItems }: WishlistPageCompsProps) {
                                 <table className="wishlist-table bg-[#f4f5f7] w-full text-sm text-left">
                                     <thead className="text-[18px]">
                                         <tr>
-                                            {(wishlistPageItems[0] as any)?.wishlistThList?.map(
+                                            {wishlistThList.map(
                                                 (singleWishlistTh: any) => (
                                                     <th
                                                         key={
@@ -109,10 +115,7 @@ function WishlistPageComps({ wishlistPageItems }: WishlistPageCompsProps) {
                                         type="button"
                                         className="inline-flex items-center border border-black h-[46px] sm:px-[42px] px-[12px] transition-all hover:bg-[#222222] hover:text-white"
                                     >
-                                        {
-                                            (wishlistPageItems[0] as any)
-                                                ?.clearWishlistBtnText
-                                        }
+                                        {settings.wishlist_clear_btn_text}
                                     </button>
                                 </div>
                             </div>

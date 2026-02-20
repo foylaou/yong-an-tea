@@ -11,8 +11,20 @@ export const generalSettingsSchema = z.object({
   blog_enabled: z.string().optional(),
 });
 
+export const shopLayoutEnum = z.enum([
+  'left-sidebar',
+  'right-sidebar',
+  '3-columns',
+  '4-columns',
+  '5-columns',
+  '6-columns',
+  'categories',
+  'carousel',
+]);
+
 export const homepageSettingsSchema = z.object({
   homepage_variant: z.number().int().min(1).max(5),
+  shop_layout: shopLayoutEnum,
 });
 
 export const currencySettingsSchema = z.object({
@@ -32,6 +44,11 @@ export const contactSettingsSchema = z.object({
     (val) => val === '' || /^https:\/\/www\.google\.com\/maps\/embed/.test(val),
     { message: '請輸入有效的 Google Maps 嵌入網址' }
   ),
+  contact_form_title: z.string().optional(),
+  contact_form_desc: z.string().optional(),
+  contact_info_title: z.string().optional(),
+  contact_info_desc: z.string().optional(),
+  contact_social_title: z.string().optional(),
 });
 
 const optionalUrl = z.string().refine(
@@ -194,6 +211,62 @@ export const aboutSettingsSchema = z.object({
   about_address_desc_two: z.string().optional(),
 });
 
+export const faqSettingsSchema = z.object({
+  faq_items_json: z.string().optional(),
+  faq_page_title: z.string().optional(),
+  faq_page_desc: z.string().optional(),
+});
+
+export const errorPageSettingsSchema = z.object({
+  error404_image: z.string().optional(),
+  error404_image_alt: z.string().optional(),
+  error404_title: z.string().optional(),
+  error404_desc: z.string().optional(),
+  error404_link_path: z.string().optional(),
+  error404_link_text: z.string().optional(),
+});
+
+export const authPageSettingsSchema = z.object({
+  auth_tab_menu_json: z.string().optional(),
+});
+
+export const comingSoonSettingsSchema = z.object({
+  coming_soon_title: z.string().optional(),
+  coming_soon_desc: z.string().optional(),
+  coming_soon_count_title: z.string().optional(),
+  coming_soon_social_title: z.string().optional(),
+});
+
+export const cartPageSettingsSchema = z.object({
+  cart_th_list_json: z.string().optional(),
+  cart_coupon_title: z.string().optional(),
+  cart_coupon_desc: z.string().optional(),
+  cart_coupon_btn_text: z.string().optional(),
+  cart_shop_page_btn_text: z.string().optional(),
+  cart_clear_btn_text: z.string().optional(),
+  cart_proceed_btn_text: z.string().optional(),
+});
+
+export const wishlistPageSettingsSchema = z.object({
+  wishlist_th_list_json: z.string().optional(),
+  wishlist_clear_btn_text: z.string().optional(),
+});
+
+export const productDetailSettingsSchema = z.object({
+  product_tab_menu_json: z.string().optional(),
+  product_desc_title: z.string().optional(),
+  product_feature_title: z.string().optional(),
+  product_review_heading: z.string().optional(),
+  product_review_title: z.string().optional(),
+  product_rating_count: z.string().optional(),
+});
+
+export const gridLayoutSettingsSchema = z.object({
+  grid_tab_2col_json: z.string().optional(),
+  grid_tab_3col_json: z.string().optional(),
+  grid_tab_3col_alt_json: z.string().optional(),
+});
+
 // --- Type exports ---
 
 export type GeneralSettingsData = z.infer<typeof generalSettingsSchema>;
@@ -209,6 +282,14 @@ export type BrandsSettingsData = z.infer<typeof brandsSettingsSchema>;
 export type HeroSettingsData = z.infer<typeof heroSettingsSchema>;
 export type FeaturedSettingsData = z.infer<typeof featuredSettingsSchema>;
 export type AboutSettingsData = z.infer<typeof aboutSettingsSchema>;
+export type FaqSettingsData = z.infer<typeof faqSettingsSchema>;
+export type ErrorPageSettingsData = z.infer<typeof errorPageSettingsSchema>;
+export type AuthPageSettingsData = z.infer<typeof authPageSettingsSchema>;
+export type ComingSoonSettingsData = z.infer<typeof comingSoonSettingsSchema>;
+export type CartPageSettingsData = z.infer<typeof cartPageSettingsSchema>;
+export type WishlistPageSettingsData = z.infer<typeof wishlistPageSettingsSchema>;
+export type ProductDetailSettingsData = z.infer<typeof productDetailSettingsSchema>;
+export type GridLayoutSettingsData = z.infer<typeof gridLayoutSettingsSchema>;
 export type ShippingSettingsData = z.infer<typeof shippingSettingsSchema>;
 export type LinePaySettingsData = z.infer<typeof linePaySettingsSchema>;
 export type LineLoginSettingsData = z.infer<typeof lineLoginSettingsSchema>;
@@ -226,7 +307,7 @@ export const currencyApiSchema = z.object({
 });
 
 export const settingsUpdateApiSchema = z.object({
-  group: z.enum(['general', 'homepage', 'currency', 'contact', 'social', 'product_display', 'content', 'video', 'offer', 'brands', 'hero', 'featured', 'about', 'shipping', 'linepay', 'line_login', 'logistics', 'smtp', 'header_footer']),
+  group: z.enum(['general', 'homepage', 'currency', 'contact', 'social', 'product_display', 'content', 'video', 'offer', 'brands', 'hero', 'featured', 'about', 'shipping', 'linepay', 'line_login', 'logistics', 'smtp', 'header_footer', 'faq', 'error_page', 'auth_page', 'coming_soon', 'cart_page', 'wishlist_page', 'product_detail', 'grid_layout']),
   settings: z.record(z.string(), z.unknown()),
 });
 
@@ -252,13 +333,21 @@ export const settingsSchemaMap: Record<string, z.ZodType> = {
   logistics: logisticsSettingsSchema,
   smtp: smtpSettingsSchema,
   header_footer: headerFooterSettingsSchema,
+  faq: faqSettingsSchema,
+  error_page: errorPageSettingsSchema,
+  auth_page: authPageSettingsSchema,
+  coming_soon: comingSoonSettingsSchema,
+  cart_page: cartPageSettingsSchema,
+  wishlist_page: wishlistPageSettingsSchema,
+  product_detail: productDetailSettingsSchema,
+  grid_layout: gridLayoutSettingsSchema,
 };
 
 // --- Group labels (Chinese) ---
 
 export const groupLabels: Record<string, string> = {
   general: '一般設定',
-  homepage: '首頁設定',
+  homepage: '首頁及商店樣式',
   currency: '幣別設定',
   branches: '分店管理',
   contact: '聯絡資訊',
@@ -277,7 +366,15 @@ export const groupLabels: Record<string, string> = {
   logistics: '物流設定',
   smtp: 'SMTP 郵件',
   header_footer: 'Header / Footer',
+  faq: '常見問題',
+  error_page: '404 頁面',
+  auth_page: '登入頁面',
+  coming_soon: '即將推出',
+  cart_page: '購物車頁面',
+  wishlist_page: '願望清單',
+  product_detail: '商品詳情',
+  grid_layout: '格狀版面',
 };
 
-export const groupKeys = ['general', 'homepage', 'currency', 'branches', 'contact', 'social', 'product_display', 'content', 'video', 'offer', 'brands', 'hero', 'featured', 'about', 'shipping', 'linepay', 'line_login', 'logistics', 'smtp', 'header_footer'] as const;
+export const groupKeys = ['general', 'homepage', 'currency', 'branches', 'contact', 'social', 'product_display', 'content', 'video', 'offer', 'brands', 'hero', 'featured', 'about', 'shipping', 'linepay', 'line_login', 'logistics', 'smtp', 'header_footer', 'faq', 'error_page', 'auth_page', 'coming_soon', 'cart_page', 'wishlist_page', 'product_detail', 'grid_layout'] as const;
 export type SettingsGroup = (typeof groupKeys)[number];

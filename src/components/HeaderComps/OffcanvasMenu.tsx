@@ -1,17 +1,20 @@
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import { IoCaretDownOutline } from 'react-icons/io5';
-import { OffcanvasData } from './OffcanvasMenuData';
 import { useSettingsStore } from '../../store/settings/settings-slice';
 
 function OffcanvasMenu() {
     const blogEnabled = useSettingsStore((s) => s.blog_enabled);
-    const menuData = useMemo(() => {
+    const menuJson = useSettingsStore((s) => s.header_menu_json);
+    const menuItems = useMemo(() => {
+        let items: any[] = [];
+        try { items = JSON.parse(menuJson); } catch { items = []; }
         if (blogEnabled === 'false') {
-            return OffcanvasData.filter((item) => item.title !== '部落格');
+            return items.filter((item: any) => !item.path?.includes('/blogs'));
         }
-        return OffcanvasData;
-    }, [blogEnabled]);
+        return items;
+    }, [menuJson, blogEnabled]);
+
     const [submenuOpenId, setSubmenuOpenId] = useState<Record<string, boolean>>({});
 
     const showSubmenuClickHandler = (id: number) =>
@@ -19,101 +22,47 @@ function OffcanvasMenu() {
             [id.toString()]: !prevData[id.toString()],
         }));
 
-    const [levelTwoOpenId, setLevelTwoOpenId] = useState<Record<string, boolean>>({});
-
-    const showLevelTwoClickHandler = (id: string) =>
-        setLevelTwoOpenId((prevData) => ({
-            [id.toString()]: !prevData[id.toString()],
-        }));
-
     return (
         <ul className="offcanvas-menu-items pt-[75px]">
-            {menuData.map((item) => {
-                const { submenu } = item;
+            {menuItems.map((item: any) => {
+                const hasSubmenu = item.headerSubmenu && item.headerSubmenu.length > 0;
 
                 return (
                     <li
                         key={item.id}
-                        className={`${item.cName}${
+                        className={`${hasSubmenu ? 'has-children' : ''}${
                             submenuOpenId[item.id.toString()] ? ' active' : ''
                         } mb-[15px] last:mb-0`}
                     >
-                        <span
-                            onClick={
-                                submenu
-                                    ? () => showSubmenuClickHandler(item.id)
-                                    : () => {}
-                            }
-                            className={`${
-                                item?.submenu ? 'menu-expand' : ''
-                            } font-medium cursor-pointer flex justify-between items-center transition-all hover:text-[#666666]`}
-                        >
-                            {item.title}
-                            <IoCaretDownOutline className="menu-icon" />
-                        </span>
-                        {submenu && (
-                            <ul className="submenu pl-[10px] mt-[15px]">
-                                {submenu?.map((submenuItem) => (
-                                    <li
-                                        key={submenuItem.id}
-                                        className={`${submenuItem.cName}${
-                                            levelTwoOpenId[
-                                                submenuItem.id.toString()
-                                            ]
-                                                ? ' active'
-                                                : ''
-                                        } mb-[15px] last:mb-0`}
-                                        onClick={
-                                            submenuItem.levelTwo
-                                                ? () =>
-                                                      showLevelTwoClickHandler(
-                                                          submenuItem.id
-                                                      )
-                                                : () => {}
-                                        }
-                                    >
-                                        {submenu && !submenuItem.levelTwo && (
+                        {hasSubmenu ? (
+                            <>
+                                <span
+                                    onClick={() => showSubmenuClickHandler(item.id)}
+                                    className="menu-expand font-medium cursor-pointer flex justify-between items-center transition-all hover:text-[#666666]"
+                                >
+                                    {item.title}
+                                    <IoCaretDownOutline className="menu-icon" />
+                                </span>
+                                <ul className="submenu pl-[10px] mt-[15px]">
+                                    {item.headerSubmenu.map((sub: any) => (
+                                        <li key={sub.id} className="mb-[15px] last:mb-0">
                                             <Link
-                                                href={`${submenuItem.link}`}
+                                                href={sub.submenuPath}
                                                 className="flex justify-between items-center transition-all hover:text-[#666666]"
                                             >
-                                                {submenuItem.text}
+                                                {sub.submenuTitle}
                                             </Link>
-                                        )}
-                                        {submenu && submenuItem.levelTwo && (
-                                            <span className="font-medium cursor-pointer flex justify-between items-center transition-all hover:text-[#666666]">
-                                                {submenuItem.text}
-                                                <IoCaretDownOutline className="sub-icon" />
-                                            </span>
-                                        )}
-                                        {submenuItem.levelTwo && (
-                                            <ul className="level-two mt-[15px]">
-                                                {submenuItem.levelTwo.map(
-                                                    (levelTwoItem) => (
-                                                        <li
-                                                            key={
-                                                                levelTwoItem.id
-                                                            }
-                                                            className="mb-[5px] last:mb-0"
-                                                        >
-                                                            <Link
-                                                                href={
-                                                                    levelTwoItem.link
-                                                                }
-                                                                className="transition-all hover:text-[#666666]"
-                                                            >
-                                                                {
-                                                                    levelTwoItem.text
-                                                                }
-                                                            </Link>
-                                                        </li>
-                                                    )
-                                                )}
-                                            </ul>
-                                        )}
-                                    </li>
-                                ))}
-                            </ul>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </>
+                        ) : (
+                            <Link
+                                href={item.path}
+                                className="font-medium flex justify-between items-center transition-all hover:text-[#666666]"
+                            >
+                                {item.title}
+                            </Link>
                         )}
                     </li>
                 );

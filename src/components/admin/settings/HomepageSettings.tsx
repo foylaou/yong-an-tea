@@ -12,6 +12,17 @@ interface HomepageSettingsProps {
   initialData: Record<string, unknown>;
 }
 
+const layoutOptions = [
+  { value: 'left-sidebar', label: '左側欄' },
+  { value: 'right-sidebar', label: '右側欄' },
+  { value: '3-columns', label: '3 欄' },
+  { value: '4-columns', label: '4 欄' },
+  { value: '5-columns', label: '5 欄' },
+  { value: '6-columns', label: '6 欄' },
+  { value: 'categories', label: '分類橫幅 + 3 欄' },
+  { value: 'carousel', label: '輪播 + 3 欄' },
+];
+
 const homepageVariants = [
   { value: 1, label: 'V1 — 預設', desc: 'TransparentHeader + 精選商品 + 暢銷商品 + 優惠 + 部落格 + Footer 1' },
   { value: 2, label: 'V2 — 方框', desc: 'Header 2 + 影片 + 商品分頁 + 品牌 + Footer 2（HomeBoxed 版型）' },
@@ -34,6 +45,7 @@ export default function HomepageSettings({ initialData }: HomepageSettingsProps)
     resolver: zodResolver(homepageSettingsSchema),
     defaultValues: {
       homepage_variant: (initialData.homepage_variant as number) || 1,
+      shop_layout: (initialData.shop_layout as HomepageSettingsData['shop_layout']) || 'left-sidebar',
     },
   });
 
@@ -68,7 +80,7 @@ export default function HomepageSettings({ initialData }: HomepageSettingsProps)
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <section className="rounded-lg bg-white p-6 shadow">
-        <h2 className="mb-4 text-lg font-semibold text-gray-900">首頁設定</h2>
+        <h2 className="mb-4 text-lg font-semibold text-gray-900">首頁及商店樣式</h2>
 
         <div className="space-y-4">
           <div>
@@ -90,6 +102,26 @@ export default function HomepageSettings({ initialData }: HomepageSettingsProps)
             )}
             {variantInfo && (
               <p className="mt-2 text-sm text-gray-500">{variantInfo.desc}</p>
+            )}
+          </div>
+
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              商店版面配置
+            </label>
+            <select
+              {...register('shop_layout')}
+              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
+            >
+              {layoutOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+            <p className="mt-1 text-xs text-gray-500">選擇 /products 商店頁面的版面配置</p>
+            {errors.shop_layout && (
+              <p className="mt-1 text-sm text-red-600">{errors.shop_layout.message}</p>
             )}
           </div>
         </div>

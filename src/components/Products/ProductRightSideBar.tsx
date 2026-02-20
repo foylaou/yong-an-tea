@@ -11,14 +11,14 @@ interface ProductRightSideBarProps {
     products: MarkdownItem[];
     productFilter: MarkdownItem[];
     productFilterPath?: string;
-    gridTabItems: MarkdownItem[];
+    gridTabKey: 'grid_tab_2col_json' | 'grid_tab_3col_json' | 'grid_tab_3col_alt_json';
 }
 
 function ProductRightSideBar({
     products,
     productFilter,
     productFilterPath,
-    gridTabItems,
+    gridTabKey,
 }: ProductRightSideBarProps) {
     const { filterData } = useFilterStore();
     const productsPerPage = useSettingsStore((s) => s.products_per_page);
@@ -143,7 +143,7 @@ function ProductRightSideBar({
                             productTab={productTab}
                             tabState={tabState}
                             setTabState={setTabState}
-                            gridTabItems={gridTabItems}
+                            gridTabKey={gridTabKey}
                         />
 
                         <div

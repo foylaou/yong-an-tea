@@ -21,6 +21,14 @@ import LineLoginSettings from './LineLoginSettings';
 import LogisticsSettings from './LogisticsSettings';
 import SmtpSettings from './SmtpSettings';
 import HeaderFooterSettings from './HeaderFooterSettings';
+import FaqSettings from './FaqSettings';
+import ErrorPageSettings from './ErrorPageSettings';
+import AuthPageSettings from './AuthPageSettings';
+import ComingSoonSettings from './ComingSoonSettings';
+import CartPageSettings from './CartPageSettings';
+import WishlistPageSettings from './WishlistPageSettings';
+import ProductDetailSettings from './ProductDetailSettings';
+import GridLayoutSettings from './GridLayoutSettings';
 
 // Sidebar groups with sub-items
 const sidebarGroups: { label: string; items: SettingsGroup[] }[] = [
@@ -39,6 +47,10 @@ const sidebarGroups: { label: string; items: SettingsGroup[] }[] = [
   {
     label: '內容管理',
     items: ['content', 'video', 'offer', 'brands'],
+  },
+  {
+    label: '頁面設定',
+    items: ['faq', 'error_page', 'auth_page', 'coming_soon', 'cart_page', 'wishlist_page', 'product_detail', 'grid_layout'],
   },
 ];
 
@@ -70,6 +82,14 @@ export default function SettingsTabs({ initialSettings }: SettingsTabsProps) {
     logistics: <LogisticsSettings initialData={initialSettings.logistics || {}} />,
     smtp: <SmtpSettings initialData={initialSettings.smtp || {}} />,
     header_footer: <HeaderFooterSettings initialData={initialSettings.header_footer || {}} />,
+    faq: <FaqSettings initialData={initialSettings.faq || {}} />,
+    error_page: <ErrorPageSettings initialData={initialSettings.error_page || {}} />,
+    auth_page: <AuthPageSettings initialData={initialSettings.auth_page || {}} />,
+    coming_soon: <ComingSoonSettings initialData={initialSettings.coming_soon || {}} />,
+    cart_page: <CartPageSettings initialData={initialSettings.cart_page || {}} />,
+    wishlist_page: <WishlistPageSettings initialData={initialSettings.wishlist_page || {}} />,
+    product_detail: <ProductDetailSettings initialData={initialSettings.product_detail || {}} />,
+    grid_layout: <GridLayoutSettings initialData={initialSettings.grid_layout || {}} />,
   };
 
   const handleItemClick = (group: string, item: SettingsGroup) => {

@@ -1,19 +1,36 @@
 import { useState, useMemo } from 'react';
 import { MdPlayArrow, MdOutlineStarPurple500 } from 'react-icons/md';
-import { MarkdownItem } from '../../../types';
+import { useSettingsStore } from '../../../store/settings/settings-slice';
 
 interface ProductDetailTabProps {
-    product: MarkdownItem;
-    productDetailTabItems: MarkdownItem[];
+    product: any;
 }
 
-function ProductDetailTab({ product, productDetailTabItems }: ProductDetailTabProps) {
-    // Product Detail Tab
+function parseJSON<T>(raw: string | undefined, fallback: T): T {
+    try {
+        if (raw) return JSON.parse(raw);
+        return fallback;
+    } catch {
+        return fallback;
+    }
+}
+
+function ProductDetailTab({ product }: ProductDetailTabProps) {
+    const tabMenuJson = useSettingsStore((s) => s.product_tab_menu_json);
+    const reviewHeading = useSettingsStore((s) => s.product_review_heading);
+    const reviewTitle = useSettingsStore((s) => s.product_review_title);
+    const ratingCount = useSettingsStore((s) => s.product_rating_count);
+
+    const tabMenuItems = parseJSON<any[]>(tabMenuJson, []);
+    const ratingLists = Array.from({ length: parseInt(ratingCount) || 5 }, (_, i) => ({
+        id: `rating-list-${String(i + 1).padStart(2, '0')}`,
+    }));
+
     const [productDetailTabState, setProductDetailTabState] = useState(1);
     const productAttributes = useMemo(() => {
-        try { return JSON.parse((product as any)?.attributesJson || '[]'); }
+        try { return JSON.parse(product?.attributesJson || '[]'); }
         catch { return []; }
-    }, [(product as any)?.attributesJson]);
+    }, [product?.attributesJson]);
     const productDetailTab = (index: number) => {
         setProductDetailTabState(index);
     };
@@ -21,7 +38,7 @@ function ProductDetailTab({ product, productDetailTabItems }: ProductDetailTabPr
         <div className="product-detail-tab pt-[95px]">
             <div className="container">
                 <ul className="product-detail-tab-menu flex max-sm:flex-wrap border-b border-[#dddddd] pb-[20px]">
-                    {(productDetailTabItems[0] as any)?.tabMenuItems?.map(
+                    {tabMenuItems.map(
                         (tabMenuItem: any) => (
                             <li
                                 key={tabMenuItem?.id}
@@ -52,7 +69,7 @@ function ProductDetailTab({ product, productDetailTabItems }: ProductDetailTabPr
                                 : `tab-style-common description`
                         }
                     >
-                        {(product as any)?.detailDesc && (
+                        {product?.detailDesc && (
                         <div className="description-wrap border-b border-[#dddddd] py-[30px]">
                             <div className="grid grid-cols-12 lm:gap-x-[30px] max-sm:gap-y-[30px]">
                                 <div className="lm:col-span-7 col-span-12 self-center">
@@ -61,21 +78,21 @@ function ProductDetailTab({ product, productDetailTabItems }: ProductDetailTabPr
                                             商品描述
                                         </h2>
                                         <p>
-                                            {(product as any).detailDesc}
+                                            {product.detailDesc}
                                         </p>
                                     </div>
                                 </div>
                                 <div className="lm:col-span-5 col-span-12">
                                     <img
                                         className="w-full"
-                                        src={(product as any)?.mdImage}
-                                        alt={(product as any)?.altImage}
+                                        src={product?.mdImage}
+                                        alt={product?.altImage}
                                     />
                                 </div>
                             </div>
                         </div>
                         )}
-                        {(product as any)?.features && (
+                        {product?.features && (
                         <div className="description-wrap border-b border-[#dddddd] py-[30px]">
                             <div className="grid grid-cols-12 lm:gap-x-[30px] max-sm:gap-y-[30px]">
                                 <div className="lm:col-span-7 col-span-12 self-center">
@@ -84,7 +101,7 @@ function ProductDetailTab({ product, productDetailTabItems }: ProductDetailTabPr
                                             產品特色
                                         </h2>
                                         <ul className="features-list">
-                                            {((product as any).features as string)
+                                            {(product.features as string)
                                                 .split('\n')
                                                 .filter((line: string) => line.trim())
                                                 .map((line: string, idx: number) => (
@@ -104,8 +121,8 @@ function ProductDetailTab({ product, productDetailTabItems }: ProductDetailTabPr
                                 <div className="lm:col-span-5 col-span-12">
                                     <img
                                         className="w-full"
-                                        src={(product as any)?.mdImage}
-                                        alt={(product as any)?.altImage}
+                                        src={product?.mdImage}
+                                        alt={product?.altImage}
                                     />
                                 </div>
                             </div>
@@ -153,14 +170,14 @@ function ProductDetailTab({ product, productDetailTabItems }: ProductDetailTabPr
                     >
                         <div className="reviews-wrap pt-[25px]">
                             <h2 className="text-[26px]">
-                                {(productDetailTabItems[0] as any)?.reviewHeading}
+                                {reviewHeading}
                             </h2>
                             <span className="block mb-[10px]">
-                                {(productDetailTabItems[0] as any)?.reviewTitle}
+                                {reviewTitle}
                             </span>
                             <ul className="product-rating flex">
-                                {(productDetailTabItems[0] as any)?.ratingLists?.map(
-                                    (ratingList: any) => (
+                                {ratingLists.map(
+                                    (ratingList) => (
                                         <li key={ratingList.id}>
                                             <MdOutlineStarPurple500 className="text-[#f5a623]" />
                                         </li>

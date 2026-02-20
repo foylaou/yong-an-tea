@@ -1,5 +1,5 @@
 import { IoChevronDownSharp } from 'react-icons/io5';
-import { MarkdownItem } from '../../types';
+import { useSettingsStore } from '../../store/settings/settings-slice';
 
 interface ProductToolBarsProps {
     totalProductNumber: number;
@@ -8,7 +8,16 @@ interface ProductToolBarsProps {
     tabState: number;
     setTabState?: React.Dispatch<React.SetStateAction<number>>;
     productTab: (index: number) => void;
-    gridTabItems: MarkdownItem[];
+    gridTabKey: 'grid_tab_2col_json' | 'grid_tab_3col_json' | 'grid_tab_3col_alt_json';
+}
+
+function parseJSON<T>(raw: string | undefined, fallback: T): T {
+    try {
+        if (raw) return JSON.parse(raw);
+        return fallback;
+    } catch {
+        return fallback;
+    }
 }
 
 function ProductToolBars({
@@ -17,8 +26,11 @@ function ProductToolBars({
     endItemNumber,
     tabState,
     productTab,
-    gridTabItems,
+    gridTabKey,
 }: ProductToolBarsProps) {
+    const gridJson = useSettingsStore((s) => s[gridTabKey]);
+    const gridTabList = parseJSON<any[]>(gridJson, []);
+
     return (
         <div className="product-toolbar grid grid-cols-12 pb-[25px]">
             <div className="md:col-span-6 sm:col-span-8 col-span-12">
@@ -85,7 +97,7 @@ function ProductToolBars({
             <div className="md:col-span-6 sm:col-span-4 col-span-12">
                 <div className="right-side flex items-center sm:justify-end justify-center pt-[25px] sm:pt-0">
                     <ul className="flex">
-                        {(gridTabItems[0] as any)?.gridTabList?.map(
+                        {gridTabList.map(
                             (singleGridTabList: any) => (
                                 <li
                                     key={singleGridTabList.id}

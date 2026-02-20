@@ -1,6 +1,5 @@
 import type { GetServerSideProps } from 'next';
 import type { MarkdownItem } from '../../types';
-import { getAllItems } from '../../lib/ProductUtil';
 import { getProductBySlug } from '../../lib/products-db';
 import { getSEOByEntity, type SEOData } from '../../lib/seo-db';
 import { buildProductJsonLd } from '../../lib/seo-jsonld';
@@ -15,13 +14,11 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://example.com';
 
 interface ProductDetailPageProps {
     product: MarkdownItem;
-    productDetailTabItems: MarkdownItem[];
     seo: SEOData | null;
 }
 
 function ProductDetailPage({
     product,
-    productDetailTabItems,
     seo,
 }: ProductDetailPageProps) {
     const productJsonLd = buildProductJsonLd(product, SITE_URL);
@@ -47,7 +44,6 @@ function ProductDetailPage({
             />
             <ProductDetails
                 product={product}
-                productDetailTabItems={productDetailTabItems}
                 productFilterPath="carousel"
             />
             <FooterComps
@@ -67,12 +63,9 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
     const seo = await getSEOByEntity('product', product.uuid);
 
-    const productDetailTabItems = getAllItems('product-detail-tab');
-
     return {
         props: {
             product,
-            productDetailTabItems,
             seo,
         },
     };

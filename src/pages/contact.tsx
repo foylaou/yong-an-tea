@@ -1,16 +1,9 @@
-import type { GetStaticProps } from 'next';
-import type { MarkdownItem } from '../types';
 import HeaderOne from '../components/HeaderComps';
 import Breadcrumb from '../components/Breadcrumb';
 import ContactUs from '../components/Contact';
 import FooterComps from '../components/FooterComps';
-import { getAllItems } from '../lib/ItemsUtil';
 
-interface ContactPageProps {
-    contactItems: MarkdownItem[];
-}
-
-function ContactPage({ contactItems }: ContactPageProps) {
+function ContactPage() {
     return (
         <>
             <HeaderOne headerContainer="container" />
@@ -21,22 +14,12 @@ function ContactPage({ contactItems }: ContactPageProps) {
                 itemPath="/"
                 activeItem="聯絡我們"
             />
-            <ContactUs contactItems={contactItems} />
+            <ContactUs />
             <FooterComps
                 footerContainer="container"
             />
         </>
     );
 }
-
-export const getStaticProps: GetStaticProps = async () => {
-    const contactItems = getAllItems('contact');
-
-    return {
-        props: {
-            contactItems,
-        },
-    };
-};
 
 export default ContactPage;

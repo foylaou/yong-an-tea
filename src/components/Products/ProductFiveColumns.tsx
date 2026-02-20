@@ -12,7 +12,7 @@ interface ProductFiveColumnsProps {
     products: MarkdownItem[];
     productFilter: MarkdownItem[];
     productFilterPath: string;
-    gridTabItems: MarkdownItem[];
+    gridTabKey: 'grid_tab_2col_json' | 'grid_tab_3col_json' | 'grid_tab_3col_alt_json';
 }
 
 function ProductFiveColumns({
@@ -20,7 +20,7 @@ function ProductFiveColumns({
     products,
     productFilter,
     productFilterPath,
-    gridTabItems,
+    gridTabKey,
 }: ProductFiveColumnsProps) {
     const { filterData } = useFilterStore();
     const productsPerPage = useSettingsStore((s) => s.products_per_page);
@@ -148,7 +148,7 @@ function ProductFiveColumns({
                             productTab={productTab}
                             tabState={tabState}
                             setTabState={setTabState}
-                            gridTabItems={gridTabItems}
+                            gridTabKey={gridTabKey}
                         />
                         <div
                             className={

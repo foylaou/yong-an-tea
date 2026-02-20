@@ -239,7 +239,7 @@ function FooterComps({ footerContainer }: FooterCompsProps) {
                 <div className="container">
                     <div className="grid grid-cols-1">
                         <span className="flex justify-center items-center">
-                            {(settings.copyright_text || '© {year} Helendo. 版權所有。')
+                            {(settings.copyright_text || '© {year} 永安茶園. 版權所有。')
                                 .replace('{year}', String(new Date().getFullYear()))}
                         </span>
                     </div>

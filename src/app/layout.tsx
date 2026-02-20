@@ -1,8 +1,8 @@
 import '@/styles/admin-globals.css';
 
 export const metadata = {
-  title: 'Helendo 後台管理',
-  description: 'Helendo 電商後台管理系統',
+  title: '永安茶園 後台管理',
+  description: '永安茶園 電商後台管理系統',
 };
 
 export default function RootLayout({

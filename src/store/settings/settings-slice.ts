@@ -166,7 +166,7 @@ export const useSettingsStore = create<SiteSettings & SettingsActions>()((set) =
   currency_symbol: '$',
   decimal_places: 2,
   // contact defaults
-  company_name: 'Helendo',
+  company_name: '永安茶園',
   address: '',
   phone: '',
   email: '',
@@ -186,11 +186,11 @@ export const useSettingsStore = create<SiteSettings & SettingsActions>()((set) =
   header_variant: 1,
   footer_variant: 1,
   // general defaults
-  site_name: 'Helendo',
-  site_description: '',
+  site_name: '永安茶園',
+  site_description: '永安茶園 — 嚴選台灣好茶，產地直送，品味自然甘醇。',
   logo_url: '',
   favicon_url: '',
-  copyright_text: '© {year} Helendo. 版權所有。',
+  copyright_text: '© {year} 永安茶園. 版權所有。',
   // content / UI text defaults
   section_title_bestselling: '暢銷商品',
   section_title_latest_blog: '最新文章',

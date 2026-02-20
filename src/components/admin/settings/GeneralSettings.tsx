@@ -34,7 +34,7 @@ export default function GeneralSettings({ initialData }: GeneralSettingsProps) {
       site_description: (initialData.site_description as string) || '',
       logo_url: (initialData.logo_url as string) || '',
       favicon_url: (initialData.favicon_url as string) || '',
-      copyright_text: (initialData.copyright_text as string) || '© {year} Helendo. 版權所有。',
+      copyright_text: (initialData.copyright_text as string) || '© {year} 永安茶園. 版權所有。',
       blog_enabled: (initialData.blog_enabled as string) || 'true',
     },
   });
@@ -247,7 +247,7 @@ export default function GeneralSettings({ initialData }: GeneralSettingsProps) {
             <input
               type="text"
               {...register('copyright_text')}
-              placeholder="© {year} Helendo. 版權所有。"
+              placeholder="© {year} 永安茶園. 版權所有。"
               className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
             />
             <p className="mt-1 text-xs text-gray-400">

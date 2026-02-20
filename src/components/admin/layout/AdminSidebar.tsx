@@ -23,7 +23,7 @@ interface AdminSidebarProps {
   siteName?: string;
 }
 
-export default function AdminSidebar({ siteName = 'Helendo' }: AdminSidebarProps) {
+export default function AdminSidebar({ siteName = '永安茶園' }: AdminSidebarProps) {
   const pathname = usePathname();
 
   return (

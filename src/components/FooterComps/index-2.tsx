@@ -150,7 +150,7 @@ function FooterCompsTwo() {
                         <div className="grid grid-cols-12">
                             <div className="md:col-span-6 col-span-12 max-lm:order-2">
                                 <span className="sm:flex md:justify-start justify-center items-center">
-                                    {(settings.copyright_text || '© {year} Helendo. 版權所有。')
+                                    {(settings.copyright_text || '© {year} 永安茶園. 版權所有。')
                                         .replace('{year}', String(new Date().getFullYear()))}
                                 </span>
                             </div>

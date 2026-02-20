@@ -66,7 +66,7 @@ export default function VideoSettings({ initialData }: VideoSettingsProps) {
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Helendo 商店"
+              placeholder="永安茶園"
               className={inputCls}
             />
           </div>

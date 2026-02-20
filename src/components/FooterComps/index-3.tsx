@@ -184,7 +184,7 @@ function FooterCompsThree() {
                         <div className="grid grid-cols-12">
                             <div className="lg:col-span-6 col-span-12 max-md:order-2">
                                 <span className="flex lg:justify-start justify-center items-center pt-[10px]">
-                                    {(settings.copyright_text || '© {year} Helendo. 版權所有。')
+                                    {(settings.copyright_text || '© {year} 永安茶園. 版權所有。')
                                         .replace('{year}', String(new Date().getFullYear()))}
                                 </span>
                             </div>

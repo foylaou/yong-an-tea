@@ -34,7 +34,7 @@ export default async function AdminLayout({
     redirect('/');
   }
 
-  const siteName = (siteNameRow?.value as string) || 'Helendo';
+  const siteName = (siteNameRow?.value as string) || '永安茶園';
 
   return (
     <div className="flex h-screen bg-gray-100">

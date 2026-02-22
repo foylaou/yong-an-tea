@@ -124,6 +124,7 @@ export const brandsSettingsSchema = z.object({
 });
 
 export const heroSettingsSchema = z.object({
+  hero_hide_header_at_top: z.string().optional(),
   hero_default_json: z.string().optional(),
   hero_boxed_json: z.string().optional(),
   hero_carousel_json: z.string().optional(),

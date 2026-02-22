@@ -68,6 +68,7 @@ interface SiteSettings {
   // brands
   brands_json: string;
   // hero
+  hero_hide_header_at_top: string;
   hero_default_json: string;
   hero_boxed_json: string;
   hero_carousel_json: string;
@@ -235,6 +236,7 @@ export const useSettingsStore = create<SiteSettings & SettingsActions>()((set) =
     { id: '5', brandImg: '/images/brand/5.jpg', brandImgAlt: '品牌圖片' },
   ]),
   // hero defaults
+  hero_hide_header_at_top: 'false',
   hero_default_json: JSON.stringify([
     { id: 'hero-default-01', backgroundImage: '/images/hero/home-default/1.jpg', subtitle: '', title: '', desc: '', textColor: '#000000', subtitleColor: '#dcb14a', overlayColor: '#000000', overlayOpacity: 0, overlayDirection: 'full', buttonStyle: 'dark' },
     { id: 'hero-default-02', backgroundImage: '/images/hero/home-default/2.jpg', subtitle: '', title: '', desc: '', textColor: '#000000', subtitleColor: '#dcb14a', overlayColor: '#000000', overlayOpacity: 0, overlayDirection: 'full', buttonStyle: 'dark' },

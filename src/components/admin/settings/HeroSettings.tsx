@@ -169,6 +169,9 @@ export default function HeroSettings({ initialData }: HeroSettingsProps) {
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({ default: true });
   const toggle = (key: string) => setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }));
 
+  const [hideHeaderAtTop, setHideHeaderAtTop] = useState(
+    () => (initialData.hero_hide_header_at_top as string) === 'true'
+  );
   const [defaultSlides, setDefaultSlides] = useState<DefaultSlide[]>(() =>
     parseJson<DefaultSlide>(initialData.hero_default_json, [])
   );
@@ -202,6 +205,7 @@ export default function HeroSettings({ initialData }: HeroSettingsProps) {
     setSuccess(false);
 
     const settings: Record<string, string> = {
+      hero_hide_header_at_top: String(hideHeaderAtTop),
       hero_default_json: JSON.stringify(defaultSlides),
       hero_boxed_json: JSON.stringify(boxedSlides),
       hero_carousel_json: JSON.stringify(carouselSlides),
@@ -235,6 +239,21 @@ export default function HeroSettings({ initialData }: HeroSettingsProps) {
     <form onSubmit={onSubmit} className="space-y-6">
       {/* ===== 預設版 ===== */}
       <Section title="Hero 預設版" open={!!openSections.default} onToggle={() => toggle('default')}>
+        <div className="mb-4 flex items-center justify-between rounded-md border border-gray-200 p-3">
+          <div>
+            <p className="text-sm font-medium text-gray-700">頁面頂部隱藏 Header</p>
+            <p className="text-xs text-gray-400">開啟後 Logo 和圖示在頁面頂部時隱藏，向下滾動後才顯示</p>
+          </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={hideHeaderAtTop}
+            onClick={() => setHideHeaderAtTop(!hideHeaderAtTop)}
+            className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ${hideHeaderAtTop ? 'bg-black' : 'bg-gray-200'}`}
+          >
+            <span className={`pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow ring-0 transition-transform duration-200 ${hideHeaderAtTop ? 'translate-x-5' : 'translate-x-0'}`} />
+          </button>
+        </div>
         <p className="mb-4 text-sm text-gray-500">每張幻燈片包含：背景圖片、副標題、標題、描述</p>
         <div className="space-y-4">
           {defaultSlides.map((slide, i) => (

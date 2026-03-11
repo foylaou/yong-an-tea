@@ -112,6 +112,21 @@ export default function ProductTable({
     }
   }
 
+  async function handleActivate(product: any) {
+    const res = await fetch(`/api/admin/products/${product.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ is_active: true }),
+    });
+    if (res.ok) {
+      setProducts((prev) =>
+        prev.map((p: any) =>
+          p.id === product.id ? { ...p, is_active: true } : p
+        )
+      );
+    }
+  }
+
   function getCategoryNames(product: any): string {
     return (
       product.product_categories
@@ -250,12 +265,19 @@ export default function ProductTable({
                         >
                           編輯
                         </Link>
-                        {product.is_active && (
+                        {product.is_active ? (
                           <button
                             onClick={() => openDeleteDialog(product, 'soft')}
                             className="rounded bg-yellow-50 px-2 py-1 text-xs text-yellow-700 hover:bg-yellow-100"
                           >
                             下架
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => handleActivate(product)}
+                            className="rounded bg-green-50 px-2 py-1 text-xs text-green-700 hover:bg-green-100"
+                          >
+                            上架
                           </button>
                         )}
                         <button

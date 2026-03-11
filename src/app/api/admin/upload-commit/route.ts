@@ -90,7 +90,8 @@ export async function POST(request: NextRequest) {
           .from(target.bucket)
           .getPublicUrl(filePath);
 
-        urls[target.imageType] = urlData.publicUrl;
+        // Append cache-busting parameter so browsers fetch the new image
+        urls[target.imageType] = `${urlData.publicUrl}?t=${Date.now()}`;
       }),
     );
 

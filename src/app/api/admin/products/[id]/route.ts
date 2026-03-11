@@ -67,6 +67,36 @@ export async function PUT(
   return NextResponse.json({ product });
 }
 
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  const supabase = await createClient();
+  const admin = await verifyAdmin(supabase);
+  if (!admin) {
+    return NextResponse.json({ error: '權限不足' }, { status: 403 });
+  }
+
+  const body = await request.json();
+  const isActive = body.is_active;
+
+  if (typeof isActive !== 'boolean') {
+    return NextResponse.json({ error: '缺少 is_active 參數' }, { status: 400 });
+  }
+
+  const { error } = await supabase
+    .from('products')
+    .update({ is_active: isActive })
+    .eq('id', id);
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json({ success: true });
+}
+
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }

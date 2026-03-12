@@ -60,6 +60,17 @@ function ProductSixColumns({
         return !Object.values(filterGroupResult).includes(false);
     });
 
+    if (sortMode !== 'default') {
+        filteredProduct.sort((a: any, b: any) => {
+            switch (sortMode) {
+                case 'newest': return (b.sortOrder ?? 0) - (a.sortOrder ?? 0);
+                case 'price_asc': return (a.discountPrice ?? a.price) - (b.discountPrice ?? b.price);
+                case 'price_desc': return (b.discountPrice ?? b.price) - (a.discountPrice ?? a.price);
+                default: return 0;
+            }
+        });
+    }
+
     const pages: number[] = [];
     for (let i = 1; i <= Math.ceil(filteredProduct.length / itemPerPage); i++) {
         pages.push(i);

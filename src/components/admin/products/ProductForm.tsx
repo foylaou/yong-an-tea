@@ -111,7 +111,7 @@ export default function ProductForm({ categories, initialData, isEdit = false }:
   );
 
   // --- 產品變體 (variants) ---
-  type Variant = { name: string; price: number; discount_price: number | null; stock_qty: number; sku: string };
+  type Variant = { name: string; price: number; discount_price: number | null; stock_qty: number; sku: string; image_index: number | null };
   const [variants, setVariants] = useState<Variant[]>(
     initialData?.variants?.map((v: any) => ({
       name: v.name || '',
@@ -119,9 +119,10 @@ export default function ProductForm({ categories, initialData, isEdit = false }:
       discount_price: v.discount_price ?? null,
       stock_qty: v.stock_qty ?? 0,
       sku: v.sku || '',
+      image_index: v.image_index ?? null,
     })) || []
   );
-  const addVariant = () => setVariants([...variants, { name: '', price: 0, discount_price: null, stock_qty: 0, sku: '' }]);
+  const addVariant = () => setVariants([...variants, { name: '', price: 0, discount_price: null, stock_qty: 0, sku: '', image_index: null }]);
   const removeVariant = (idx: number) => setVariants(variants.filter((_, i) => i !== idx));
   const updateVariant = (idx: number, field: keyof Variant, val: string | number | null) => {
     setVariants(variants.map((v, i) => i === idx ? { ...v, [field]: val } : v));
@@ -407,6 +408,19 @@ export default function ProductForm({ categories, initialData, isEdit = false }:
                   placeholder="選填"
                   className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 />
+              </div>
+              <div className="w-24">
+                {idx === 0 && <label className="mb-1 block text-xs font-medium text-gray-500">對應圖片</label>}
+                <select
+                  value={v.image_index ?? ''}
+                  onChange={(e) => updateVariant(idx, 'image_index', e.target.value === '' ? null : Number(e.target.value))}
+                  className="w-full rounded-md border border-gray-300 px-2 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                >
+                  <option value="">無</option>
+                  {galleryImages.map((_, imgIdx) => (
+                    <option key={imgIdx} value={imgIdx}>圖 {imgIdx + 1}</option>
+                  ))}
+                </select>
               </div>
               <button
                 type="button"

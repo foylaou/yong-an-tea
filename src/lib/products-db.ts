@@ -22,6 +22,7 @@ function mapVariant(v: any) {
         stockQty: v.stock_qty ?? 0,
         sku: v.sku ?? null,
         isActive: v.is_active ?? true,
+        imageIndex: v.image_index ?? null,
     };
 }
 

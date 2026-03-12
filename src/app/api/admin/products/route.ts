@@ -155,6 +155,7 @@ export async function POST(request: NextRequest) {
         sku: v.sku || null,
         sort_order: idx,
         is_active: v.is_active ?? true,
+        image_index: v.image_index ?? null,
       })));
     if (varError) {
       return NextResponse.json({ error: varError.message }, { status: 500 });

@@ -42,6 +42,7 @@ function MainContent({ product }: MainContentProps) {
     const [quantityCount, setQuantityCount] = useState(1);
     const [selectedVariant, setSelectedVariant] = useState<any>(null);
     const [thumbsSwiper, setThumbsSwiper] = useState<SwiperType | null>(null);
+    const [mainSwiper, setMainSwiper] = useState<SwiperType | null>(null);
 
     // Build gallery images array (from product_images or fallback to mdImage)
     const galleryImages: { mdUrl: string; smUrl: string; altText: string }[] =
@@ -68,8 +69,16 @@ function MainContent({ product }: MainContentProps) {
         ? selectedVariant.discountPrice
         : discountPrice;
 
+    // Get variant-specific image or fallback to primary
+    const getVariantImage = (variant: any) => {
+        if (variant?.imageIndex != null && galleryImages[variant.imageIndex]) {
+            return galleryImages[variant.imageIndex].smUrl;
+        }
+        return (product as any)?.xsImage || (product as any)?.smImage || (product as any)?.mdImage;
+    };
+
     const addToCartHandler = (e: React.MouseEvent) => {
-        const img = (product as any)?.xsImage || (product as any)?.mdImage;
+        const img = getVariantImage(selectedVariant);
         useFlyAnimationStore.getState().trigger('cart', img, e.clientX - 30, e.clientY - 30);
         const cartPrice = selectedVariant
             ? (selectedVariant.discountPrice ?? selectedVariant.price)
@@ -83,8 +92,8 @@ function MainContent({ product }: MainContentProps) {
             price: cartPrice,
             quantity: quantityCount,
             totalPrice: cartPrice * quantityCount,
-            image: (product as any)?.xsImage,
-            slug: `/products/${product?.slug}`,
+            image: img,
+            slug: product?.slug,
         });
     };
 
@@ -135,6 +144,7 @@ function MainContent({ product }: MainContentProps) {
                                     <Swiper
                                         modules={[Navigation, Pagination, Thumbs]}
                                         thumbs={{ swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }}
+                                        onSwiper={setMainSwiper}
                                         navigation
                                         pagination={{ clickable: true }}
                                         spaceBetween={0}
@@ -223,9 +233,13 @@ function MainContent({ product }: MainContentProps) {
                                             <button
                                                 key={v.id}
                                                 type="button"
-                                                onClick={() => setSelectedVariant(
-                                                    selectedVariant?.id === v.id ? null : v
-                                                )}
+                                                onClick={() => {
+                                                    const next = selectedVariant?.id === v.id ? null : v;
+                                                    setSelectedVariant(next);
+                                                    if (next?.imageIndex != null && mainSwiper && !mainSwiper.destroyed) {
+                                                        mainSwiper.slideTo(next.imageIndex);
+                                                    }
+                                                }}
                                                 className={`border px-[16px] py-[8px] text-[14px] transition-all ${
                                                     selectedVariant?.id === v.id
                                                         ? 'border-black bg-black text-white'

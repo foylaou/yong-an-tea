@@ -10,15 +10,34 @@ interface CartProps {
 }
 
 const minicartGroupBtn = `flex items-center justify-center border border-[#222222]  w-full h-[50px]`;
+
+function groupByProduct(items: { id: string; name: string; quantity: number; totalPrice: number; price: number; slug: string; image: string }[]) {
+    const groups = new Map<string, { id: string; title: string; quantity: number; price: number; slug: string; image: string }[]>();
+    for (const item of items) {
+        const key = item.slug.replace(/^\/products\//, '');
+        if (!groups.has(key)) groups.set(key, []);
+        groups.get(key)!.push({
+            id: item.id,
+            title: item.name,
+            quantity: item.quantity,
+            price: item.price,
+            slug: item.slug,
+            image: item.image,
+        });
+    }
+    return [...groups.values()];
+}
+
 function Cart({ minicart, showMiniCart }: CartProps) {
     const cartItems = useCartStore((state) => state.items);
 
-    const initialValue = 0;
     const SubTotal = cartItems.reduce(
         (accumulator, current) =>
             accumulator + current.price * current.quantity,
-        initialValue
+        0
     );
+
+    const grouped = groupByProduct(cartItems);
 
     return (
         <div
@@ -43,23 +62,15 @@ function Cart({ minicart, showMiniCart }: CartProps) {
                             </h2>
                         )}
                         <ul className="overflow-auto max-h-[205px]">
-                            {cartItems.map((item) => (
+                            {grouped.map((group) => (
                                 <CartItem
-                                    key={item.id}
-                                    item={{
-                                        id: item.id,
-                                        title: item.name,
-                                        quantity: item.quantity,
-                                        total: item.totalPrice,
-                                        price: item.price,
-                                        slug: item.slug,
-                                        image: item.image,
-                                    }}
+                                    key={group.map((i) => i.id).join('_')}
+                                    items={group}
                                 />
                             ))}
                         </ul>
                         {cartItems.length <= 0 ||
-                            (initialValue === 0 && (
+                            (SubTotal >= 0 && (
                                 <>
                                     <div className="minicart-subtotal flex justify-between text-[24px] font-medium pt-[40px]">
                                         <span>小計：</span>

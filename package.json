@@ -27,6 +27,8 @@
         "@supabase/ssr": "^0.8.0",
         "@supabase/supabase-js": "^2.95.3",
         "@tailwindcss/postcss": "^4.1.18",
+        "@vercel/analytics": "^2.0.0",
+        "@vercel/speed-insights": "^2.0.0",
         "disqus-react": "^1.1.7",
         "framer-motion": "^8.5.5",
         "gray-matter": "^4.0.3",

@@ -1,5 +1,6 @@
 import { IoChevronDownSharp } from 'react-icons/io5';
 import { useSettingsStore } from '../../store/settings/settings-slice';
+import { useFilterStore, type ShopSortMode } from '../../store/product-filter/filter-slice';
 
 interface ProductToolBarsProps {
     totalProductNumber: number;
@@ -30,6 +31,14 @@ function ProductToolBars({
 }: ProductToolBarsProps) {
     const gridJson = useSettingsStore((s) => s[gridTabKey]);
     const gridTabList = parseJSON<any[]>(gridJson, []);
+    const { sortMode, setSortMode } = useFilterStore();
+
+    const sortLabels: Record<ShopSortMode, string> = {
+        default: '預設排序',
+        newest: '依最新排序',
+        price_asc: '依價格：低到高',
+        price_desc: '依價格：高到低',
+    };
 
     return (
         <div className="product-toolbar grid grid-cols-12 pb-[25px]">
@@ -45,50 +54,23 @@ function ProductToolBars({
                         <li className="relative group">
                             <span className="flex items-center cursor-pointer">
                                 排序：
-                                <span className="mx-[5px]">預設</span>
+                                <span className="mx-[5px]">{sortLabels[sortMode]}</span>
                                 <IoChevronDownSharp />
                             </span>
                             <ul className="sort-subitems bg-white border border-[#dddddd] absolute top-[calc(100%+30px)] sm:left-0 max-xs:left-1/2 max-xs:-translate-x-1/2 w-[210px] p-[10px] transition-all invisible opacity-0 group-hover:top-full group-hover:visible group-hover:opacity-100 z-9">
-                                <li>
-                                    <button
-                                        type="button"
-                                        className="text-[#777777] text-[15px] leading-[24px] transition-all hover:text-[#222222] py-[5px] px-[10px] rounded-[4px]"
-                                    >
-                                        預設排序
-                                    </button>
-                                </li>
-                                <li>
-                                    <button
-                                        type="button"
-                                        className="text-[#777777] text-[15px] leading-[24px] transition-all hover:text-[#222222] py-[5px] px-[10px] rounded-[4px]"
-                                    >
-                                        依熱門度排序
-                                    </button>
-                                </li>
-                                <li>
-                                    <button
-                                        type="button"
-                                        className="text-[#777777] text-[15px] leading-[24px] transition-all hover:text-[#222222] py-[5px] px-[10px] rounded-[4px]"
-                                    >
-                                        依最新排序
-                                    </button>
-                                </li>
-                                <li>
-                                    <button
-                                        type="button"
-                                        className="text-[#777777] text-[15px] leading-[24px] transition-all hover:text-[#222222] py-[5px] px-[10px] rounded-[4px]"
-                                    >
-                                        依價格：低到高
-                                    </button>
-                                </li>
-                                <li>
-                                    <button
-                                        type="button"
-                                        className="text-[#777777] text-[15px] leading-[24px] transition-all hover:text-[#222222] py-[5px] px-[10px] rounded-[4px]"
-                                    >
-                                        依價格：高到低
-                                    </button>
-                                </li>
+                                {(Object.entries(sortLabels) as [ShopSortMode, string][]).map(([key, label]) => (
+                                    <li key={key}>
+                                        <button
+                                            type="button"
+                                            className={`text-[15px] leading-[24px] transition-all hover:text-[#222222] py-[5px] px-[10px] rounded-[4px] w-full text-left ${
+                                                sortMode === key ? 'text-[#222222] font-medium' : 'text-[#777777]'
+                                            }`}
+                                            onClick={() => setSortMode(key)}
+                                        >
+                                            {label}
+                                        </button>
+                                    </li>
+                                ))}
                             </ul>
                         </li>
                     </ul>

@@ -2,16 +2,20 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { FilterDataItem, FilterState } from '../../types';
 
+export type ShopSortMode = 'default' | 'newest' | 'price_asc' | 'price_desc';
+
 interface FilterActions {
     addFilter: (payload: FilterDataItem) => void;
     removeFilter: (payload: { key: string }) => void;
     clearAll: () => void;
+    setSortMode: (mode: ShopSortMode) => void;
 }
 
 export const useFilterStore = create<FilterState & FilterActions>()(
     persist(
         (set) => ({
             filterData: [],
+            sortMode: 'default' as ShopSortMode,
 
             addFilter: (payload) =>
                 set((state) => {
@@ -40,6 +44,8 @@ export const useFilterStore = create<FilterState & FilterActions>()(
                 })),
 
             clearAll: () => set({ filterData: [] }),
+
+            setSortMode: (mode) => set({ sortMode: mode }),
         }),
         {
             name: 'filter-storage',

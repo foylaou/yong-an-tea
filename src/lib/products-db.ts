@@ -70,6 +70,15 @@ function mapProductRow(row: any): MarkdownItem {
         avgRating: Number(row.avg_rating) || 0,
         reviewCount: row.review_count ?? 0,
         variants,
+        // Gallery images sorted by sort_order
+        images: (row.product_images ?? [])
+            .sort((a: any, b: any) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+            .map((img: any) => ({
+                id: img.id,
+                smUrl: img.sm_url,
+                mdUrl: img.md_url,
+                altText: img.alt_text ?? '',
+            })),
     };
 }
 
@@ -82,7 +91,7 @@ export async function getAllProducts(): Promise<MarkdownItem[]> {
 
     const { data, error } = await supabase
         .from('products')
-        .select('*, product_categories(categories(slug)), product_variants(*)')
+        .select('*, product_categories(categories(slug)), product_variants(*), product_images(*)')
         .eq('is_active', true)
         .order('sort_order', { ascending: true })
         .order('created_at', { ascending: false });
@@ -100,7 +109,7 @@ export async function getFeaturedProducts(): Promise<MarkdownItem[]> {
 
     const { data, error } = await supabase
         .from('products')
-        .select('*, product_categories(categories(slug)), product_variants(*)')
+        .select('*, product_categories(categories(slug)), product_variants(*), product_images(*)')
         .eq('is_active', true)
         .eq('is_featured', true)
         .order('sort_order', { ascending: true })
@@ -154,7 +163,7 @@ export async function getBestsellingProducts(limit = 5): Promise<MarkdownItem[]>
 
         const { data, error } = await supabase
             .from('products')
-            .select('*, product_categories(categories(slug)), product_variants(*)')
+            .select('*, product_categories(categories(slug)), product_variants(*), product_images(*)')
             .in('id', ids)
             .eq('is_active', true);
 
@@ -175,7 +184,7 @@ export async function getBestsellingProducts(limit = 5): Promise<MarkdownItem[]>
         // Fallback to default sort
         const { data } = await supabase
             .from('products')
-            .select('*, product_categories(categories(slug)), product_variants(*)')
+            .select('*, product_categories(categories(slug)), product_variants(*), product_images(*)')
             .eq('is_active', true)
             .order('sort_order', { ascending: true })
             .limit(limit);
@@ -196,7 +205,7 @@ export async function getBestsellingProducts(limit = 5): Promise<MarkdownItem[]>
 
     const { data, error } = await supabase
         .from('products')
-        .select('*, product_categories(categories(slug)), product_variants(*)')
+        .select('*, product_categories(categories(slug)), product_variants(*), product_images(*)')
         .in('id', topIds)
         .eq('is_active', true);
 
@@ -212,7 +221,7 @@ export async function getProductBySlug(slug: string): Promise<MarkdownItem | nul
 
     const { data, error } = await supabase
         .from('products')
-        .select('*, product_categories(categories(slug)), product_variants(*)')
+        .select('*, product_categories(categories(slug)), product_variants(*), product_images(*)')
         .eq('slug', slug)
         .eq('is_active', true)
         .single();

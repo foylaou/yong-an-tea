@@ -3,7 +3,7 @@ import ProductItem from './ProductItem';
 import ProductToolBars from './ProductToolBars';
 import ProductActiveFilter from './ProductActiveFilter';
 import ProductFilterDrawer, { FilterToggleButton } from './ProductFilterDrawer';
-import { useFilterStore } from '../../store/product-filter/filter-slice';
+import { useFilterStore, type ShopSortMode } from '../../store/product-filter/filter-slice';
 import { useSettingsStore } from '../../store/settings/settings-slice';
 import { MarkdownItem } from '../../types';
 
@@ -20,7 +20,7 @@ function ProductFourColumns({
     productFilterPath,
     gridTabKey,
 }: ProductFourColumnsProps) {
-    const { filterData } = useFilterStore();
+    const { filterData, sortMode } = useFilterStore();
     const productsPerPage = useSettingsStore((s) => s.products_per_page);
 
     const [currentPage, setCurrentPage] = useState(1);
@@ -57,6 +57,17 @@ function ProductFourColumns({
 
         return !Object.values(filterGroupResult).includes(false);
     });
+
+    if (sortMode !== 'default') {
+        filteredProduct.sort((a: any, b: any) => {
+            switch (sortMode) {
+                case 'newest': return (b.sortOrder ?? 0) - (a.sortOrder ?? 0);
+                case 'price_asc': return (a.discountPrice ?? a.price) - (b.discountPrice ?? b.price);
+                case 'price_desc': return (b.discountPrice ?? b.price) - (a.discountPrice ?? a.price);
+                default: return 0;
+            }
+        });
+    }
 
     const pages: number[] = [];
     for (let i = 1; i <= Math.ceil(filteredProduct.length / itemPerPage); i++) {

@@ -106,6 +106,17 @@ export async function POST(request: NextRequest) {
 
   const { category_ids, ...productData } = result.data;
   const variants = body.variants as any[] | undefined;
+  const galleryImages = body.gallery_images as any[] | undefined;
+
+  // Auto-populate product image columns from first gallery image
+  if (galleryImages && galleryImages.length > 0) {
+    const first = galleryImages[0];
+    productData.sm_image = first.sm_url;
+    productData.md_image = first.md_url;
+    productData.xs_image = first.sm_url;
+    if (!productData.home_collection_img) productData.home_collection_img = first.md_url;
+    if (!productData.category_banner_img) productData.category_banner_img = first.md_url;
+  }
 
   // Insert product
   const { data: product, error: insertError } = await supabase
@@ -148,6 +159,19 @@ export async function POST(request: NextRequest) {
     if (varError) {
       return NextResponse.json({ error: varError.message }, { status: 500 });
     }
+  }
+
+  // Insert gallery images
+  if (galleryImages && galleryImages.length > 0) {
+    await supabase
+      .from('product_images')
+      .insert(galleryImages.map((img: any, idx: number) => ({
+        product_id: product.id,
+        sort_order: idx,
+        sm_url: img.sm_url,
+        md_url: img.md_url,
+        alt_text: img.alt_text || '',
+      })));
   }
 
   return NextResponse.json({ product }, { status: 201 });

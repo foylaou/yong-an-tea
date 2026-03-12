@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { productFormSchema, type ProductFormData } from '@/lib/validations/product';
-import ProductImageBatchUploader from '../common/ProductImageBatchUploader';
+import ProductImageGallery, { type GalleryImage } from '../common/ProductImageGallery';
 import CategoryMultiSelect from './CategoryMultiSelect';
 
 interface Category {
@@ -100,6 +100,16 @@ export default function ProductForm({ categories, initialData, isEdit = false }:
     syncAttrs(next);
   };
 
+  // --- 商品圖片 (gallery images) ---
+  const [galleryImages, setGalleryImages] = useState<GalleryImage[]>(
+    initialData?.product_images?.map((img: any) => ({
+      id: img.id,
+      sm_url: img.sm_url,
+      md_url: img.md_url,
+      alt_text: img.alt_text || '',
+    })) || []
+  );
+
   // --- 產品變體 (variants) ---
   type Variant = { name: string; price: number; discount_price: number | null; stock_qty: number; sku: string };
   const [variants, setVariants] = useState<Variant[]>(
@@ -138,7 +148,7 @@ export default function ProductForm({ categories, initialData, isEdit = false }:
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...data, variants }),
+        body: JSON.stringify({ ...data, variants, gallery_images: galleryImages }),
       });
 
       const result = await res.json();
@@ -231,16 +241,10 @@ export default function ProductForm({ categories, initialData, isEdit = false }:
       {/* 商品圖片 */}
       <section className="rounded-lg bg-white p-6 shadow">
         <h2 className="mb-4 text-lg font-semibold text-gray-900">商品圖片</h2>
-        <ProductImageBatchUploader
+        <ProductImageGallery
           slug={slug}
-          values={{
-            xs_image: watch('xs_image') || null,
-            sm_image: watch('sm_image') || null,
-            md_image: watch('md_image') || null,
-            home_collection_img: watch('home_collection_img') || null,
-            category_banner_img: watch('category_banner_img') || null,
-          }}
-          onChange={(field, url) => setValue(field as keyof ProductFormData, url)}
+          images={galleryImages}
+          onChange={setGalleryImages}
         />
         <div className="mt-4">
           <label className="mb-1 block text-sm font-medium text-gray-700">圖片替代文字</label>

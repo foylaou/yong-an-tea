@@ -398,6 +398,25 @@ label {
     @apply bg-primary;
 }
 
+/* Product Detail Gallery */
+.product-main-swiper .swiper-button-prev,
+.product-main-swiper .swiper-button-next {
+    @apply text-black/60 hover:text-black transition-colors;
+}
+.product-main-swiper .swiper-button-prev::after,
+.product-main-swiper .swiper-button-next::after {
+    font-size: 20px;
+}
+.product-main-swiper .swiper-pagination-bullet-active {
+    @apply bg-black;
+}
+.product-thumbs-swiper .swiper-slide {
+    @apply opacity-50 transition-opacity;
+}
+.product-thumbs-swiper .swiper-slide-thumb-active {
+    @apply opacity-100;
+}
+
 /*----------------------------------------*/
 /*  - newarrrival
 /*----------------------------------------*/

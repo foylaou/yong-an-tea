@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import ProductItem from '../Products/ProductItem';
 import SwiperComps, { Slide } from '../SwiperComps';
 import { MarkdownItem } from '../../types';
@@ -62,6 +63,14 @@ function BestSellingProduct({
                         <div className="swiper-button-prev xxl:left-[-40px]! after:text-[24px]! after:text-[#666666]!" />
                         <div className="swiper-button-next xxl:right-[-40px]! after:text-[24px]! after:text-[#666666]!" />
                     </div>
+                </div>
+                <div className="text-center mt-[40px]">
+                    <Link
+                        href="/products"
+                        className="inline-block border border-current px-[30px] py-[10px] text-[14px] uppercase tracking-[1px] hover:bg-primary hover:border-primary hover:text-white transition-all duration-300"
+                    >
+                        查看更多商品
+                    </Link>
                 </div>
             </div>
         </div>

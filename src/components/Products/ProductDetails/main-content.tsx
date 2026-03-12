@@ -1,5 +1,12 @@
 import { useState } from 'react';
 import { IoAddSharp, IoHeartOutline, IoHeart, IoRemoveSharp } from 'react-icons/io5';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination, Thumbs } from 'swiper/modules';
+import type { Swiper as SwiperType } from 'swiper';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+import 'swiper/css/thumbs';
 import { useCartStore } from '../../../store/cart/cart-slice';
 import { useFlyAnimationStore } from '../../../store/cart/fly-to-cart';
 import { useWishlistStore } from '../../../store/wishlist/wishlist-slice';
@@ -34,6 +41,15 @@ function MainContent({ product }: MainContentProps) {
     } = product as any;
     const [quantityCount, setQuantityCount] = useState(1);
     const [selectedVariant, setSelectedVariant] = useState<any>(null);
+    const [thumbsSwiper, setThumbsSwiper] = useState<SwiperType | null>(null);
+
+    // Build gallery images array (from product_images or fallback to mdImage)
+    const galleryImages: { mdUrl: string; smUrl: string; altText: string }[] =
+        (product as any)?.images?.length > 0
+            ? (product as any).images
+            : (product as any)?.mdImage
+                ? [{ mdUrl: (product as any).mdImage, smUrl: (product as any).smImage || (product as any).mdImage, altText: (product as any).altImage || '' }]
+                : [];
     const effectiveMax = maxQty && maxQty > 0 ? maxQty : Infinity;
 
     // Compute price range from variants
@@ -100,39 +116,73 @@ function MainContent({ product }: MainContentProps) {
                     <div className="lg:col-span-6 col-span-12">
                         <div className="product-detail-img relative">
                             {soldOutSticker && (
-                                <span
-                                    className={`${
-                                        soldOutSticker ? `${soldOut}` : ''
-                                    }`}
-                                >
+                                <span className={soldOut}>
                                     {soldOutSticker}
                                 </span>
                             )}
                             {bestSellerSticker && (
-                                <span
-                                    className={`${
-                                        bestSellerSticker ? `${bestSeller}` : ''
-                                    }`}
-                                >
+                                <span className={bestSeller}>
                                     {bestSellerSticker}
                                 </span>
                             )}
                             {offerSticker && (
-                                <span
-                                    className={`${
-                                        offerSticker ? `${productOffer}` : ''
-                                    }`}
-                                >
+                                <span className={productOffer}>
                                     {offerSticker}
                                 </span>
                             )}
-                            <img
-                                className="w-full"
-                                src={(product as any)?.mdImage}
-                                alt={(product as any)?.altImage}
-                                width={585}
-                                height={585}
-                            />
+                            {galleryImages.length > 1 ? (
+                                <>
+                                    <Swiper
+                                        modules={[Navigation, Pagination, Thumbs]}
+                                        thumbs={{ swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }}
+                                        navigation
+                                        pagination={{ clickable: true }}
+                                        spaceBetween={0}
+                                        slidesPerView={1}
+                                        className="product-main-swiper mb-3"
+                                    >
+                                        {galleryImages.map((img: any, idx: number) => (
+                                            <SwiperSlide key={idx}>
+                                                <img
+                                                    className="w-full"
+                                                    src={img.mdUrl}
+                                                    alt={img.altText || `${title} ${idx + 1}`}
+                                                    width={585}
+                                                    height={585}
+                                                />
+                                            </SwiperSlide>
+                                        ))}
+                                    </Swiper>
+                                    <Swiper
+                                        modules={[Thumbs]}
+                                        onSwiper={setThumbsSwiper}
+                                        spaceBetween={10}
+                                        slidesPerView={4}
+                                        watchSlidesProgress
+                                        className="product-thumbs-swiper"
+                                    >
+                                        {galleryImages.map((img: any, idx: number) => (
+                                            <SwiperSlide key={idx} className="cursor-pointer">
+                                                <img
+                                                    className="w-full rounded border border-gray-200 object-cover"
+                                                    src={img.smUrl}
+                                                    alt={img.altText || `${title} 縮圖 ${idx + 1}`}
+                                                    width={300}
+                                                    height={300}
+                                                />
+                                            </SwiperSlide>
+                                        ))}
+                                    </Swiper>
+                                </>
+                            ) : (
+                                <img
+                                    className="w-full"
+                                    src={galleryImages[0]?.mdUrl || (product as any)?.mdImage}
+                                    alt={(product as any)?.altImage}
+                                    width={585}
+                                    height={585}
+                                />
+                            )}
                         </div>
                     </div>
                     <div className="lg:col-span-6 col-span-12">

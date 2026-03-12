@@ -6,4 +6,5 @@ export interface FilterDataItem {
 
 export interface FilterState {
     filterData: FilterDataItem[];
+    sortMode: string;
 }

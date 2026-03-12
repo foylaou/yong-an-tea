@@ -308,7 +308,7 @@ function MainContent({ product }: MainContentProps) {
                                 </div>
                                 <div
                                     className={`${
-                                        soldOutSticker
+                                        soldOutSticker || (hasVariants && !selectedVariant)
                                             ? `cursor-not-allowed`
                                             : ''
                                     }`}
@@ -316,13 +316,13 @@ function MainContent({ product }: MainContentProps) {
                                     <button
                                         type="button"
                                         className={`${addtoCartBtn} ${
-                                            soldOutSticker
-                                                ? `pointer-events-none`
+                                            soldOutSticker || (hasVariants && !selectedVariant)
+                                                ? `pointer-events-none opacity-50`
                                                 : ''
                                         } mr-[15px]`}
                                         onClick={addToCartHandler}
                                     >
-                                        加入購物車
+                                        {hasVariants && !selectedVariant ? '請選擇規格' : '加入購物車'}
                                     </button>
                                 </div>
                                 <button

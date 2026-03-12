@@ -52,11 +52,22 @@ function mergeWishlistItems(
 // --------------- server push / pull ---------------
 
 async function pushCartToServer(items: CartItem[]) {
+  // Variant cart items have compound id "productId_variantId".
+  // Aggregate quantities by base product_id so the FK to products stays valid.
+  const agg = new Map<string, number>();
+  for (const item of items) {
+    const baseId = item.id.includes('_') ? item.id.split('_')[0] : item.id;
+    agg.set(baseId, (agg.get(baseId) ?? 0) + item.quantity);
+  }
+
   await fetch('/api/cart', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      items: items.map((i) => ({ product_id: i.id, quantity: i.quantity })),
+      items: [...agg.entries()].map(([product_id, quantity]) => ({
+        product_id,
+        quantity,
+      })),
     }),
   });
 }

@@ -49,6 +49,7 @@ export interface DynamicHomeContentProps {
     // Shared
     products: MarkdownItem[];
     productFilter: MarkdownItem[];
+    bestsellingProducts: MarkdownItem[];
     // Variant 1
     blogs: MarkdownItem[];
     // Variant 2
@@ -191,7 +192,7 @@ function DynamicHomeContent(props: DynamicHomeContentProps) {
                     <HeroOne />
                     <FeaturedProduct />
                     <BestSellingProduct
-                        products={props.products}
+                        products={props.bestsellingProducts}
                         productFilter={props.productFilter}
                         sectionTitle={t.bestselling}
                         productFilterPath="left-sidebar"

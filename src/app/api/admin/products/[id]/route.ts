@@ -33,6 +33,7 @@ export async function PUT(
   }
 
   const { category_ids, ...productData } = result.data;
+  const variants = body.variants as any[] | undefined;
 
   // Update product
   const { data: product, error: updateError } = await supabase
@@ -61,6 +62,32 @@ export async function PUT(
       })));
     if (catError) {
       return NextResponse.json({ error: catError.message }, { status: 500 });
+    }
+  }
+
+  // Rebuild variants: delete all then re-insert
+  if (variants !== undefined) {
+    await supabase
+      .from('product_variants')
+      .delete()
+      .eq('product_id', id);
+
+    if (variants.length > 0) {
+      const { error: varError } = await supabase
+        .from('product_variants')
+        .insert(variants.map((v: any, idx: number) => ({
+          product_id: id,
+          name: v.name,
+          price: v.price,
+          discount_price: v.discount_price || null,
+          stock_qty: v.stock_qty ?? 0,
+          sku: v.sku || null,
+          sort_order: idx,
+          is_active: v.is_active ?? true,
+        })));
+      if (varError) {
+        return NextResponse.json({ error: varError.message }, { status: 500 });
+      }
     }
   }
 

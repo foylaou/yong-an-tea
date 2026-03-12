@@ -268,6 +268,11 @@ export const gridLayoutSettingsSchema = z.object({
   grid_tab_3col_alt_json: z.string().optional(),
 });
 
+export const bestsellerSettingsSchema = z.object({
+  bestseller_mode: z.enum(['auto', 'custom']),
+  bestseller_product_ids: z.string().optional(), // JSON array of product UUIDs
+});
+
 // --- Type exports ---
 
 export type GeneralSettingsData = z.infer<typeof generalSettingsSchema>;
@@ -291,6 +296,7 @@ export type CartPageSettingsData = z.infer<typeof cartPageSettingsSchema>;
 export type WishlistPageSettingsData = z.infer<typeof wishlistPageSettingsSchema>;
 export type ProductDetailSettingsData = z.infer<typeof productDetailSettingsSchema>;
 export type GridLayoutSettingsData = z.infer<typeof gridLayoutSettingsSchema>;
+export type BestsellerSettingsData = z.infer<typeof bestsellerSettingsSchema>;
 export type ShippingSettingsData = z.infer<typeof shippingSettingsSchema>;
 export type LinePaySettingsData = z.infer<typeof linePaySettingsSchema>;
 export type LineLoginSettingsData = z.infer<typeof lineLoginSettingsSchema>;
@@ -308,7 +314,7 @@ export const currencyApiSchema = z.object({
 });
 
 export const settingsUpdateApiSchema = z.object({
-  group: z.enum(['general', 'homepage', 'currency', 'contact', 'social', 'product_display', 'content', 'video', 'offer', 'brands', 'hero', 'featured', 'about', 'shipping', 'linepay', 'line_login', 'logistics', 'smtp', 'header_footer', 'faq', 'error_page', 'auth_page', 'coming_soon', 'cart_page', 'wishlist_page', 'product_detail', 'grid_layout']),
+  group: z.enum(['general', 'homepage', 'currency', 'contact', 'social', 'product_display', 'content', 'video', 'offer', 'brands', 'hero', 'featured', 'about', 'shipping', 'linepay', 'line_login', 'logistics', 'smtp', 'header_footer', 'faq', 'error_page', 'auth_page', 'coming_soon', 'cart_page', 'wishlist_page', 'product_detail', 'grid_layout', 'bestseller']),
   settings: z.record(z.string(), z.unknown()),
 });
 
@@ -342,6 +348,7 @@ export const settingsSchemaMap: Record<string, z.ZodType> = {
   wishlist_page: wishlistPageSettingsSchema,
   product_detail: productDetailSettingsSchema,
   grid_layout: gridLayoutSettingsSchema,
+  bestseller: bestsellerSettingsSchema,
 };
 
 // --- Group labels (Chinese) ---
@@ -375,7 +382,8 @@ export const groupLabels: Record<string, string> = {
   wishlist_page: '願望清單',
   product_detail: '商品詳情',
   grid_layout: '格狀版面',
+  bestseller: '暢銷商品設定',
 };
 
-export const groupKeys = ['general', 'homepage', 'currency', 'branches', 'contact', 'social', 'product_display', 'content', 'video', 'offer', 'brands', 'hero', 'featured', 'about', 'shipping', 'linepay', 'line_login', 'logistics', 'smtp', 'header_footer', 'faq', 'error_page', 'auth_page', 'coming_soon', 'cart_page', 'wishlist_page', 'product_detail', 'grid_layout'] as const;
+export const groupKeys = ['general', 'homepage', 'currency', 'branches', 'contact', 'social', 'product_display', 'content', 'video', 'offer', 'brands', 'hero', 'featured', 'about', 'shipping', 'linepay', 'line_login', 'logistics', 'smtp', 'header_footer', 'faq', 'error_page', 'auth_page', 'coming_soon', 'cart_page', 'wishlist_page', 'product_detail', 'grid_layout', 'bestseller'] as const;
 export type SettingsGroup = (typeof groupKeys)[number];

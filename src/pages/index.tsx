@@ -1,5 +1,5 @@
 import type { GetServerSideProps } from 'next';
-import { getAllProducts, getCategories } from '../lib/products-db';
+import { getAllProducts, getBestsellingProducts, getCategories } from '../lib/products-db';
 import { buildProductFilters, buildProductTabs } from '../lib/build-filters';
 import { getFeaturedBlogs } from '../lib/blogs-db';
 import DynamicHomeContent from '../components/DynamicHome/DynamicHomeContent';
@@ -10,12 +10,13 @@ function HomePage(props: DynamicHomeContentProps) {
 }
 
 export const getServerSideProps: GetServerSideProps = async () => {
-    const products = await getAllProducts();
-    const categories = await getCategories();
+    const [products, categories, bestsellingProducts, blogs] = await Promise.all([
+        getAllProducts(),
+        getCategories(),
+        getBestsellingProducts(),
+        getFeaturedBlogs(),
+    ]);
     const productFilter = buildProductFilters(products, categories);
-
-    // Variant 1
-    const blogs = await getFeaturedBlogs();
 
     // Variant 2
     const productTab = buildProductTabs(categories);
@@ -25,6 +26,7 @@ export const getServerSideProps: GetServerSideProps = async () => {
             // Shared
             products,
             productFilter,
+            bestsellingProducts,
             // Variant 1
             blogs,
             // Variant 2

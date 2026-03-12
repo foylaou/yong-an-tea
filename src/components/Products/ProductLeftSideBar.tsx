@@ -47,9 +47,11 @@ function ProductLeftSideBar({
                     singleFilterData.data.fromPrice <= singleProduct.price &&
                     singleProduct.price <= singleFilterData.data.toPrice;
             } else if (!filterGroupResult[singleFilterData.group]) {
+                const val = singleProduct[singleFilterData.group];
                 filterGroupResult[singleFilterData.group] =
-                    singleProduct[singleFilterData.group] ===
-                    singleFilterData.key;
+                    Array.isArray(val)
+                        ? val.includes(singleFilterData.key)
+                        : val === singleFilterData.key;
             }
         });
 

@@ -10,7 +10,7 @@ export default async function EditProductPage({
   const { id } = await params;
   const supabase = await createClient();
 
-  const [productResult, categoriesResult] = await Promise.all([
+  const [productResult, categoriesResult, variantsResult] = await Promise.all([
     supabase
       .from('products')
       .select('*, product_categories(category_id)')
@@ -20,6 +20,11 @@ export default async function EditProductPage({
       .from('categories')
       .select('id, name, slug')
       .eq('is_active', true)
+      .order('sort_order', { ascending: true }),
+    supabase
+      .from('product_variants')
+      .select('*')
+      .eq('product_id', id)
       .order('sort_order', { ascending: true }),
   ]);
 
@@ -34,7 +39,7 @@ export default async function EditProductPage({
       </h1>
       <ProductForm
         categories={categoriesResult.data || []}
-        initialData={productResult.data}
+        initialData={{ ...productResult.data, variants: variantsResult.data || [] }}
         isEdit
       />
     </div>

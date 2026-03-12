@@ -48,7 +48,7 @@ function BestSellingProduct({
                 </div>
                 <div className="slider-wrap relative">
                     <SwiperComps settings={settings}>
-                        {products.slice(0, 5)?.map((product) => (
+                        {products.map((product) => (
                             <Slide key={product.slug}>
                                 <ProductItem
                                     product={product}

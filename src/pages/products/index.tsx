@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import type { GetServerSideProps } from 'next';
 import type { MarkdownItem } from '../../types';
 import HeaderOne from '../../components/HeaderComps';
@@ -14,15 +15,28 @@ import ProductTabSlider from '../../components/ProductTab/tab-slider';
 import { getAllProducts, getCategories } from '../../lib/products-db';
 import { buildProductFilters, buildProductTabs } from '../../lib/build-filters';
 import { createAdminClient } from '../../lib/supabase/admin';
+import { useFilterStore } from '../../store/product-filter/filter-slice';
 
 interface ProductsPageProps {
     products: MarkdownItem[];
     productFilter: MarkdownItem[];
     productTab: MarkdownItem[];
     shopLayout: string;
+    initialCategory?: { slug: string; name: string } | null;
 }
 
-function ProductsPage({ products, productFilter, productTab, shopLayout }: ProductsPageProps) {
+function ProductsPage({ products, productFilter, productTab, shopLayout, initialCategory }: ProductsPageProps) {
+    const categorySlug = initialCategory?.slug ?? '';
+    useEffect(() => {
+        if (initialCategory) {
+            useFilterStore.getState().clearAll();
+            useFilterStore.getState().addFilter({
+                title: initialCategory.name,
+                key: initialCategory.slug,
+                group: 'category',
+            });
+        }
+    }, [categorySlug]);
     const isWide = shopLayout === '5-columns' || shopLayout === '6-columns';
     const containerClass = isWide ? 'container-fluid xxl:px-[100px] px-[15px]' : 'container';
 
@@ -116,7 +130,7 @@ function ProductsPage({ products, productFilter, productTab, shopLayout }: Produ
     );
 }
 
-export const getServerSideProps: GetServerSideProps = async () => {
+export const getServerSideProps: GetServerSideProps = async (context) => {
     const products = await getAllProducts();
     const categories = await getCategories();
     const productFilter = buildProductFilters(products, categories);
@@ -130,12 +144,19 @@ export const getServerSideProps: GetServerSideProps = async () => {
         .single();
     const shopLayout = (layoutRow?.value as string) || 'left-sidebar';
 
+    // Read ?category=slug from URL and resolve category name
+    const categorySlug = (context.query.category as string) || '';
+    const initialCategory = categorySlug
+        ? categories.find((c) => c.slug === categorySlug) ?? null
+        : null;
+
     return {
         props: {
             products,
             productFilter,
             productTab,
             shopLayout,
+            initialCategory,
         },
     };
 };

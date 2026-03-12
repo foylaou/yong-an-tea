@@ -100,6 +100,23 @@ export default function ProductForm({ categories, initialData, isEdit = false }:
     syncAttrs(next);
   };
 
+  // --- 產品變體 (variants) ---
+  type Variant = { name: string; price: number; discount_price: number | null; stock_qty: number; sku: string };
+  const [variants, setVariants] = useState<Variant[]>(
+    initialData?.variants?.map((v: any) => ({
+      name: v.name || '',
+      price: v.price ?? 0,
+      discount_price: v.discount_price ?? null,
+      stock_qty: v.stock_qty ?? 0,
+      sku: v.sku || '',
+    })) || []
+  );
+  const addVariant = () => setVariants([...variants, { name: '', price: 0, discount_price: null, stock_qty: 0, sku: '' }]);
+  const removeVariant = (idx: number) => setVariants(variants.filter((_, i) => i !== idx));
+  const updateVariant = (idx: number, field: keyof Variant, val: string | number | null) => {
+    setVariants(variants.map((v, i) => i === idx ? { ...v, [field]: val } : v));
+  };
+
   function handleTitleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const title = e.target.value;
     setValue('title', title);
@@ -121,7 +138,7 @@ export default function ProductForm({ categories, initialData, isEdit = false }:
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ ...data, variants }),
       });
 
       const result = await res.json();
@@ -315,6 +332,90 @@ export default function ProductForm({ categories, initialData, isEdit = false }:
             <p className="mt-1 text-xs text-gray-400">0 = 不限制</p>
             {errors.max_qty && <p className="mt-1 text-sm text-red-600">{errors.max_qty.message}</p>}
           </div>
+        </div>
+      </section>
+
+      {/* 產品變體 */}
+      <section className="rounded-lg bg-white p-6 shadow">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-gray-900">產品變體</h2>
+          <button
+            type="button"
+            onClick={addVariant}
+            className="rounded-md bg-gray-100 px-3 py-1 text-sm text-gray-700 hover:bg-gray-200"
+          >
+            + 新增變體
+          </button>
+        </div>
+        <p className="mb-3 text-xs text-gray-400">
+          例如：罐裝 $500、無罐裝 $400。未選擇時前台顯示價格區間。
+        </p>
+        {variants.length === 0 && (
+          <p className="text-sm text-gray-400">尚未新增變體（使用主商品價格）</p>
+        )}
+        <div className="space-y-3">
+          {variants.map((v, idx) => (
+            <div key={idx} className="flex items-end gap-3">
+              <div className="flex-1">
+                {idx === 0 && <label className="mb-1 block text-xs font-medium text-gray-500">變體名稱 *</label>}
+                <input
+                  value={v.name}
+                  onChange={(e) => updateVariant(idx, 'name', e.target.value)}
+                  placeholder="例：罐裝"
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                />
+              </div>
+              <div className="w-28">
+                {idx === 0 && <label className="mb-1 block text-xs font-medium text-gray-500">價格 *</label>}
+                <input
+                  type="number"
+                  step="0.01"
+                  value={v.price}
+                  onChange={(e) => updateVariant(idx, 'price', Number(e.target.value))}
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                />
+              </div>
+              <div className="w-28">
+                {idx === 0 && <label className="mb-1 block text-xs font-medium text-gray-500">折扣價</label>}
+                <input
+                  type="number"
+                  step="0.01"
+                  value={v.discount_price ?? ''}
+                  onChange={(e) => updateVariant(idx, 'discount_price', e.target.value === '' ? null : Number(e.target.value))}
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                />
+              </div>
+              <div className="w-20">
+                {idx === 0 && <label className="mb-1 block text-xs font-medium text-gray-500">庫存</label>}
+                <input
+                  type="number"
+                  min="0"
+                  value={v.stock_qty}
+                  onChange={(e) => updateVariant(idx, 'stock_qty', Number(e.target.value))}
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                />
+              </div>
+              <div className="w-28">
+                {idx === 0 && <label className="mb-1 block text-xs font-medium text-gray-500">SKU</label>}
+                <input
+                  value={v.sku}
+                  onChange={(e) => updateVariant(idx, 'sku', e.target.value)}
+                  placeholder="選填"
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => removeVariant(idx)}
+                className="mb-0.5 rounded p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-500"
+                title="刪除"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </button>
+            </div>
+          ))}
         </div>
       </section>
 

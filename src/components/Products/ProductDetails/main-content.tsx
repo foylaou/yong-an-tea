@@ -30,19 +30,43 @@ function MainContent({ product }: MainContentProps) {
         bestSellerSticker,
         offerSticker,
         maxQty,
+        variants,
     } = product as any;
     const [quantityCount, setQuantityCount] = useState(1);
+    const [selectedVariant, setSelectedVariant] = useState<any>(null);
     const effectiveMax = maxQty && maxQty > 0 ? maxQty : Infinity;
+
+    // Compute price range from variants
+    const hasVariants = variants && variants.length > 0;
+    const variantPrices = hasVariants
+        ? variants.map((v: any) => v.discountPrice ?? v.price)
+        : [];
+    const minPrice = hasVariants ? Math.min(...variantPrices) : null;
+    const maxPrice = hasVariants ? Math.max(...variantPrices) : null;
+
+    // Effective display price
+    const displayPrice = selectedVariant
+        ? selectedVariant.price
+        : price;
+    const displayDiscountPrice = selectedVariant
+        ? selectedVariant.discountPrice
+        : discountPrice;
 
     const addToCartHandler = (e: React.MouseEvent) => {
         const img = (product as any)?.xsImage || (product as any)?.mdImage;
         useFlyAnimationStore.getState().trigger('cart', img, e.clientX - 30, e.clientY - 30);
+        const cartPrice = selectedVariant
+            ? (selectedVariant.discountPrice ?? selectedVariant.price)
+            : (discountPrice ?? price);
+        const cartTitle = selectedVariant
+            ? `${title} - ${selectedVariant.name}`
+            : title;
         useCartStore.getState().addItemToCart({
-            id,
-            title,
-            price,
+            id: selectedVariant ? `${id}_${selectedVariant.id}` : id,
+            title: cartTitle,
+            price: cartPrice,
             quantity: quantityCount,
-            totalPrice,
+            totalPrice: cartPrice * quantityCount,
             image: (product as any)?.xsImage,
             slug: `/products/${product?.slug}`,
         });
@@ -114,19 +138,54 @@ function MainContent({ product }: MainContentProps) {
                     <div className="lg:col-span-6 col-span-12">
                         <div className="product-detail-content">
                             <h3 className="mb-[10px]">{(product as any)?.title}</h3>
-                            {price && !discountPrice && (
-                                <span className="product-price text-[30px] leading-[42px] text-[#999999] mb-[25px]">
-                                    {formatPrice(price)}
+                            {/* Price display: variant range or single price */}
+                            {hasVariants && !selectedVariant ? (
+                                <span className="product-price text-[30px] leading-[42px] text-[#999999] mb-[25px] block">
+                                    {minPrice === maxPrice
+                                        ? formatPrice(minPrice!)
+                                        : `${formatPrice(minPrice!)} ~ ${formatPrice(maxPrice!)}`
+                                    }
                                 </span>
-                            )}
-                            {price && discountPrice && (
+                            ) : displayPrice && !displayDiscountPrice ? (
+                                <span className="product-price text-[30px] leading-[42px] text-[#999999] mb-[25px]">
+                                    {formatPrice(displayPrice)}
+                                </span>
+                            ) : displayPrice && displayDiscountPrice ? (
                                 <div className="product-price-wrap flex mb-[10px]">
                                     <span className="product-price text-[30px] leading-[42px] text-[#999999] block">
-                                        {formatPrice(price)}
+                                        {formatPrice(displayPrice)}
                                     </span>
                                     <span className="product-price text-[30px] leading-[42px] text-[#999999] block relative before:content-['-'] before:mx-[10px]">
-                                        {formatPrice(discountPrice)}
+                                        {formatPrice(displayDiscountPrice)}
                                     </span>
+                                </div>
+                            ) : null}
+
+                            {/* Variant selector */}
+                            {hasVariants && (
+                                <div className="variant-selector mb-[15px]">
+                                    <span className="font-medium text-[14px] block mb-[8px]">
+                                        規格：
+                                        {selectedVariant && <span className="text-primary ml-[5px]">{selectedVariant.name}</span>}
+                                    </span>
+                                    <div className="flex flex-wrap gap-[8px]">
+                                        {variants.map((v: any) => (
+                                            <button
+                                                key={v.id}
+                                                type="button"
+                                                onClick={() => setSelectedVariant(
+                                                    selectedVariant?.id === v.id ? null : v
+                                                )}
+                                                className={`border px-[16px] py-[8px] text-[14px] transition-all ${
+                                                    selectedVariant?.id === v.id
+                                                        ? 'border-black bg-black text-white'
+                                                        : 'border-[#dddddd] hover:border-black'
+                                                }`}
+                                            >
+                                                {v.name}
+                                            </button>
+                                        ))}
+                                    </div>
                                 </div>
                             )}
 
@@ -220,7 +279,9 @@ function MainContent({ product }: MainContentProps) {
                                 <div className="category-wrap font-medium">
                                     <span>分類：</span>
                                     <span className="text-[#666666] ml-[5px]">
-                                        {(product as any)?.category}
+                                        {Array.isArray((product as any)?.category)
+                                            ? (product as any).category.join(', ')
+                                            : (product as any)?.category}
                                     </span>
                                 </div>
                                 <div className="category-wrap font-medium">

@@ -29,12 +29,24 @@ export async function GET(request: NextRequest) {
   const from = (page - 1) * perPage;
   const to = from + perPage - 1;
 
+  const sortBy = searchParams.get('sortBy') || 'custom'; // 'newest' | 'oldest' | 'sales' | 'custom'
+
   let query = supabase
     .from('products')
     .select('*, product_categories(category_id, categories(id, name))', { count: 'exact' })
-    .order('sort_order', { ascending: true })
-    .order('created_at', { ascending: false })
     .range(from, to);
+
+  // Apply sorting
+  if (sortBy === 'newest') {
+    query = query.order('created_at', { ascending: false });
+  } else if (sortBy === 'oldest') {
+    query = query.order('created_at', { ascending: true });
+  } else {
+    // 'custom' or 'sales' — default to sort_order, then created_at
+    query = query
+      .order('sort_order', { ascending: true })
+      .order('created_at', { ascending: false });
+  }
 
   if (search) {
     query = query.or(`title.ilike.%${search}%,sku.eq.${parseInt(search, 10) || 0}`);
@@ -93,6 +105,7 @@ export async function POST(request: NextRequest) {
   }
 
   const { category_ids, ...productData } = result.data;
+  const variants = body.variants as any[] | undefined;
 
   // Insert product
   const { data: product, error: insertError } = await supabase
@@ -118,5 +131,66 @@ export async function POST(request: NextRequest) {
     }
   }
 
+  // Insert variants
+  if (variants && variants.length > 0) {
+    const { error: varError } = await supabase
+      .from('product_variants')
+      .insert(variants.map((v: any, idx: number) => ({
+        product_id: product.id,
+        name: v.name,
+        price: v.price,
+        discount_price: v.discount_price || null,
+        stock_qty: v.stock_qty ?? 0,
+        sku: v.sku || null,
+        sort_order: idx,
+        is_active: v.is_active ?? true,
+      })));
+    if (varError) {
+      return NextResponse.json({ error: varError.message }, { status: 500 });
+    }
+  }
+
   return NextResponse.json({ product }, { status: 201 });
+}
+
+// PATCH: batch update sort_order for products
+export async function PATCH(request: NextRequest) {
+  const supabase = await createClient();
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: '未授權' }, { status: 401 });
+  }
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .single();
+  if (profile?.role !== 'admin') {
+    return NextResponse.json({ error: '權限不足' }, { status: 403 });
+  }
+
+  const body = await request.json();
+  const items = body.items as { id: string; sort_order: number }[];
+
+  if (!items?.length) {
+    return NextResponse.json({ error: '缺少排序資料' }, { status: 400 });
+  }
+
+  // Batch update sort_order
+  const results = await Promise.all(
+    items.map(({ id, sort_order }) =>
+      supabase
+        .from('products')
+        .update({ sort_order })
+        .eq('id', id)
+    )
+  );
+
+  const failed = results.find((r) => r.error);
+  if (failed?.error) {
+    return NextResponse.json({ error: failed.error.message }, { status: 500 });
+  }
+
+  return NextResponse.json({ success: true });
 }

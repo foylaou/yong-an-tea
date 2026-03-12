@@ -1,5 +1,18 @@
 import { z } from 'zod';
 
+export const variantSchema = z.object({
+  id: z.string().uuid().optional(),
+  name: z.string().min(1, '變體名稱為必填'),
+  price: z.number().min(0, '價格不可為負數'),
+  discount_price: z.number().min(0, '折扣價不可為負數').nullable().optional(),
+  stock_qty: z.number().int().min(0).default(0),
+  sku: z.string().nullable().optional(),
+  sort_order: z.number().int().default(0),
+  is_active: z.boolean().default(true),
+});
+
+export type VariantFormData = z.infer<typeof variantSchema>;
+
 export const productFormSchema = z.object({
   title: z.string().min(1, '商品名稱為必填'),
   slug: z.string().min(1, 'Slug 為必填').regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Slug 格式不正確（僅小寫英文、數字和連字號）'),

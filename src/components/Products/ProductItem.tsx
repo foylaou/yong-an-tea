@@ -18,6 +18,13 @@ import { formatPrice } from '../../store/settings/settings-slice';
 import { availabilityLabel } from '../../lib/build-filters';
 import { MarkdownItem } from '../../types';
 
+function getPriceRange(product: any): { min: number; max: number } | null {
+    const variants = product?.variants;
+    if (!variants?.length) return null;
+    const prices = variants.map((v: any) => v.discountPrice ?? v.price);
+    return { min: Math.min(...prices), max: Math.max(...prices) };
+}
+
 // Tailwind Related Stuff
 const addAction =
     'flex justify-center absolute w-full top-1/2 left-auto transform -translate-y-1/2 z-1';
@@ -198,21 +205,39 @@ function ProductItem({ product, productFilter, productFilterPath }: ProductItemP
                             {title}
                         </Link>
                     </h3>
-                    {price && !discountPrice && (
-                        <span className="product-price text-[18px] leading-[31px] text-[#666666]">
-                            {formatPrice(price)}
-                        </span>
-                    )}
-                    {price && discountPrice && (
-                        <div className="product-price-wrap flex justify-center mb-[10px]">
-                            <span className="product-price text-[18px] leading-[31px] text-[#666666] block">
-                                {formatPrice(price)}
-                            </span>
-                            <span className="product-price text-[18px] leading-[31px] text-[#666666] block relative before:content-['-'] before:mx-[10px]">
-                                {formatPrice(discountPrice)}
-                            </span>
-                        </div>
-                    )}
+                    {(() => {
+                        const range = getPriceRange(product);
+                        if (range) {
+                            return (
+                                <span className="product-price text-[18px] leading-[31px] text-[#666666]">
+                                    {range.min === range.max
+                                        ? formatPrice(range.min)
+                                        : `${formatPrice(range.min)} ~ ${formatPrice(range.max)}`
+                                    }
+                                </span>
+                            );
+                        }
+                        if (price && !discountPrice) {
+                            return (
+                                <span className="product-price text-[18px] leading-[31px] text-[#666666]">
+                                    {formatPrice(price)}
+                                </span>
+                            );
+                        }
+                        if (price && discountPrice) {
+                            return (
+                                <div className="product-price-wrap flex justify-center mb-[10px]">
+                                    <span className="product-price text-[18px] leading-[31px] text-[#666666] block">
+                                        {formatPrice(price)}
+                                    </span>
+                                    <span className="product-price text-[18px] leading-[31px] text-[#666666] block relative before:content-['-'] before:mx-[10px]">
+                                        {formatPrice(discountPrice)}
+                                    </span>
+                                </div>
+                            );
+                        }
+                        return null;
+                    })()}
                 </div>
             </div>
             <QuickView open={isOpen} onClose={() => setIsOpen(false)}>

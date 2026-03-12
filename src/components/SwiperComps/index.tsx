@@ -1,19 +1,10 @@
 import { ReactNode } from 'react';
 
 import { Swiper, SwiperSlide } from 'swiper/react';
-import SwiperCore, {
-    Autoplay,
-    Navigation,
-    Pagination,
-    Thumbs,
-    EffectFade,
-} from 'swiper';
+import { Autoplay, Navigation, Pagination, Thumbs, EffectFade } from 'swiper/modules';
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/navigation';
-
-// install Swiper modules
-SwiperCore.use([Autoplay, Navigation, Pagination, Thumbs, EffectFade]);
 
 interface SwiperCompsProps {
     children: ReactNode;
@@ -26,7 +17,11 @@ function SwiperComps({ children, sliderCName, settings }: SwiperCompsProps) {
         ...settings,
     };
     return (
-        <Swiper className={`${sliderCName}`} {...sliderOptions}>
+        <Swiper
+            className={`${sliderCName}`}
+            modules={[Autoplay, Navigation, Pagination, Thumbs, EffectFade]}
+            {...sliderOptions}
+        >
             {children}
         </Swiper>
     );

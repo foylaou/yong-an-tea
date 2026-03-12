@@ -154,6 +154,9 @@ interface SiteSettings {
   footer_social_media_title: string;
   footer_logo_alt: string;
   footer_logo_path: string;
+  // bestseller
+  bestseller_mode: string;
+  bestseller_product_ids: string;
   // state
   loaded: boolean;
 }
@@ -411,6 +414,9 @@ export const useSettingsStore = create<SiteSettings & SettingsActions>()((set) =
   footer_social_media_title: '社群媒體',
   footer_logo_alt: '頁尾標誌',
   footer_logo_path: '/',
+  // bestseller
+  bestseller_mode: 'auto',
+  bestseller_product_ids: '[]',
   // state
   loaded: false,
 

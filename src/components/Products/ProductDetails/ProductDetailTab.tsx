@@ -1,8 +1,10 @@
-import { useState, useMemo, useEffect, useCallback } from 'react';
+import { useState, useMemo, useEffect, useCallback, lazy, Suspense } from 'react';
 import { MdPlayArrow, MdOutlineStarPurple500, MdStar, MdStarBorder, MdVerified } from 'react-icons/md';
 import { useSettingsStore } from '../../../store/settings/settings-slice';
 import { createClient } from '../../../lib/supabase/client';
 import type { Review } from '../../../types';
+
+const PuckRenderer = lazy(() => import('./PuckRenderer'));
 
 interface ProductDetailTabProps {
     product: any;
@@ -377,64 +379,74 @@ function ProductDetailTab({ product }: ProductDetailTabProps) {
                                 : `tab-style-common description`
                         }
                     >
-                        {product?.detailDesc && (
-                        <div className="description-wrap border-b border-[#dddddd] py-[30px]">
-                            <div className="grid grid-cols-12 lm:gap-x-[30px] max-sm:gap-y-[30px]">
-                                <div className="lm:col-span-7 col-span-12 self-center">
-                                    <div>
-                                        <h2 className="text-[24px] mb-[10px]">
-                                            商品描述
-                                        </h2>
-                                        <p>
-                                            {product.detailDesc}
-                                        </p>
+                        {product?.puckData ? (
+                            <div className="py-[30px]">
+                                <Suspense fallback={<p className="text-gray-400">載入中...</p>}>
+                                    <PuckRenderer data={product.puckData} />
+                                </Suspense>
+                            </div>
+                        ) : (
+                            <>
+                                {product?.detailDesc && (
+                                <div className="description-wrap border-b border-[#dddddd] py-[30px]">
+                                    <div className="grid grid-cols-12 lm:gap-x-[30px] max-sm:gap-y-[30px]">
+                                        <div className="lm:col-span-7 col-span-12 self-center">
+                                            <div>
+                                                <h2 className="text-[24px] mb-[10px]">
+                                                    商品描述
+                                                </h2>
+                                                <p>
+                                                    {product.detailDesc}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="lm:col-span-5 col-span-12">
+                                            <img
+                                                className="w-full"
+                                                src={product?.mdImage}
+                                                alt={product?.altImage}
+                                            />
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="lm:col-span-5 col-span-12">
-                                    <img
-                                        className="w-full"
-                                        src={product?.mdImage}
-                                        alt={product?.altImage}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                        )}
-                        {product?.features && (
-                        <div className="description-wrap border-b border-[#dddddd] py-[30px]">
-                            <div className="grid grid-cols-12 lm:gap-x-[30px] max-sm:gap-y-[30px]">
-                                <div className="lm:col-span-7 col-span-12 self-center">
-                                    <div>
-                                        <h2 className="text-[24px] mb-[10px]">
-                                            產品特色
-                                        </h2>
-                                        <ul className="features-list">
-                                            {(product.features as string)
-                                                .split('\n')
-                                                .filter((line: string) => line.trim())
-                                                .map((line: string, idx: number) => (
-                                                    <li
-                                                        className="mb-[5px] last:mb-0"
-                                                        key={idx}
-                                                    >
-                                                        <span className="flex items-center cursor-pointer transition-all hover:text-primary">
-                                                            <MdPlayArrow className="mr-[10px]" />
-                                                            {line.trim()}
-                                                        </span>
-                                                    </li>
-                                                ))}
-                                        </ul>
+                                )}
+                                {product?.features && (
+                                <div className="description-wrap border-b border-[#dddddd] py-[30px]">
+                                    <div className="grid grid-cols-12 lm:gap-x-[30px] max-sm:gap-y-[30px]">
+                                        <div className="lm:col-span-7 col-span-12 self-center">
+                                            <div>
+                                                <h2 className="text-[24px] mb-[10px]">
+                                                    產品特色
+                                                </h2>
+                                                <ul className="features-list">
+                                                    {(product.features as string)
+                                                        .split('\n')
+                                                        .filter((line: string) => line.trim())
+                                                        .map((line: string, idx: number) => (
+                                                            <li
+                                                                className="mb-[5px] last:mb-0"
+                                                                key={idx}
+                                                            >
+                                                                <span className="flex items-center cursor-pointer transition-all hover:text-primary">
+                                                                    <MdPlayArrow className="mr-[10px]" />
+                                                                    {line.trim()}
+                                                                </span>
+                                                            </li>
+                                                        ))}
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <div className="lm:col-span-5 col-span-12">
+                                            <img
+                                                className="w-full"
+                                                src={product?.mdImage}
+                                                alt={product?.altImage}
+                                            />
+                                        </div>
                                     </div>
                                 </div>
-                                <div className="lm:col-span-5 col-span-12">
-                                    <img
-                                        className="w-full"
-                                        src={product?.mdImage}
-                                        alt={product?.altImage}
-                                    />
-                                </div>
-                            </div>
-                        </div>
+                                )}
+                            </>
                         )}
                     </div>
                     <div

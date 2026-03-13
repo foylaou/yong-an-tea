@@ -276,30 +276,29 @@ export default function ProductForm({ categories, initialData, isEdit = false }:
         </div>
       </section>
 
-      {/* 商品詳情（前台詳情頁 Tab） */}
+      {/* 商品頁面內容（Puck 編輯器） */}
       <section className="rounded-lg bg-white p-6 shadow">
-        <h2 className="mb-4 text-lg font-semibold text-gray-900">商品詳情</h2>
-        <div className="grid grid-cols-1 gap-4">
+        <h2 className="mb-4 text-lg font-semibold text-gray-900">商品頁面內容</h2>
+        {isEdit && initialData?.id ? (
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">商品描述</label>
-            <textarea
-              {...register('detail_desc')}
-              rows={4}
-              placeholder="前台商品詳情頁「商品描述」tab 的描述內文"
-              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            />
+            <a
+              href={`/admin/products/${initialData.id}/editor`}
+              className="inline-flex items-center gap-2 rounded-md bg-black px-4 py-2 text-sm text-white hover:bg-gray-800"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+              </svg>
+              編輯頁面內容
+            </a>
+            {initialData?.puck_data && (
+              <p className="mt-2 text-xs text-gray-500">
+                已有頁面內容（{initialData.puck_data?.content?.length ?? 0} 個區塊）
+              </p>
+            )}
           </div>
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">產品特色</label>
-            <textarea
-              {...register('features')}
-              rows={5}
-              placeholder={"每行一項，例：\n全襯墊背板，織帶提把\n內部襯墊袋可放置 15 吋筆電\n高級棉帆布面料"}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            />
-            <p className="mt-1 text-xs text-gray-400">每行一項產品特色</p>
-          </div>
-        </div>
+        ) : (
+          <p className="text-sm text-gray-400">請先儲存商品後再編輯頁面內容</p>
+        )}
       </section>
 
       {/* 庫存管理 */}
@@ -584,16 +583,10 @@ export default function ProductForm({ categories, initialData, isEdit = false }:
         </div>
       </section>
 
-      {/* 商品內容 (Markdown) */}
-      <section className="rounded-lg bg-white p-6 shadow">
-        <h2 className="mb-4 text-lg font-semibold text-gray-900">商品內容</h2>
-        <textarea
-          {...register('content')}
-          rows={10}
-          placeholder="支援 Markdown 格式"
-          className="w-full rounded-md border border-gray-300 px-3 py-2 font-mono text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-        />
-      </section>
+      {/* hidden fields to preserve existing data */}
+      <input type="hidden" {...register('detail_desc')} />
+      <input type="hidden" {...register('features')} />
+      <input type="hidden" {...register('content')} />
 
       {/* Submit */}
       <div className="flex justify-end gap-3">

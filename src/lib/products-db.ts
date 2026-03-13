@@ -66,6 +66,7 @@ function mapProductRow(row: any): MarkdownItem {
         offerSticker: row.offer_sticker ?? null,
         sortOrder: row.sort_order ?? 0,
         content: row.content ?? '',
+        puckData: row.puck_data || null,
         // category slugs from the joined categories table
         category: (row.product_categories ?? []).map((pc: any) => pc.categories?.slug).filter(Boolean),
         avgRating: Number(row.avg_rating) || 0,

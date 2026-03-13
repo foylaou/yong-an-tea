@@ -44,6 +44,7 @@ export const productFormSchema = z.object({
   best_seller_sticker: z.string().nullable().optional(),
   offer_sticker: z.string().nullable().optional(),
   category_ids: z.array(z.string().uuid()).optional(),
+  puck_data: z.any().nullable().optional(),
 });
 
 export type ProductFormData = z.infer<typeof productFormSchema>;
@@ -82,4 +83,5 @@ export const productApiSchema = z.object({
   best_seller_sticker: z.string().nullable().optional(),
   offer_sticker: z.string().nullable().optional(),
   category_ids: z.array(z.string().uuid()).default([]),
+  puck_data: z.any().nullable().optional(),
 });

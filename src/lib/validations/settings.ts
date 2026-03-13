@@ -266,6 +266,7 @@ export const gridLayoutSettingsSchema = z.object({
   grid_tab_2col_json: z.string().optional(),
   grid_tab_3col_json: z.string().optional(),
   grid_tab_3col_alt_json: z.string().optional(),
+  mobile_grid_cols: z.coerce.number().min(1).max(3).optional(),
 });
 
 export const bestsellerSettingsSchema = z.object({

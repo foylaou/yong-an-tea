@@ -326,7 +326,13 @@ function ReviewsSection({ product }: { product: any }) {
 function ProductDetailTab({ product }: ProductDetailTabProps) {
     const tabMenuJson = useSettingsStore((s) => s.product_tab_menu_json);
 
-    const tabMenuItems = parseJSON<any[]>(tabMenuJson, []);
+    const defaultTabMenu = [
+        { id: 'tab-menu-01', name: '商品描述', tabMenuItemCName: 'description', separatorCName: 'tab-menu-separator', tabStateNumber: 1 },
+        { id: 'tab-menu-02', name: '其他資訊', tabMenuItemCName: 'additional-information', separatorCName: 'tab-menu-separator', tabStateNumber: 2 },
+        { id: 'tab-menu-03', name: '評價', tabMenuItemCName: 'reviews', separatorCName: 'tab-menu-separator', tabStateNumber: 3 },
+    ];
+    const parsed = parseJSON<any[]>(tabMenuJson, []);
+    const tabMenuItems = parsed.length > 0 ? parsed : defaultTabMenu;
 
     const [productDetailTabState, setProductDetailTabState] = useState(1);
     const productAttributes = useMemo(() => {
@@ -349,7 +355,7 @@ function ProductDetailTab({ product }: ProductDetailTabProps) {
                                     tabMenuItem?.tabStateNumber
                                         ? `${tabMenuItem?.tabMenuItemCName} text-primary active`
                                         : `${tabMenuItem?.tabMenuItemCName}`
-                                } font-medium transition-all hover:text-primary relative flex] ${
+                                } font-medium transition-all hover:text-primary relative flex ${
                                     tabMenuItem?.separatorCName
                                 }`}
                                 onClick={() =>

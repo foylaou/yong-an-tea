@@ -28,6 +28,7 @@ export default function GridLayoutSettings({ initialData }: GridLayoutSettingsPr
   const [grid2col, setGrid2col] = useState<GridTabItem[]>(() => parseJson(initialData, 'grid_tab_2col_json', []));
   const [grid3col, setGrid3col] = useState<GridTabItem[]>(() => parseJson(initialData, 'grid_tab_3col_json', []));
   const [grid3colAlt, setGrid3colAlt] = useState<GridTabItem[]>(() => parseJson(initialData, 'grid_tab_3col_alt_json', []));
+  const [mobileGridCols, setMobileGridCols] = useState<number>(() => Number(initialData.mobile_grid_cols) || 1);
 
   const [submitting, setSubmitting] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
@@ -64,6 +65,7 @@ export default function GridLayoutSettings({ initialData }: GridLayoutSettingsPr
             grid_tab_2col_json: JSON.stringify(grid2col),
             grid_tab_3col_json: JSON.stringify(grid3col),
             grid_tab_3col_alt_json: JSON.stringify(grid3colAlt),
+            mobile_grid_cols: String(mobileGridCols),
           },
         }),
       });
@@ -143,6 +145,27 @@ export default function GridLayoutSettings({ initialData }: GridLayoutSettingsPr
 
   return (
     <form onSubmit={onSubmit} className="space-y-6">
+      <section className="rounded-lg bg-white p-6 shadow">
+        <h2 className="text-lg font-semibold text-gray-900 mb-1">手機版欄數</h2>
+        <p className="text-sm text-gray-500 mb-4">設定手機螢幕上商品列表顯示的欄數（1~3 欄）</p>
+        <div className="flex items-center gap-3">
+          {[1, 2, 3].map((n) => (
+            <button
+              key={n}
+              type="button"
+              onClick={() => setMobileGridCols(n)}
+              className={`flex items-center justify-center rounded-md border px-5 py-2.5 text-sm font-medium transition-colors ${
+                mobileGridCols === n
+                  ? 'border-black bg-black text-white'
+                  : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              {n} 欄
+            </button>
+          ))}
+        </div>
+      </section>
+
       {renderGridSection('2 欄版面切換', '商品列表頁的 2 欄格狀版面選項', grid2col, setGrid2col)}
       {renderGridSection('3 欄版面切換', '商品列表頁的 3 欄格狀版面選項', grid3col, setGrid3col)}
       {renderGridSection('3 欄替代版面切換', '商品列表頁的 3 欄替代格狀版面選項', grid3colAlt, setGrid3colAlt)}

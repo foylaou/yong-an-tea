@@ -139,6 +139,7 @@ interface SiteSettings {
   grid_tab_2col_json: string;
   grid_tab_3col_json: string;
   grid_tab_3col_alt_json: string;
+  mobile_grid_cols: number;
   // header / footer
   header_menu_json: string;
   header_contact_title: string;
@@ -372,6 +373,7 @@ export const useSettingsStore = create<SiteSettings & SettingsActions>()((set) =
     { id: 'grid-tab-list-02', gridColumns: 'grid-05', gridColumnImg: '/images/grid-icon/columns-05.png', gridImgAlt: '格狀圖片', tabStateNo: 2 },
     { id: 'grid-tab-list-03', gridColumns: 'grid-06', gridColumnImg: '/images/grid-icon/columns-06.png', gridImgAlt: '格狀圖片', tabStateNo: 3 },
   ]),
+  mobile_grid_cols: 1,
   // header / footer defaults
   header_menu_json: JSON.stringify([
     { id: 1, title: '首頁', path: '/', holderCName: '', },
@@ -426,4 +428,24 @@ export const useSettingsStore = create<SiteSettings & SettingsActions>()((set) =
 export function formatPrice(price: number): string {
   const { currency_symbol, decimal_places } = useSettingsStore.getState();
   return `${currency_symbol}${price.toFixed(decimal_places)}`;
+}
+
+// Mobile grid column classes — keep all 3 literals so Tailwind can detect them
+const mobileColsMap: Record<number, string> = {
+  1: 'grid-cols-1',
+  2: 'grid-cols-2',
+  3: 'grid-cols-3',
+};
+const mobileGapMap: Record<number, string> = {
+  1: '',
+  2: 'gap-x-[12px]',
+  3: 'gap-x-[10px]',
+};
+
+export function getMobileGridCols(): { colClass: string; gapClass: string } {
+  const cols = useSettingsStore.getState().mobile_grid_cols || 1;
+  return {
+    colClass: mobileColsMap[cols] || 'grid-cols-1',
+    gapClass: mobileGapMap[cols] || '',
+  };
 }

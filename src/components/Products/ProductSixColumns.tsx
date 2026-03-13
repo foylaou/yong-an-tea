@@ -24,6 +24,10 @@ function ProductSixColumns({
 }: ProductSixColumnsProps) {
     const { filterData, sortMode } = useFilterStore();
     const productsPerPage = useSettingsStore((s) => s.products_per_page);
+    const mobileCols = useSettingsStore((s) => s.mobile_grid_cols) || 1;
+    // grid-cols-1 grid-cols-2 grid-cols-3 (keep literals for Tailwind)
+    const mCol = mobileCols === 3 ? 'grid-cols-3' : mobileCols === 2 ? 'grid-cols-2' : 'grid-cols-1';
+    const mGap = mobileCols > 1 ? 'gap-x-[12px]' : '';
 
     const [currentPage, setCurrentPage] = useState(1);
     const [itemPerPage, setitemPerPage] = useState(productsPerPage);
@@ -170,7 +174,7 @@ function ProductSixColumns({
                                     : 'grid-content-04 tab-style-common'
                             }
                         >
-                            <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 grid-cols-1 sm:gap-x-[25px] gap-y-[40px]">
+                            <div className={`grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-2 ${mCol} sm:gap-x-[25px] ${mGap} gap-y-[40px]`}>
                                 {currentItems &&
                                     currentItems.map((product: any) => (
                                         <ProductItem
@@ -191,7 +195,7 @@ function ProductSixColumns({
                                     : 'grid-content-05 tab-style-common'
                             }
                         >
-                            <div className="grid lg:grid-cols-5 md:grid-cols-4 lm:grid-cols-3 sm:grid-cols-2 grid-cols-1 sm:gap-x-[25px] gap-y-[40px]">
+                            <div className={`grid lg:grid-cols-5 md:grid-cols-4 lm:grid-cols-3 sm:grid-cols-2 ${mCol} sm:gap-x-[25px] ${mGap} gap-y-[40px]`}>
                                 {currentItems &&
                                     currentItems.map((product: any) => (
                                         <ProductItem
@@ -212,7 +216,7 @@ function ProductSixColumns({
                                     : 'grid-content-06 tab-style-common'
                             }
                         >
-                            <div className="grid xl:grid-cols-6 lg:grid-cols-5 md:grid-cols-4 lm:grid-cols-3 sm:grid-cols-2 grid-cols-1 sm:gap-x-[25px] gap-y-[40px]">
+                            <div className={`grid xl:grid-cols-6 lg:grid-cols-5 md:grid-cols-4 lm:grid-cols-3 sm:grid-cols-2 ${mCol} sm:gap-x-[25px] ${mGap} gap-y-[40px]`}>
                                 {currentItems &&
                                     currentItems.map((product: any) => (
                                         <ProductItem

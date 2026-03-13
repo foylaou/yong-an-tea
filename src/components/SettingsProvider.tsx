@@ -17,6 +17,7 @@ function coerceNumbers(settings: Record<string, any>) {
     'homepage_variant',
     'header_variant',
     'footer_variant',
+    'mobile_grid_cols',
   ];
   for (const key of numericKeys) {
     if (settings[key] != null) {

@@ -29,7 +29,7 @@ function ProductTab({
         const filterValue = (target as HTMLButtonElement).dataset.filter;
         setCurrentFilter(filterValue || '');
         const filteredProduct = initialProduct.filter(
-            (pro: any) => pro.category === filterValue
+            (pro: any) => Array.isArray(pro.category) ? pro.category.includes(filterValue) : pro.category === filterValue
         );
         filterValue === 'all-products'
             ? setProduct(initialProduct)

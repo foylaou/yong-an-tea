@@ -401,7 +401,12 @@ function ProductItem({ product, productFilter, productFilterPath }: ProductItemP
                                 <span className="text-black font-medium">
                                     分類：
                                 </span>
-                                {(productFilter[0] as any)?.categoryList?.map(
+                                {(productFilter[0] as any)?.categoryList
+                                    ?.filter((cat: any) =>
+                                        Array.isArray((product as any)?.category) &&
+                                        (product as any).category.includes(cat.categorySlug)
+                                    )
+                                    ?.map(
                                     (singleCategoryList: any) => (
                                         <Link
                                             href={`/products/${productFilterPath}`}
@@ -430,7 +435,9 @@ function ProductItem({ product, productFilter, productFilterPath }: ProductItemP
                                 <span className="text-black font-medium">
                                     標籤：
                                 </span>
-                                {(productFilter[0] as any)?.tagList?.map(
+                                {(productFilter[0] as any)?.tagList
+                                    ?.filter((t: any) => t.tagSlug === (product as any)?.tag)
+                                    ?.map(
                                     (singleTagList: any) => (
                                         <Link
                                             href={`/products/${productFilterPath}`}

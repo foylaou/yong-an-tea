@@ -45,7 +45,7 @@ function OffcanvasComps({ offcanvas, showOffcanvas }: OffcanvasCompsProps) {
                         <IoCloseOutline onClick={showOffcanvas} />
                     </button>
                 </div>
-                <OffcanvasMenu />
+                <OffcanvasMenu onNavigate={showOffcanvas} />
                 <div className="offcanvas-contact-info pt-[60px]">
                     <h3 className="text-[16px]">
                         {settings.header_contact_title}

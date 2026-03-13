@@ -4,7 +4,11 @@ import { IoCaretDownOutline } from 'react-icons/io5';
 import { useSettingsStore } from '../../store/settings/settings-slice';
 import { createClient } from '../../lib/supabase/client';
 
-function OffcanvasMenu() {
+interface OffcanvasMenuProps {
+    onNavigate?: () => void;
+}
+
+function OffcanvasMenu({ onNavigate }: OffcanvasMenuProps) {
     const blogEnabled = useSettingsStore((s) => s.blog_enabled);
     const menuJson = useSettingsStore((s) => s.header_menu_json);
     const [categories, setCategories] = useState<{ slug: string; name: string }[]>([]);
@@ -78,6 +82,7 @@ function OffcanvasMenu() {
                             <>
                                 <Link
                                     href={item.path}
+                                    onClick={onNavigate}
                                     className="font-medium flex justify-between items-center transition-all hover:text-[#666666]"
                                 >
                                     {item.title}
@@ -87,6 +92,7 @@ function OffcanvasMenu() {
                                         <li key={sub.id} className="mb-[15px] last:mb-0">
                                             <Link
                                                 href={sub.submenuPath}
+                                                onClick={onNavigate}
                                                 className="flex justify-between items-center transition-all hover:text-[#666666]"
                                             >
                                                 {sub.submenuTitle}
@@ -109,6 +115,7 @@ function OffcanvasMenu() {
                                         <li key={sub.id} className="mb-[15px] last:mb-0">
                                             <Link
                                                 href={sub.submenuPath}
+                                                onClick={onNavigate}
                                                 className="flex justify-between items-center transition-all hover:text-[#666666]"
                                             >
                                                 {sub.submenuTitle}
@@ -120,6 +127,7 @@ function OffcanvasMenu() {
                         ) : (
                             <Link
                                 href={item.path}
+                                onClick={onNavigate}
                                 className="font-medium flex justify-between items-center transition-all hover:text-[#666666]"
                             >
                                 {item.title}

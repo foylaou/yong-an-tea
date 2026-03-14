@@ -102,7 +102,7 @@ function CartPageComps() {
                                                     </Link>
                                                     <h2 className="product-name">
                                                         <Link
-                                                            href={`/products/${item.slug}`}
+                                                            href={`${item.slug}`}
                                                             className="text-[14px] transition-all hover:text-primary"
                                                         >
                                                             {item.name}

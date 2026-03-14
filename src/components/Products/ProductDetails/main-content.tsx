@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { IoAddSharp, IoHeartOutline, IoHeart, IoRemoveSharp } from 'react-icons/io5';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, Thumbs } from 'swiper/modules';
@@ -354,6 +354,22 @@ function MainContent({ product }: MainContentProps) {
                                         {(product as any)?.tag}
                                     </span>
                                 </div>
+                                {(() => {
+                                    try {
+                                        const attrs = JSON.parse((product as any)?.attributesJson || '[]')
+                                            .filter((a: any) => a.name && a.value);
+                                        const first3 = attrs.slice(0, 3);
+                                        if (first3.length === 0) return null;
+                                        return first3.map((attr: any, idx: number) => (
+                                            <div key={idx} className="category-wrap font-medium">
+                                                <span>{attr.name}：</span>
+                                                <span className="text-[#666666] ml-[5px]">
+                                                    {attr.value}{attr.unit ? ` ${attr.unit}` : ''}
+                                                </span>
+                                            </div>
+                                        ));
+                                    } catch { return null; }
+                                })()}
                                 <div className="social-wrap flex pt-[65px]">
                                     <span className="text-black font-medium">
                                         分享此商品：

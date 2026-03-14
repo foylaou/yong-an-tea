@@ -42,7 +42,12 @@ export async function GET(request: NextRequest) {
   }
 
   if (status) {
-    query = query.eq('status', status);
+    const statuses = status.split(',').filter(Boolean);
+    if (statuses.length === 1) {
+      query = query.eq('status', statuses[0]);
+    } else if (statuses.length > 1) {
+      query = query.in('status', statuses);
+    }
   }
 
   const { data: orders, count, error } = await query;

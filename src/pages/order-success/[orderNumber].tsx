@@ -125,6 +125,12 @@ function OrderSuccessPage({ order }: OrderSuccessProps) {
                                         )}
                                     </td>
                                 </tr>
+                                {Number(order.cod_fee) > 0 && (
+                                    <tr className="border-b border-[#cdcdcd]">
+                                        <td colSpan={2} className="py-3 font-medium">代收手續費</td>
+                                        <td className="py-3 text-right">{formatPrice(Number(order.cod_fee))}</td>
+                                    </tr>
+                                )}
                                 <tr>
                                     <td colSpan={2} className="py-3 font-bold text-lg">合計</td>
                                     <td className="py-3 text-right font-bold text-lg">

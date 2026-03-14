@@ -139,6 +139,7 @@ export const shippingSettingsSchema = z.object({
   shipping_fee: z.number().int().min(0, '運費不能為負數'),
   free_shipping_threshold: z.number().int().min(0, '免運門檻不能為負數'),
   shipping_note: z.string().optional(),
+  cod_fee_tiers: z.string().optional(),
 });
 
 export const linePaySettingsSchema = z.object({
@@ -153,11 +154,18 @@ export const lineLoginSettingsSchema = z.object({
 });
 
 export const logisticsSettingsSchema = z.object({
-  tcat_customer_id: z.string().optional(),
-  tcat_password: z.string().optional(),
+  tcat_test_customer_id: z.string().optional(),
+  tcat_test_customer_token: z.string().optional(),
+  tcat_prod_customer_id: z.string().optional(),
+  tcat_prod_customer_token: z.string().optional(),
   tcat_sandbox: z.string().optional(),
+  tcat_no_delivery_sunday: z.string().optional(),
+  tcat_no_delivery_saturday: z.string().optional(),
+  tcat_no_delivery_holidays: z.string().optional(),
   tcat_sender_name: z.string().optional(),
   tcat_sender_phone: z.string().optional(),
+  tcat_sender_mobile: z.string().optional(),
+  tcat_sender_zipcode: z.string().optional(),
   tcat_sender_address: z.string().optional(),
 });
 

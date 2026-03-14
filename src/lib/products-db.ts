@@ -44,6 +44,7 @@ function mapProductRow(row: any): MarkdownItem {
         desc: row.desc_text ?? '',
         sku: row.sku ?? null,
         availability: row.availability ?? 'in-stock',
+        thermosphere: row.thermosphere ?? '0001',
         stockQty: row.stock_qty ?? 0,
         maxQty: row.max_qty ?? 0,
         detailDesc: row.detail_desc ?? '',

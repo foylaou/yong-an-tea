@@ -7,10 +7,14 @@ export const checkoutFormSchema = z.object({
   customer_email: z.string().email('Email 格式不正確'),
   customer_phone: z.string().min(1, '聯絡電話為必填').regex(/^0[0-9]{8,9}$/, '請輸入有效的台灣電話號碼'),
   postal_code: z.string().optional(),
-  city: z.string().min(1, '縣市為必填'),
-  district: z.string().min(1, '鄉鎮區為必填'),
-  address_line1: z.string().min(1, '地址為必填'),
+  city: z.string(),
+  district: z.string(),
+  address_line1: z.string(),
   address_line2: z.string().optional(),
+  shipping_method: z.enum(['tcat', 'tcat_b2s']).optional(),
+  store_id: z.string().optional(),
+  store_name: z.string().optional(),
+  store_address: z.string().optional(),
   payment_method: z.enum(['line_pay', 'bank_transfer', 'cod']),
   note: z.string().optional(),
   save_address: z.boolean().optional(),
@@ -19,6 +23,18 @@ export const checkoutFormSchema = z.object({
   company_name: z.string().optional(),
   company_tax_id: z.string().optional(),
 }).refine(
+  (data) => data.shipping_method !== 'tcat_b2s' || (data.store_id && data.store_id.length > 0),
+  { message: '請選擇取貨門市', path: ['store_id'] }
+).refine(
+  (data) => data.shipping_method === 'tcat_b2s' || (data.city && data.city.length > 0),
+  { message: '縣市為必填', path: ['city'] }
+).refine(
+  (data) => data.shipping_method === 'tcat_b2s' || (data.district && data.district.length > 0),
+  { message: '鄉鎮區為必填', path: ['district'] }
+).refine(
+  (data) => data.shipping_method === 'tcat_b2s' || (data.address_line1 && data.address_line1.length > 0),
+  { message: '地址為必填', path: ['address_line1'] }
+).refine(
   (data) => !data.is_company || (data.company_name && data.company_name.length > 0),
   { message: '公司抬頭為必填', path: ['company_name'] }
 ).refine(
@@ -41,6 +57,10 @@ export const createOrderApiSchema = z.object({
     address_line1: z.string().min(1),
     address_line2: z.string().optional(),
   }),
+  shipping_method: z.enum(['tcat', 'tcat_b2s']).default('tcat'),
+  store_id: z.string().optional(),
+  store_name: z.string().optional(),
+  store_address: z.string().optional(),
   payment_method: z.enum(['line_pay', 'bank_transfer', 'cod']),
   note: z.string().optional().default(''),
   save_address: z.boolean().optional().default(false),

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/router';
@@ -41,6 +41,7 @@ function CheckoutForm({ addresses, shippingSettings, userEmail, userName }: Chec
     discount_amount: number;
     description: string;
   } | null>(null);
+  const [storePickerLoading, setStorePickerLoading] = useState(false);
 
   const subtotal = cartItems.reduce(
     (acc, item) => acc + item.price * item.quantity,
@@ -57,7 +58,6 @@ function CheckoutForm({ addresses, shippingSettings, userEmail, userName }: Chec
     appliedCoupon?.discount_type === 'free_shipping' ? 0 : baseShippingFee;
 
   const discountAmount = appliedCoupon?.discount_amount ?? 0;
-  const total = subtotal - discountAmount + shippingFee;
 
   const {
     register,
@@ -74,6 +74,7 @@ function CheckoutForm({ addresses, shippingSettings, userEmail, userName }: Chec
       city: '',
       district: '',
       address_line1: '',
+      shipping_method: 'tcat',
       payment_method: 'line_pay',
       save_address: false,
       is_company: false,
@@ -81,6 +82,25 @@ function CheckoutForm({ addresses, shippingSettings, userEmail, userName }: Chec
       company_tax_id: '',
     },
   });
+
+  // COD fee calculation (only when payment_method is 'cod')
+  const selectedPayment = watch('payment_method');
+  const codFee = (() => {
+    if (selectedPayment !== 'cod') return 0;
+    const tiers = shippingSettings.cod_fee_tiers || [];
+    if (!tiers.length) return 0;
+    const orderAmount = subtotal + shippingFee;
+    const sorted = [...tiers].sort((a, b) => a.max - b.max);
+    for (const tier of sorted) {
+      if (orderAmount <= tier.max) return tier.fee;
+    }
+    return sorted[sorted.length - 1].fee;
+  })();
+
+  const total = subtotal - discountAmount + shippingFee + codFee;
+
+  const selectedShipping = watch('shipping_method') || 'tcat';
+  const isB2S = selectedShipping === 'tcat_b2s';
 
   const fillFromAddress = (address: Address) => {
     setValue('customer_name', address.recipient_name);
@@ -90,6 +110,80 @@ function CheckoutForm({ addresses, shippingSettings, userEmail, userName }: Chec
     setValue('district', address.district);
     setValue('address_line1', address.address_line1);
     setValue('address_line2', address.address_line2 || '');
+  };
+
+  // Apply store selection from EMap callback
+  const applyStoreSelection = (store: { storeid: string; storename: string; storeaddress: string }) => {
+    setValue('store_id', store.storeid, { shouldValidate: true });
+    setValue('store_name', store.storename);
+    setValue('store_address', store.storeaddress);
+  };
+
+  // Listen for store selection via postMessage AND localStorage (storage event)
+  useEffect(() => {
+    // Method 1: postMessage listener
+    const handleMessage = (event: MessageEvent) => {
+      if (event.origin !== window.location.origin) return;
+      if (event.data?.type === 'EMAP_STORE_SELECTED') {
+        applyStoreSelection(event.data.store);
+      }
+    };
+    window.addEventListener('message', handleMessage);
+
+    // Method 2: localStorage storage event (fires when another tab writes to localStorage)
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key !== 'emap_store_selected' || !event.newValue) return;
+      try {
+        const store = JSON.parse(event.newValue);
+        applyStoreSelection(store);
+        // Clean up
+        localStorage.removeItem('emap_store_selected');
+      } catch { /* ignore */ }
+    };
+    window.addEventListener('storage', handleStorage);
+
+    return () => {
+      window.removeEventListener('message', handleMessage);
+      window.removeEventListener('storage', handleStorage);
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // 7-11 store picker via EMap
+  const handleOpenStorePicker = async () => {
+    setStorePickerLoading(true);
+    try {
+      const returnUrl = `${window.location.origin}/api/emap-callback`;
+      const res = await fetch(`/api/tcat-emap?returnUrl=${encodeURIComponent(returnUrl)}`);
+      const data = await res.json();
+      if (!res.ok) {
+        setSubmitError(data.error || '無法開啟門市選擇');
+        return;
+      }
+
+      // Clear any stale localStorage data
+      localStorage.removeItem('emap_store_selected');
+
+      // Open EMap in new window via form POST
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = data.url;
+      form.target = '_blank';
+      for (const [key, value] of Object.entries(data.fields)) {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = String(value);
+        form.appendChild(input);
+      }
+      document.body.appendChild(form);
+      form.submit();
+      document.body.removeChild(form);
+    } catch {
+      setSubmitError('開啟門市選擇失敗');
+    } finally {
+      setStorePickerLoading(false);
+    }
   };
 
   const handleApplyCoupon = async () => {
@@ -149,11 +243,12 @@ function CheckoutForm({ addresses, shippingSettings, userEmail, userName }: Chec
           customer_phone: formData.customer_phone,
           shipping_address: {
             postal_code: formData.postal_code || '',
-            city: formData.city,
-            district: formData.district,
-            address_line1: formData.address_line1,
+            city: formData.city || '',
+            district: formData.district || '',
+            address_line1: formData.address_line1 || '',
             address_line2: formData.address_line2 || '',
           },
+          shipping_method: formData.shipping_method || 'tcat',
           payment_method: formData.payment_method,
           note: formData.note || '',
           save_address: formData.save_address || false,
@@ -165,6 +260,11 @@ function CheckoutForm({ addresses, shippingSettings, userEmail, userName }: Chec
           ...(formData.is_company && {
             company_name: formData.company_name,
             company_tax_id: formData.company_tax_id,
+          }),
+          ...(formData.shipping_method === 'tcat_b2s' && {
+            store_id: formData.store_id,
+            store_name: formData.store_name,
+            store_address: formData.store_address,
           }),
         }),
       });
@@ -324,48 +424,122 @@ function CheckoutForm({ addresses, shippingSettings, userEmail, userName }: Chec
                     </div>
                   )}
 
-                  <TaiwanAddressSelector
-                    postalCodeValue={watch('postal_code') ?? ''}
-                    cityValue={watch('city')}
-                    districtValue={watch('district')}
-                    addressLine1Value={watch('address_line1')}
-                    onPostalCodeChange={(zip, city, district) => {
-                      setValue('postal_code', zip);
-                      if (city) {
-                        setValue('city', city, { shouldValidate: true });
-                        setValue('district', district, { shouldValidate: true });
-                      }
-                    }}
-                    onCityChange={(city) => {
-                      setValue('city', city, { shouldValidate: true });
-                      setValue('district', '', { shouldValidate: false });
-                      setValue('postal_code', '');
-                      setValue('address_line1', '');
-                    }}
-                    onDistrictChange={(district, zipCode) => {
-                      setValue('district', district, { shouldValidate: true });
-                      setValue('postal_code', zipCode);
-                    }}
-                    onAddressLine1Change={(addr) => {
-                      setValue('address_line1', addr, { shouldValidate: true });
-                    }}
-                    inputClassName={inputField}
-                    cityError={errors.city?.message}
-                    districtError={errors.district?.message}
-                    addressError={errors.address_line1?.message}
-                  />
-
+                  {/* Shipping method */}
                   <div>
-                    <label htmlFor="address_line2" className={labelClass}>
-                      地址補充（選填）
-                    </label>
-                    <input
-                      {...register('address_line2')}
-                      className={inputField}
-                      id="address_line2"
-                      placeholder="請寫樓層或特殊需求，比如說管理室收"
-                    />
+                    <label className={labelClass}>配送方式 *</label>
+                    <div className="flex gap-3">
+                      <label className={`flex-1 flex items-center gap-3 p-3 border rounded cursor-pointer transition-colors ${!isB2S ? 'border-[#222] bg-white' : 'border-[#e8e8e8] hover:bg-white'}`}>
+                        <input
+                          type="radio"
+                          value="tcat"
+                          {...register('shipping_method')}
+                          className="w-4 h-4"
+                        />
+                        <div>
+                          <span className="font-medium text-sm">黑貓宅配</span>
+                          <p className="text-xs text-gray-500">送貨到府</p>
+                        </div>
+                      </label>
+                      <label className={`flex-1 flex items-center gap-3 p-3 border rounded cursor-pointer transition-colors ${isB2S ? 'border-[#222] bg-white' : 'border-[#e8e8e8] hover:bg-white'}`}>
+                        <input
+                          type="radio"
+                          value="tcat_b2s"
+                          {...register('shipping_method')}
+                          className="w-4 h-4"
+                        />
+                        <div>
+                          <span className="font-medium text-sm">超商取貨</span>
+                          <p className="text-xs text-gray-500">7-11 門市取貨</p>
+                        </div>
+                      </label>
+                    </div>
                   </div>
+
+                  {/* 7-11 Store picker (B2S only) */}
+                  {isB2S && (
+                    <div className="border border-[#e8e8e8] rounded p-4 bg-white">
+                      <label className={labelClass}>取貨門市 *</label>
+                      {watch('store_id') ? (
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="text-sm">
+                            <p className="font-medium">{watch('store_name')}</p>
+                            <p className="text-gray-500 text-xs mt-0.5">{watch('store_address')}</p>
+                            <p className="text-gray-400 text-xs mt-0.5">門市代號：{watch('store_id')}</p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={handleOpenStorePicker}
+                            disabled={storePickerLoading}
+                            className="text-sm text-[#222] border border-[#222] px-3 py-1.5 rounded hover:bg-gray-50 whitespace-nowrap disabled:opacity-50"
+                          >
+                            重新選擇
+                          </button>
+                        </div>
+                      ) : (
+                        <div>
+                          <button
+                            type="button"
+                            onClick={handleOpenStorePicker}
+                            disabled={storePickerLoading}
+                            className="w-full py-3 border-2 border-dashed border-gray-300 rounded text-sm text-gray-500 hover:border-[#222] hover:text-[#222] transition-colors disabled:opacity-50"
+                          >
+                            {storePickerLoading ? '開啟中...' : '選擇 7-11 取貨門市'}
+                          </button>
+                          {errors.store_id && (
+                            <p className={errorClass}>{errors.store_id.message}</p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Address fields (宅配 only) */}
+                  {!isB2S && (
+                    <>
+                      <TaiwanAddressSelector
+                        postalCodeValue={watch('postal_code') ?? ''}
+                        cityValue={watch('city')}
+                        districtValue={watch('district')}
+                        addressLine1Value={watch('address_line1')}
+                        onPostalCodeChange={(zip, city, district) => {
+                          setValue('postal_code', zip);
+                          if (city) {
+                            setValue('city', city, { shouldValidate: true });
+                            setValue('district', district, { shouldValidate: true });
+                          }
+                        }}
+                        onCityChange={(city) => {
+                          setValue('city', city, { shouldValidate: true });
+                          setValue('district', '', { shouldValidate: false });
+                          setValue('postal_code', '');
+                          setValue('address_line1', '');
+                        }}
+                        onDistrictChange={(district, zipCode) => {
+                          setValue('district', district, { shouldValidate: true });
+                          setValue('postal_code', zipCode);
+                        }}
+                        onAddressLine1Change={(addr) => {
+                          setValue('address_line1', addr, { shouldValidate: true });
+                        }}
+                        inputClassName={inputField}
+                        cityError={errors.city?.message}
+                        districtError={errors.district?.message}
+                        addressError={errors.address_line1?.message}
+                      />
+
+                      <div>
+                        <label htmlFor="address_line2" className={labelClass}>
+                          地址補充（選填）
+                        </label>
+                        <input
+                          {...register('address_line2')}
+                          className={inputField}
+                          id="address_line2"
+                          placeholder="請寫樓層或特殊需求，比如說管理室收"
+                        />
+                      </div>
+                    </>
+                  )}
 
                   <div>
                     <label htmlFor="note" className={labelClass}>
@@ -429,6 +603,14 @@ function CheckoutForm({ addresses, shippingSettings, userEmail, userName }: Chec
                           )}
                         </td>
                       </tr>
+                      {codFee > 0 && (
+                        <tr className="border-t border-[#cdcdcd]">
+                          <td className="py-[15px] font-bold">代收手續費</td>
+                          <td className="py-[15px] text-right">
+                            {formatPrice(codFee)}
+                          </td>
+                        </tr>
+                      )}
                       {appliedCoupon && discountAmount > 0 && (
                         <tr className="border-t border-[#cdcdcd]">
                           <td className="py-[15px] font-bold text-green-600">折扣</td>
@@ -548,7 +730,10 @@ function CheckoutForm({ addresses, shippingSettings, userEmail, userName }: Chec
                         />
                         <div>
                           <span className="font-medium">貨到付款</span>
-                          <p className="text-xs text-gray-500">收到商品時付款給物流人員</p>
+                          <p className="text-xs text-gray-500">
+                            收到商品時付款給物流人員
+                            {(shippingSettings.cod_fee_tiers?.length ?? 0) > 0 && '（需加收代收手續費）'}
+                          </p>
                         </div>
                       </label>
                     </div>

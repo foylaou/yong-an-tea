@@ -42,6 +42,7 @@ export default function ProductForm({ categories, initialData, isEdit = false }:
     sku: initialData?.sku != null ? String(initialData.sku) : '',
     desc_text: initialData?.desc_text || '',
     availability: initialData?.availability || 'in-stock',
+    thermosphere: initialData?.thermosphere || '0001',
     stock_qty: initialData?.stock_qty ?? 0,
     max_qty: initialData?.max_qty ?? 0,
     detail_desc: initialData?.detail_desc || '',
@@ -304,7 +305,7 @@ export default function ProductForm({ categories, initialData, isEdit = false }:
       {/* 庫存管理 */}
       <section className="rounded-lg bg-white p-6 shadow">
         <h2 className="mb-4 text-lg font-semibold text-gray-900">庫存管理</h2>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700">庫存狀態</label>
             <select
@@ -313,6 +314,17 @@ export default function ProductForm({ categories, initialData, isEdit = false }:
             >
               <option value="in-stock">有庫存</option>
               <option value="out-of-stock">缺貨</option>
+            </select>
+          </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium text-gray-700">保存溫層</label>
+            <select
+              {...register('thermosphere')}
+              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="0001">常溫</option>
+              <option value="0002">冷藏</option>
+              <option value="0003">冷凍</option>
             </select>
           </div>
           <div>

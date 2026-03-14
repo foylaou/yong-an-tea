@@ -9,6 +9,8 @@ export type OrderStatus =
 
 export type PaymentMethod = 'line_pay' | 'bank_transfer' | 'cod';
 
+export type ShippingMethod = 'tcat' | 'tcat_b2s';
+
 export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded';
 
 export interface ShippingAddress {
@@ -38,11 +40,15 @@ export interface Order {
   status: OrderStatus;
   subtotal: number;
   shipping_fee: number;
+  cod_fee: number;
   total: number;
   payment_method: PaymentMethod;
   payment_status: PaymentStatus;
-  shipping_method: string;
+  shipping_method: ShippingMethod;
   tracking_number: string | null;
+  store_id: string | null;
+  store_name: string | null;
+  store_address: string | null;
   customer_name: string;
   customer_email: string;
   customer_phone: string;

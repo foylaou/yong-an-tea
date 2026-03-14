@@ -4,6 +4,7 @@ import { createOrderApiSchema } from '@/lib/validations/order';
 import {
   getShippingSettings,
   calculateShippingFee,
+  calculateCodFee,
   validateCartItems,
   createOrder,
 } from '@/lib/orders-db';
@@ -80,6 +81,11 @@ export async function POST(request: NextRequest) {
     }
   }
 
+  // Calculate COD fee (only for cash-on-delivery)
+  const codFee = data.payment_method === 'cod'
+    ? calculateCodFee(validation.subtotal + shippingFee, shippingSettings.cod_fee_tiers)
+    : 0;
+
   // Create order atomically
   let orderResult;
   try {
@@ -90,12 +96,16 @@ export async function POST(request: NextRequest) {
       customer_phone: data.customer_phone,
       shipping_address: data.shipping_address,
       payment_method: data.payment_method,
-      shipping_method: 'tcat',
+      shipping_method: data.shipping_method || 'tcat',
       shipping_fee: shippingFee,
+      cod_fee: codFee,
       note: data.note || '',
       items: data.items,
       coupon_code: data.coupon_code,
       discount_amount: discountAmount,
+      store_id: data.store_id || null,
+      store_name: data.store_name || null,
+      store_address: data.store_address || null,
     });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : '建立訂單失敗';

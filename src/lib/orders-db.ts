@@ -2,10 +2,16 @@ import { createAdminClient } from './supabase/admin';
 
 // --- Shipping Settings ---
 
+export interface CodFeeTier {
+  max: number;
+  fee: number;
+}
+
 export interface ShippingSettings {
   shipping_fee: number;
   free_shipping_threshold: number;
   shipping_note: string;
+  cod_fee_tiers: CodFeeTier[];
 }
 
 export async function getShippingSettings(): Promise<ShippingSettings> {
@@ -13,11 +19,11 @@ export async function getShippingSettings(): Promise<ShippingSettings> {
   const { data, error } = await supabase
     .from('site_settings')
     .select('key, value')
-    .in('key', ['shipping_fee', 'free_shipping_threshold', 'shipping_note']);
+    .in('key', ['shipping_fee', 'free_shipping_threshold', 'shipping_note', 'cod_fee_tiers']);
 
   if (error) {
     console.error('Failed to fetch shipping settings:', error);
-    return { shipping_fee: 100, free_shipping_threshold: 1500, shipping_note: '' };
+    return { shipping_fee: 100, free_shipping_threshold: 1500, shipping_note: '', cod_fee_tiers: [] };
   }
 
   const settings: Record<string, unknown> = {};
@@ -25,11 +31,29 @@ export async function getShippingSettings(): Promise<ShippingSettings> {
     settings[row.key] = row.value;
   }
 
+  let codFeeTiers: CodFeeTier[] = [];
+  try {
+    const raw = settings.cod_fee_tiers;
+    const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
+    if (Array.isArray(parsed)) codFeeTiers = parsed;
+  } catch { /* ignore */ }
+
   return {
     shipping_fee: Number(settings.shipping_fee ?? 100),
     free_shipping_threshold: Number(settings.free_shipping_threshold ?? 1500),
     shipping_note: String(settings.shipping_note ?? ''),
+    cod_fee_tiers: codFeeTiers,
   };
+}
+
+export function calculateCodFee(total: number, tiers: CodFeeTier[]): number {
+  if (!tiers.length) return 0;
+  const sorted = [...tiers].sort((a, b) => a.max - b.max);
+  for (const tier of sorted) {
+    if (total <= tier.max) return tier.fee;
+  }
+  // If total exceeds all tiers, use the last tier's fee
+  return sorted[sorted.length - 1].fee;
 }
 
 export function calculateShippingFee(
@@ -140,10 +164,14 @@ export interface CreateOrderParams {
   payment_method: string;
   shipping_method: string;
   shipping_fee: number;
+  cod_fee: number;
   note: string;
   items: CartItemInput[];
   coupon_code?: string;
   discount_amount?: number;
+  store_id?: string | null;
+  store_name?: string | null;
+  store_address?: string | null;
 }
 
 export interface CreateOrderResult {
@@ -151,6 +179,7 @@ export interface CreateOrderResult {
   order_number: string;
   subtotal: number;
   shipping_fee: number;
+  cod_fee: number;
   discount_amount: number;
   total: number;
 }
@@ -173,11 +202,26 @@ export async function createOrder(
     p_items: params.items,
     p_coupon_code: params.coupon_code ?? null,
     p_discount_amount: params.discount_amount ?? 0,
+    p_cod_fee: params.cod_fee,
   });
 
   if (error) {
     throw new Error(error.message);
   }
 
-  return data as CreateOrderResult;
+  const result = data as CreateOrderResult;
+
+  // Update store info for B2S orders (not in RPC)
+  if (params.store_id) {
+    await supabase
+      .from('orders')
+      .update({
+        store_id: params.store_id,
+        store_name: params.store_name,
+        store_address: params.store_address,
+      })
+      .eq('id', result.order_id);
+  }
+
+  return result;
 }

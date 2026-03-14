@@ -49,3 +49,5 @@ yarn-error.log*
 # OS
 .DS_Store
 Thumbs.db
+
+/docs/t-cat-api-v2.0.5/

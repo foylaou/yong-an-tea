@@ -84,7 +84,7 @@ function WishlistPageComps() {
                                                 </td>
                                                 <td className="py-[30px]">
                                                     <Link
-                                                        href="https://www.amazon.com"
+                                                        href={`/products/${item.slug}`}
                                                         className="inline-flex items-center bg-black text-white h-[46px] sm:px-[42px] px-[12px] transition-all hover:bg-[#222222]"
                                                     >
                                                         立即購買

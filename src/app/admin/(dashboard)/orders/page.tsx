@@ -9,6 +9,7 @@ export default async function OrdersPage() {
   const { data: orders, count } = await supabase
     .from('orders')
     .select('*', { count: 'exact' })
+    .in('status', ['pending', 'paid', 'processing', 'shipped'])
     .order('created_at', { ascending: false })
     .range(0, PER_PAGE - 1);
 

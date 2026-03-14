@@ -38,15 +38,52 @@ const paymentMethodLabel: Record<string, string> = {
   cod: '貨到付款',
 };
 
+interface TrackingEvent {
+  statusId: string;
+  statusName: string;
+  time: string;
+  station: string;
+}
+
+interface TrackingInfo {
+  obtNumber: string;
+  currentStatus: string;
+  currentStatusId: string;
+  latestStation: string;
+  latestTime: string;
+  history: TrackingEvent[];
+}
+
 function OrderDetail({ order: initialOrder }: OrderDetailProps) {
   const [order, setOrder] = useState(initialOrder);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [cancelReason, setCancelReason] = useState('');
   const [cancelling, setCancelling] = useState(false);
   const [cancelError, setCancelError] = useState('');
+  const [trackingLoading, setTrackingLoading] = useState(false);
+  const [trackingInfo, setTrackingInfo] = useState<TrackingInfo | null>(null);
+  const [trackingError, setTrackingError] = useState('');
   const router = useRouter();
 
   const canCancel = CUSTOMER_CANCELLABLE.includes(order.status);
+
+  const handleQueryTracking = async () => {
+    setTrackingLoading(true);
+    setTrackingError('');
+    try {
+      const res = await fetch(`/api/orders/${order.id}/tracking`);
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setTrackingInfo(data.tracking);
+      } else {
+        setTrackingError(data.error || '查詢失敗');
+      }
+    } catch {
+      setTrackingError('網路錯誤');
+    } finally {
+      setTrackingLoading(false);
+    }
+  };
 
   const handleCancel = async () => {
     if (!cancelReason.trim()) {
@@ -119,7 +156,14 @@ function OrderDetail({ order: initialOrder }: OrderDetailProps) {
           {order.tracking_number && (
             <div>
               <span className="text-gray-500">物流編號：</span>
-              <span className="font-mono">{order.tracking_number}</span>
+              <a
+                href={`https://www.t-cat.com.tw/Inquire/TraceDetail.aspx?BillID=${encodeURIComponent(order.tracking_number)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-mono text-blue-600 hover:underline"
+              >
+                {order.tracking_number}
+              </a>
             </div>
           )}
         </div>
@@ -171,6 +215,78 @@ function OrderDetail({ order: initialOrder }: OrderDetailProps) {
         </div>
       </div>
 
+      {/* Tracking */}
+      {order.tracking_number && (
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-medium text-gray-600">物流追蹤</h3>
+            <button
+              onClick={handleQueryTracking}
+              disabled={trackingLoading}
+              className="text-sm text-blue-600 hover:text-blue-800 disabled:opacity-50"
+            >
+              {trackingLoading ? '查詢中...' : '查詢最新狀態'}
+            </button>
+          </div>
+
+          {trackingError && (
+            <p className="text-sm text-red-500 mb-2">{trackingError}</p>
+          )}
+
+          {trackingInfo && (
+            <div className="border border-[#e8e8e8] rounded overflow-hidden">
+              {/* Current status banner */}
+              <div className="bg-[#f6f6f6] px-4 py-3 flex items-center justify-between">
+                <div>
+                  <span className="text-sm font-medium">{trackingInfo.currentStatus}</span>
+                  {trackingInfo.latestStation && (
+                    <span className="text-xs text-gray-500 ml-2">({trackingInfo.latestStation})</span>
+                  )}
+                </div>
+                {trackingInfo.latestTime && (
+                  <span className="text-xs text-gray-500">{trackingInfo.latestTime}</span>
+                )}
+              </div>
+
+              {/* History timeline */}
+              {trackingInfo.history.length > 0 && (
+                <div className="px-4 py-3">
+                  <div className="space-y-3">
+                    {trackingInfo.history.map((event, idx) => (
+                      <div key={idx} className="flex items-start gap-3 text-sm">
+                        <div className="flex flex-col items-center mt-1">
+                          <span
+                            className={`w-2.5 h-2.5 rounded-full ${
+                              idx === 0 ? 'bg-green-500' : 'bg-gray-300'
+                            }`}
+                          />
+                          {idx < trackingInfo.history.length - 1 && (
+                            <span className="w-px h-6 bg-gray-200 mt-1" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className={idx === 0 ? 'font-medium' : 'text-gray-600'}>
+                              {event.statusName}
+                            </span>
+                            <span className="text-xs text-gray-400 whitespace-nowrap">
+                              {event.time}
+                            </span>
+                          </div>
+                          {event.station && (
+                            <p className="text-xs text-gray-400">{event.station}</p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Items */}
       <div>
         <h3 className="text-sm font-medium mb-3 text-gray-600">商品明細</h3>
@@ -219,6 +335,12 @@ function OrderDetail({ order: initialOrder }: OrderDetailProps) {
                 )}
               </td>
             </tr>
+            {Number(order.cod_fee) > 0 && (
+              <tr className="border-b border-[#cdcdcd]">
+                <td colSpan={3} className="py-3 px-4 font-medium text-right">代收手續費</td>
+                <td className="py-3 px-4 text-right">{formatPrice(Number(order.cod_fee))}</td>
+              </tr>
+            )}
             <tr>
               <td colSpan={3} className="py-3 px-4 font-bold text-right text-lg">合計</td>
               <td className="py-3 px-4 text-right font-bold text-lg">

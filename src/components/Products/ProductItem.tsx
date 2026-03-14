@@ -25,6 +25,15 @@ function getPriceRange(product: any): { min: number; max: number } | null {
     return { min: Math.min(...prices), max: Math.max(...prices) };
 }
 
+function getDefaultVariant(product: any): any | null {
+    const variants = product?.variants;
+    if (!variants?.length) return null;
+    // Pick the highest-priced variant as default for quick add
+    return [...variants].sort(
+        (a: any, b: any) => (b.discountPrice ?? b.price) - (a.discountPrice ?? a.price)
+    )[0];
+}
+
 // Tailwind Related Stuff
 const addAction =
     'flex justify-center absolute w-full top-1/2 left-auto transform -translate-y-1/2 z-1';
@@ -56,27 +65,66 @@ function ProductItem({ product, productFilter, productFilterPath }: ProductItemP
         bestSellerSticker,
         offerSticker,
         desc,
+        variants,
     } = product as any;
 
     const productImageSrc = (product as any)?.smImage;
+    const hasVariants = variants && variants.length > 0;
+
+    // Gallery images (for variant image switching in quick view)
+    const galleryImages: { mdUrl: string; smUrl: string; altText: string }[] =
+        (product as any)?.images?.length > 0
+            ? (product as any).images
+            : (product as any)?.mdImage
+                ? [{ mdUrl: (product as any).mdImage, smUrl: (product as any).smImage || (product as any).mdImage, altText: (product as any).altImage || '' }]
+                : [];
 
     const [isOpen, setIsOpen] = useState(false);
-
     const [quantityCount, setQuantityCount] = useState(1);
+    const [selectedVariant, setSelectedVariant] = useState<any>(null);
     const effectiveMax = (product as any)?.maxQty && (product as any).maxQty > 0 ? (product as any).maxQty : Infinity;
 
+    // Get variant-specific image or fallback
+    const getVariantImage = (variant: any) => {
+        if (variant?.imageIndex != null && galleryImages[variant.imageIndex]) {
+            return galleryImages[variant.imageIndex].smUrl;
+        }
+        return (product as any)?.xsImage || productImageSrc;
+    };
+
+    // Quick view image: changes based on selected variant
+    const quickViewImage = selectedVariant?.imageIndex != null && galleryImages[selectedVariant.imageIndex]
+        ? galleryImages[selectedVariant.imageIndex].mdUrl
+        : (product as any)?.mdImage;
+
+    // Card quick-add: uses default variant (highest price) for variant products
     const addToCartHandler = (e: React.MouseEvent) => {
-        const img = (product as any)?.xsImage || productImageSrc;
+        const defaultVariant = getDefaultVariant(product);
+        const variant = selectedVariant || defaultVariant;
+        const cartPrice = variant
+            ? (variant.discountPrice ?? variant.price)
+            : (discountPrice ?? price);
+        const cartTitle = variant
+            ? `${title} - ${variant.name}`
+            : title;
+        const img = getVariantImage(variant);
+
         useFlyAnimationStore.getState().trigger('cart', img, e.clientX - 30, e.clientY - 30);
         useCartStore.getState().addItemToCart({
-            id,
-            title,
-            price,
+            id: variant ? `${id}_${variant.id}` : id,
+            title: cartTitle,
+            price: cartPrice,
             quantity: quantityCount,
-            totalPrice,
-            image: (product as any)?.xsImage,
+            totalPrice: cartPrice * quantityCount,
+            image: img,
             slug: `/products/${product?.slug}`,
         });
+    };
+
+    // Quick view add: must select variant first if product has variants
+    const quickViewAddToCartHandler = (e: React.MouseEvent) => {
+        if (hasVariants && !selectedVariant) return;
+        addToCartHandler(e);
     };
 
     const filterChangeHandler = (isAdd: boolean, data: { title: string; key: string; group: string }) => {
@@ -107,6 +155,15 @@ function ProductItem({ product, productFilter, productFilterPath }: ProductItemP
             });
         }
     };
+
+    // --- Quick view price display ---
+    const range = getPriceRange(product);
+    const qvDisplayPrice = selectedVariant
+        ? selectedVariant.price
+        : price;
+    const qvDisplayDiscountPrice = selectedVariant
+        ? selectedVariant.discountPrice
+        : discountPrice;
 
     return (
         <>
@@ -152,7 +209,11 @@ function ProductItem({ product, productFilter, productFilterPath }: ProductItemP
                         <button
                             type="button"
                             className={`${addActionButton} mr-[15px] group-hover:delay-[0s]`}
-                            onClick={() => setIsOpen(true)}
+                            onClick={() => {
+                                setSelectedVariant(null);
+                                setQuantityCount(1);
+                                setIsOpen(true);
+                            }}
                         >
                             <IoAddSharp />
                         </button>
@@ -206,7 +267,6 @@ function ProductItem({ product, productFilter, productFilterPath }: ProductItemP
                         </Link>
                     </h3>
                     {(() => {
-                        const range = getPriceRange(product);
                         if (range) {
                             return (
                                 <span className="product-price text-[18px] leading-[31px] text-[#666666]">
@@ -280,8 +340,8 @@ function ProductItem({ product, productFilter, productFilterPath }: ProductItemP
                                     </span>
                                 )}
                                 <img
-                                    className="w-full md:h-full md:object-cover"
-                                    src={(product as any)?.mdImage}
+                                    className="w-full md:h-full md:object-cover transition-all duration-300"
+                                    src={quickViewImage}
                                     alt={(product as any)?.altImage}
                                     width={585}
                                     height={585}
@@ -290,27 +350,69 @@ function ProductItem({ product, productFilter, productFilterPath }: ProductItemP
                         </div>
                         <div className="product-content py-[40px] px-[30px]">
                             <h2 className="text-[24px] mb-[15px]">{title}</h2>
-                            {price && !discountPrice && (
+
+                            {/* Price: variant range or selected variant price */}
+                            {hasVariants && !selectedVariant ? (
                                 <span className="product-price text-[30px] leading-[42px] text-[#999999] block mb-[25px]">
-                                    {formatPrice(price)}
+                                    {range && range.min === range.max
+                                        ? formatPrice(range.min)
+                                        : range
+                                            ? `${formatPrice(range.min)} ~ ${formatPrice(range.max)}`
+                                            : formatPrice(price)
+                                    }
                                 </span>
-                            )}
-                            {price && discountPrice && (
+                            ) : qvDisplayPrice && !qvDisplayDiscountPrice ? (
+                                <span className="product-price text-[30px] leading-[42px] text-[#999999] block mb-[25px]">
+                                    {formatPrice(qvDisplayPrice)}
+                                </span>
+                            ) : qvDisplayPrice && qvDisplayDiscountPrice ? (
                                 <div className="product-price-wrap flex mb-[10px]">
                                     <span className="product-price text-[30px] leading-[42px] text-[#999999] block">
-                                        {formatPrice(price)}
+                                        {formatPrice(qvDisplayPrice)}
                                     </span>
                                     <span className="product-price text-[30px] leading-[42px] text-[#999999] block relative before:content-['-'] before:mx-[10px]">
-                                        {formatPrice(discountPrice)}
+                                        {formatPrice(qvDisplayDiscountPrice)}
                                     </span>
                                 </div>
-                            )}
+                            ) : null}
+
                             <h3 className="stock font-semibold text-[14px] mb-[20px]">
                                 庫存狀態：
                                 <span className="text-[#3bc604] ml-[5px]">
                                     {availabilityLabel[(product as any)?.availability] || (product as any)?.availability}
                                 </span>
                             </h3>
+
+                            {/* Variant selector */}
+                            {hasVariants && (
+                                <div className="variant-selector mb-[15px]">
+                                    <span className="font-medium text-[14px] block mb-[8px]">
+                                        規格：
+                                        {selectedVariant && <span className="text-primary ml-[5px]">{selectedVariant.name}</span>}
+                                    </span>
+                                    <div className="flex flex-wrap gap-[8px]">
+                                        {variants.map((v: any) => (
+                                            <button
+                                                key={v.id}
+                                                type="button"
+                                                onClick={() => {
+                                                    setSelectedVariant(
+                                                        selectedVariant?.id === v.id ? null : v
+                                                    );
+                                                }}
+                                                className={`border px-[16px] py-[8px] text-[14px] transition-all ${
+                                                    selectedVariant?.id === v.id
+                                                        ? 'border-black bg-black text-white'
+                                                        : 'border-[#dddddd] hover:border-black'
+                                                }`}
+                                            >
+                                                {v.name}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
                             <p>{desc}</p>
                             <div className="group-btn flex max-xs:flex-wrap py-[30px]">
                                 <div
@@ -366,7 +468,7 @@ function ProductItem({ product, productFilter, productFilterPath }: ProductItemP
                                 </div>
                                 <div
                                     className={`${
-                                        soldOutSticker
+                                        soldOutSticker || (hasVariants && !selectedVariant)
                                             ? `cursor-not-allowed`
                                             : ''
                                     }`}
@@ -374,13 +476,13 @@ function ProductItem({ product, productFilter, productFilterPath }: ProductItemP
                                     <button
                                         type="button"
                                         className={`${addtoCartBtn} ${
-                                            soldOutSticker
-                                                ? `pointer-events-none`
+                                            soldOutSticker || (hasVariants && !selectedVariant)
+                                                ? `pointer-events-none opacity-50`
                                                 : ''
                                         } mr-[15px]`}
-                                        onClick={addToCartHandler}
+                                        onClick={quickViewAddToCartHandler}
                                     >
-                                        加入購物車
+                                        {hasVariants && !selectedVariant ? '請選擇規格' : '加入購物車'}
                                     </button>
                                 </div>
                                 <button

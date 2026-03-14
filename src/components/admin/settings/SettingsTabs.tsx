@@ -1,34 +1,37 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
+import dynamic from 'next/dynamic';
 import { groupLabels, type SettingsGroup } from '@/lib/validations/settings';
-import GeneralSettings from './GeneralSettings';
-import HomepageSettings from './HomepageSettings';
-import CurrencySettings from './CurrencySettings';
-import BranchManager from './BranchManager';
-import SocialSettings from './SocialSettings';
-import ProductDisplaySettings from './ProductDisplaySettings';
-import ContentSettings from './ContentSettings';
-import VideoSettings from './VideoSettings';
-import OfferSettings from './OfferSettings';
-import BrandsSettings from './BrandsSettings';
-import HeroSettings from './HeroSettings';
-import FeaturedSettings from './FeaturedSettings';
-import AboutSettings from './AboutSettings';
-import ShippingSettings from './ShippingSettings';
-import LinePaySettings from './LinePaySettings';
-import LineLoginSettings from './LineLoginSettings';
-import LogisticsSettings from './LogisticsSettings';
-import SmtpSettings from './SmtpSettings';
-import HeaderFooterSettings from './HeaderFooterSettings';
-import FaqSettings from './FaqSettings';
-import ErrorPageSettings from './ErrorPageSettings';
-import AuthPageSettings from './AuthPageSettings';
-import ComingSoonSettings from './ComingSoonSettings';
-import CartPageSettings from './CartPageSettings';
-import WishlistPageSettings from './WishlistPageSettings';
-import ProductDetailSettings from './ProductDetailSettings';
-import GridLayoutSettings from './GridLayoutSettings';
+
+// Lazy-load each settings component – only the active tab is loaded
+const GeneralSettings = dynamic(() => import('./GeneralSettings'));
+const HomepageSettings = dynamic(() => import('./HomepageSettings'));
+const CurrencySettings = dynamic(() => import('./CurrencySettings'));
+const BranchManager = dynamic(() => import('./BranchManager'));
+const SocialSettings = dynamic(() => import('./SocialSettings'));
+const ProductDisplaySettings = dynamic(() => import('./ProductDisplaySettings'));
+const ContentSettings = dynamic(() => import('./ContentSettings'));
+const VideoSettings = dynamic(() => import('./VideoSettings'));
+const OfferSettings = dynamic(() => import('./OfferSettings'));
+const BrandsSettings = dynamic(() => import('./BrandsSettings'));
+const HeroSettings = dynamic(() => import('./HeroSettings'));
+const FeaturedSettings = dynamic(() => import('./FeaturedSettings'));
+const AboutSettings = dynamic(() => import('./AboutSettings'));
+const ShippingSettings = dynamic(() => import('./ShippingSettings'));
+const LinePaySettings = dynamic(() => import('./LinePaySettings'));
+const LineLoginSettings = dynamic(() => import('./LineLoginSettings'));
+const LogisticsSettings = dynamic(() => import('./LogisticsSettings'));
+const SmtpSettings = dynamic(() => import('./SmtpSettings'));
+const HeaderFooterSettings = dynamic(() => import('./HeaderFooterSettings'));
+const FaqSettings = dynamic(() => import('./FaqSettings'));
+const ErrorPageSettings = dynamic(() => import('./ErrorPageSettings'));
+const AuthPageSettings = dynamic(() => import('./AuthPageSettings'));
+const ComingSoonSettings = dynamic(() => import('./ComingSoonSettings'));
+const CartPageSettings = dynamic(() => import('./CartPageSettings'));
+const WishlistPageSettings = dynamic(() => import('./WishlistPageSettings'));
+const ProductDetailSettings = dynamic(() => import('./ProductDetailSettings'));
+const GridLayoutSettings = dynamic(() => import('./GridLayoutSettings'));
 
 // Sidebar groups with sub-items
 const sidebarGroups: { label: string; items: SettingsGroup[] }[] = [
@@ -54,6 +57,20 @@ const sidebarGroups: { label: string; items: SettingsGroup[] }[] = [
   },
 ];
 
+function TabSkeleton() {
+  return (
+    <div className="animate-pulse space-y-4 rounded-lg bg-white p-6 shadow">
+      <div className="h-6 w-32 rounded bg-gray-200" />
+      <div className="space-y-3">
+        <div className="h-4 w-full rounded bg-gray-200" />
+        <div className="h-4 w-3/4 rounded bg-gray-200" />
+        <div className="h-10 w-full rounded bg-gray-200" />
+        <div className="h-10 w-full rounded bg-gray-200" />
+      </div>
+    </div>
+  );
+}
+
 interface SettingsTabsProps {
   initialSettings: Record<string, Record<string, unknown>>;
 }
@@ -62,35 +79,39 @@ export default function SettingsTabs({ initialSettings }: SettingsTabsProps) {
   const [activeTab, setActiveTab] = useState<SettingsGroup>('general');
   const [expandedGroup, setExpandedGroup] = useState<string>('基本設定');
 
-  const tabComponents: Partial<Record<SettingsGroup, React.ReactNode>> = {
-    general: <GeneralSettings initialData={initialSettings.general || {}} />,
-    homepage: <HomepageSettings initialData={initialSettings.homepage || {}} />,
-    currency: <CurrencySettings initialData={initialSettings.currency || {}} />,
-    branches: <BranchManager />,
-    social: <SocialSettings initialData={initialSettings.social || {}} />,
-    product_display: <ProductDisplaySettings initialData={initialSettings.product_display || {}} />,
-    content: <ContentSettings initialData={initialSettings.content || {}} />,
-    video: <VideoSettings initialData={initialSettings.video || {}} />,
-    offer: <OfferSettings initialData={initialSettings.offer || {}} />,
-    brands: <BrandsSettings initialData={initialSettings.brands || {}} />,
-    hero: <HeroSettings initialData={initialSettings.hero || {}} />,
-    featured: <FeaturedSettings initialData={initialSettings.featured || {}} />,
-    about: <AboutSettings initialData={initialSettings.about || {}} />,
-    shipping: <ShippingSettings initialData={initialSettings.shipping || {}} />,
-    linepay: <LinePaySettings initialData={initialSettings.linepay || {}} />,
-    line_login: <LineLoginSettings initialData={initialSettings.line_login || {}} />,
-    logistics: <LogisticsSettings initialData={initialSettings.logistics || {}} />,
-    smtp: <SmtpSettings initialData={initialSettings.smtp || {}} />,
-    header_footer: <HeaderFooterSettings initialData={initialSettings.header_footer || {}} />,
-    faq: <FaqSettings initialData={initialSettings.faq || {}} />,
-    error_page: <ErrorPageSettings initialData={initialSettings.error_page || {}} />,
-    auth_page: <AuthPageSettings initialData={initialSettings.auth_page || {}} />,
-    coming_soon: <ComingSoonSettings initialData={initialSettings.coming_soon || {}} />,
-    cart_page: <CartPageSettings initialData={initialSettings.cart_page || {}} />,
-    wishlist_page: <WishlistPageSettings initialData={initialSettings.wishlist_page || {}} />,
-    product_detail: <ProductDetailSettings initialData={initialSettings.product_detail || {}} />,
-    grid_layout: <GridLayoutSettings initialData={initialSettings.grid_layout || {}} />,
-  };
+  function renderActiveTab() {
+    const props = { initialData: initialSettings[activeTab] || {} };
+    switch (activeTab) {
+      case 'general': return <GeneralSettings {...props} />;
+      case 'homepage': return <HomepageSettings {...props} />;
+      case 'currency': return <CurrencySettings {...props} />;
+      case 'branches': return <BranchManager />;
+      case 'social': return <SocialSettings {...props} />;
+      case 'product_display': return <ProductDisplaySettings {...props} />;
+      case 'content': return <ContentSettings {...props} />;
+      case 'video': return <VideoSettings {...props} />;
+      case 'offer': return <OfferSettings {...props} />;
+      case 'brands': return <BrandsSettings {...props} />;
+      case 'hero': return <HeroSettings {...props} />;
+      case 'featured': return <FeaturedSettings {...props} />;
+      case 'about': return <AboutSettings {...props} />;
+      case 'shipping': return <ShippingSettings {...props} />;
+      case 'linepay': return <LinePaySettings {...props} />;
+      case 'line_login': return <LineLoginSettings {...props} />;
+      case 'logistics': return <LogisticsSettings {...props} />;
+      case 'smtp': return <SmtpSettings {...props} />;
+      case 'header_footer': return <HeaderFooterSettings {...props} />;
+      case 'faq': return <FaqSettings {...props} />;
+      case 'error_page': return <ErrorPageSettings {...props} />;
+      case 'auth_page': return <AuthPageSettings {...props} />;
+      case 'coming_soon': return <ComingSoonSettings {...props} />;
+      case 'cart_page': return <CartPageSettings {...props} />;
+      case 'wishlist_page': return <WishlistPageSettings {...props} />;
+      case 'product_detail': return <ProductDetailSettings {...props} />;
+      case 'grid_layout': return <GridLayoutSettings {...props} />;
+      default: return null;
+    }
+  }
 
   const handleItemClick = (group: string, item: SettingsGroup) => {
     setExpandedGroup(group);
@@ -157,7 +178,9 @@ export default function SettingsTabs({ initialSettings }: SettingsTabsProps) {
 
       {/* Main content */}
       <div className="flex-1 min-w-0">
-        {tabComponents[activeTab] ?? null}
+        <Suspense fallback={<TabSkeleton />}>
+          {renderActiveTab()}
+        </Suspense>
       </div>
     </div>
   );

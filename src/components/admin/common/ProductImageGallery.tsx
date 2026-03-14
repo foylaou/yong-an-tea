@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import dynamic from 'next/dynamic';
 import type { Area } from 'react-easy-crop';
-import CropModal from './CropModal';
+
+const CropModal = dynamic(() => import('./CropModal'), { ssr: false });
 
 const ACCEPT = 'image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif';
 

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { createClient } from '@/lib/supabase/server';
 
 function getImageUrl(value: string | null | undefined, slug: string): string {
@@ -10,17 +11,14 @@ function getImageUrl(value: string | null | undefined, slug: string): string {
 async function getStats() {
   const supabase = await createClient();
 
-  const [products, activeProducts, inactiveProducts, blogs, categories, profiles] =
+  // 4 queries instead of 6: derive inactive = total - active
+  const [products, activeProducts, blogs, categories, profiles] =
     await Promise.all([
       supabase.from('products').select('id', { count: 'exact', head: true }),
       supabase
         .from('products')
         .select('id', { count: 'exact', head: true })
         .eq('is_active', true),
-      supabase
-        .from('products')
-        .select('id', { count: 'exact', head: true })
-        .eq('is_active', false),
       supabase.from('blogs').select('id', { count: 'exact', head: true }),
       supabase
         .from('categories')
@@ -29,10 +27,13 @@ async function getStats() {
       supabase.from('profiles').select('id', { count: 'exact', head: true }),
     ]);
 
+  const productCount = products.count ?? 0;
+  const activeProductCount = activeProducts.count ?? 0;
+
   return {
-    productCount: products.count ?? 0,
-    activeProductCount: activeProducts.count ?? 0,
-    inactiveProductCount: inactiveProducts.count ?? 0,
+    productCount,
+    activeProductCount,
+    inactiveProductCount: productCount - activeProductCount,
     blogCount: blogs.count ?? 0,
     categoryCount: categories.count ?? 0,
     userCount: profiles.count ?? 0,
@@ -182,9 +183,11 @@ export default async function AdminDashboard() {
                   <tr key={product.id} className="hover:bg-gray-50">
                     <td className="px-4 py-3">
                       {product.xs_image ? (
-                        <img
+                        <Image
                           src={getImageUrl(product.xs_image, product.slug)}
                           alt={product.title}
+                          width={40}
+                          height={40}
                           className="h-10 w-10 rounded object-cover"
                         />
                       ) : (

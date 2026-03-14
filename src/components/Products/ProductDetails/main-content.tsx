@@ -93,7 +93,7 @@ function MainContent({ product }: MainContentProps) {
             quantity: quantityCount,
             totalPrice: cartPrice * quantityCount,
             image: img,
-            slug: product?.slug,
+            slug: `/products/${product?.slug}`,
         });
     };
 

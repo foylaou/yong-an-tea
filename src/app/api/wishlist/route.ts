@@ -39,7 +39,7 @@ export async function GET() {
       quantity: 1,
       totalPrice: Number(row.product.price),
       image: row.product.sm_image ?? '',
-      slug: row.product.slug,
+      slug: `/products/${row.product.slug}`,
     }));
 
   return NextResponse.json({ items });

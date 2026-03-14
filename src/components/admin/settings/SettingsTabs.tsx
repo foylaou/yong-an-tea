@@ -19,6 +19,7 @@ const HeroSettings = dynamic(() => import('./HeroSettings'));
 const FeaturedSettings = dynamic(() => import('./FeaturedSettings'));
 const AboutSettings = dynamic(() => import('./AboutSettings'));
 const ShippingSettings = dynamic(() => import('./ShippingSettings'));
+const PaymentSettings = dynamic(() => import('./PaymentSettings'));
 const LinePaySettings = dynamic(() => import('./LinePaySettings'));
 const LineLoginSettings = dynamic(() => import('./LineLoginSettings'));
 const LogisticsSettings = dynamic(() => import('./LogisticsSettings'));
@@ -41,7 +42,7 @@ const sidebarGroups: { label: string; items: SettingsGroup[] }[] = [
   },
   {
     label: '商店設定',
-    items: ['currency', 'product_display', 'shipping', 'linepay', 'line_login', 'logistics', 'smtp'],
+    items: ['currency', 'product_display', 'shipping', 'payment', 'line_login', 'logistics', 'smtp'],
   },
   {
     label: '首頁與頁面',
@@ -96,6 +97,13 @@ export default function SettingsTabs({ initialSettings }: SettingsTabsProps) {
       case 'featured': return <FeaturedSettings {...props} />;
       case 'about': return <AboutSettings {...props} />;
       case 'shipping': return <ShippingSettings {...props} />;
+      case 'payment': return (
+        <PaymentSettings
+          initialData={initialSettings['payment'] || {}}
+          linePayData={initialSettings['linepay'] || {}}
+          shippingData={initialSettings['shipping'] || {}}
+        />
+      );
       case 'linepay': return <LinePaySettings {...props} />;
       case 'line_login': return <LineLoginSettings {...props} />;
       case 'logistics': return <LogisticsSettings {...props} />;

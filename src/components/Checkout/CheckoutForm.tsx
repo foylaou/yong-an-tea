@@ -4,17 +4,18 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/router';
-import { useCartStore } from '../../store/cart/cart-slice';
-import { formatPrice } from '../../store/settings/settings-slice';
+import { useCartStore } from '@/store/cart/cart-slice';
+import { formatPrice } from '@/store/settings/settings-slice';
 import { checkoutFormSchema, type CheckoutFormData } from '../../lib/validations/order';
-import type { Address } from '../../types/order';
-import type { ShippingSettings } from '../../lib/orders-db';
+import type { Address } from '@/types';
+import type { ShippingSettings, PaymentToggles } from '../../lib/orders-db';
 import TaiwanAddressSelector from '../TaiwanAddressSelector';
 import EmptyCheckout from './EmptyCheckout';
 
 interface CheckoutFormProps {
   addresses: Address[];
   shippingSettings: ShippingSettings;
+  paymentToggles: PaymentToggles;
   userEmail: string;
   userName: string;
 }
@@ -26,7 +27,7 @@ const textareaField =
 const labelClass = 'mb-[5px] text-sm font-medium';
 const errorClass = 'text-red-500 text-xs mt-1';
 
-function CheckoutForm({ addresses, shippingSettings, userEmail, userName }: CheckoutFormProps) {
+function CheckoutForm({ addresses, shippingSettings, paymentToggles, userEmail, userName }: CheckoutFormProps) {
   const router = useRouter();
   const cartItems = useCartStore((state) => state.items);
   const clearAllFromCart = useCartStore((state) => state.clearAllFromCart);
@@ -59,6 +60,15 @@ function CheckoutForm({ addresses, shippingSettings, userEmail, userName }: Chec
 
   const discountAmount = appliedCoupon?.discount_amount ?? 0;
 
+  // Build enabled payment methods list
+  const enabledPaymentMethods = [
+    paymentToggles.linepay && 'line_pay',
+    paymentToggles.atm && 'bank_transfer',
+    paymentToggles.cod && 'cod',
+  ].filter(Boolean) as ('line_pay' | 'bank_transfer' | 'cod')[];
+
+  const defaultPayment = enabledPaymentMethods[0] || 'line_pay';
+
   const {
     register,
     handleSubmit,
@@ -75,7 +85,7 @@ function CheckoutForm({ addresses, shippingSettings, userEmail, userName }: Chec
       district: '',
       address_line1: '',
       shipping_method: 'tcat',
-      payment_method: 'line_pay',
+      payment_method: defaultPayment,
       save_address: false,
       is_company: false,
       company_name: '',
@@ -697,45 +707,51 @@ function CheckoutForm({ addresses, shippingSettings, userEmail, userName }: Chec
                   <div className="mt-[30px]">
                     <h3 className="text-[16px] mb-[15px] font-medium">付款方式</h3>
                     <div className="flex flex-col gap-3">
-                      <label className="flex items-center gap-3 p-3 border rounded cursor-pointer hover:bg-white transition-colors">
-                        <input
-                          type="radio"
-                          value="line_pay"
-                          {...register('payment_method')}
-                          className="w-4 h-4"
-                        />
-                        <div>
-                          <span className="font-medium">LINE Pay</span>
-                          <p className="text-xs text-gray-500">使用 LINE Pay 安全付款</p>
-                        </div>
-                      </label>
-                      <label className="flex items-center gap-3 p-3 border rounded cursor-pointer hover:bg-white transition-colors">
-                        <input
-                          type="radio"
-                          value="bank_transfer"
-                          {...register('payment_method')}
-                          className="w-4 h-4"
-                        />
-                        <div>
-                          <span className="font-medium">銀行轉帳</span>
-                          <p className="text-xs text-gray-500">匯款後請通知客服確認</p>
-                        </div>
-                      </label>
-                      <label className="flex items-center gap-3 p-3 border rounded cursor-pointer hover:bg-white transition-colors">
-                        <input
-                          type="radio"
-                          value="cod"
-                          {...register('payment_method')}
-                          className="w-4 h-4"
-                        />
-                        <div>
-                          <span className="font-medium">貨到付款</span>
-                          <p className="text-xs text-gray-500">
-                            收到商品時付款給物流人員
-                            {(shippingSettings.cod_fee_tiers?.length ?? 0) > 0 && '（需加收代收手續費）'}
-                          </p>
-                        </div>
-                      </label>
+                      {paymentToggles.linepay && (
+                        <label className="flex items-center gap-3 p-3 border rounded cursor-pointer hover:bg-white transition-colors">
+                          <input
+                            type="radio"
+                            value="line_pay"
+                            {...register('payment_method')}
+                            className="w-4 h-4"
+                          />
+                          <div>
+                            <span className="font-medium">LINE Pay</span>
+                            <p className="text-xs text-gray-500">使用 LINE Pay 安全付款</p>
+                          </div>
+                        </label>
+                      )}
+                      {paymentToggles.atm && (
+                        <label className="flex items-center gap-3 p-3 border rounded cursor-pointer hover:bg-white transition-colors">
+                          <input
+                            type="radio"
+                            value="bank_transfer"
+                            {...register('payment_method')}
+                            className="w-4 h-4"
+                          />
+                          <div>
+                            <span className="font-medium">銀行轉帳</span>
+                            <p className="text-xs text-gray-500">匯款後請通知客服確認</p>
+                          </div>
+                        </label>
+                      )}
+                      {paymentToggles.cod && (
+                        <label className="flex items-center gap-3 p-3 border rounded cursor-pointer hover:bg-white transition-colors">
+                          <input
+                            type="radio"
+                            value="cod"
+                            {...register('payment_method')}
+                            className="w-4 h-4"
+                          />
+                          <div>
+                            <span className="font-medium">貨到付款</span>
+                            <p className="text-xs text-gray-500">
+                              收到商品時付款給物流人員
+                              {(shippingSettings.cod_fee_tiers?.length ?? 0) > 0 && '（需加收代收手續費）'}
+                            </p>
+                          </div>
+                        </label>
+                      )}
                     </div>
                     {errors.payment_method && (
                       <p className={errorClass}>{errors.payment_method.message}</p>

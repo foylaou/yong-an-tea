@@ -1,16 +1,17 @@
 import type { GetServerSideProps } from 'next';
-import type { Address } from '../types/order';
-import type { ShippingSettings } from '../lib/orders-db';
+import type { Address } from '@/types';
+import type { ShippingSettings, PaymentToggles } from '../lib/orders-db';
 import HeaderOne from '../components/HeaderComps';
 import Breadcrumb from '../components/Breadcrumb';
 import CheckoutForm from '../components/Checkout/CheckoutForm';
 import FooterComps from '../components/FooterComps';
 import { createPagesClient } from '../lib/supabase/server-pages';
-import { getShippingSettings } from '../lib/orders-db';
+import { getShippingSettings, getPaymentToggles } from '../lib/orders-db';
 
 interface CheckoutPageProps {
     addresses: Address[];
     shippingSettings: ShippingSettings;
+    paymentToggles: PaymentToggles;
     userEmail: string;
     userName: string;
 }
@@ -18,6 +19,7 @@ interface CheckoutPageProps {
 function CheckoutPage({
     addresses,
     shippingSettings,
+    paymentToggles,
     userEmail,
     userName,
 }: CheckoutPageProps) {
@@ -34,6 +36,7 @@ function CheckoutPage({
             <CheckoutForm
                 addresses={addresses}
                 shippingSettings={shippingSettings}
+                paymentToggles={paymentToggles}
                 userEmail={userEmail}
                 userName={userName}
             />
@@ -70,13 +73,17 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
         .eq('id', user.id)
         .single();
 
-    // Fetch shipping settings
-    const shippingSettings = await getShippingSettings();
+    // Fetch shipping settings and payment toggles
+    const [shippingSettings, paymentToggles] = await Promise.all([
+      getShippingSettings(),
+      getPaymentToggles(),
+    ]);
 
     return {
         props: {
             addresses: addresses || [],
             shippingSettings,
+            paymentToggles,
             userEmail: user.email || '',
             userName: profile?.full_name || '',
         },

@@ -142,6 +142,26 @@ export const shippingSettingsSchema = z.object({
   cod_fee_tiers: z.string().optional(),
 });
 
+export const paymentSettingsSchema = z.object({
+  // Toggles
+  payment_linepay_enabled: z.string().optional(),
+  payment_atm_enabled: z.string().optional(),
+  payment_credit_card_enabled: z.string().optional(),
+  payment_cod_enabled: z.string().optional(),
+  // ATM details
+  payment_atm_bank_name: z.string().optional(),
+  payment_atm_bank_code: z.string().optional(),
+  payment_atm_account_number: z.string().optional(),
+  payment_atm_account_holder: z.string().optional(),
+  payment_atm_note: z.string().optional(),
+  // Credit Card details
+  payment_credit_card_provider: z.string().optional(),
+  payment_credit_card_merchant_id: z.string().optional(),
+  payment_credit_card_hash_key: z.string().optional(),
+  payment_credit_card_hash_iv: z.string().optional(),
+  payment_credit_card_sandbox: z.string().optional(),
+});
+
 export const linePaySettingsSchema = z.object({
   linepay_channel_id: z.string().optional(),
   linepay_channel_secret: z.string().optional(),
@@ -307,6 +327,7 @@ export type ProductDetailSettingsData = z.infer<typeof productDetailSettingsSche
 export type GridLayoutSettingsData = z.infer<typeof gridLayoutSettingsSchema>;
 export type BestsellerSettingsData = z.infer<typeof bestsellerSettingsSchema>;
 export type ShippingSettingsData = z.infer<typeof shippingSettingsSchema>;
+export type PaymentSettingsData = z.infer<typeof paymentSettingsSchema>;
 export type LinePaySettingsData = z.infer<typeof linePaySettingsSchema>;
 export type LineLoginSettingsData = z.infer<typeof lineLoginSettingsSchema>;
 export type LogisticsSettingsData = z.infer<typeof logisticsSettingsSchema>;
@@ -323,7 +344,7 @@ export const currencyApiSchema = z.object({
 });
 
 export const settingsUpdateApiSchema = z.object({
-  group: z.enum(['general', 'homepage', 'currency', 'contact', 'social', 'product_display', 'content', 'video', 'offer', 'brands', 'hero', 'featured', 'about', 'shipping', 'linepay', 'line_login', 'logistics', 'smtp', 'header_footer', 'faq', 'error_page', 'auth_page', 'coming_soon', 'cart_page', 'wishlist_page', 'product_detail', 'grid_layout', 'bestseller']),
+  group: z.enum(['general', 'homepage', 'currency', 'contact', 'social', 'product_display', 'content', 'video', 'offer', 'brands', 'hero', 'featured', 'about', 'shipping', 'payment', 'linepay', 'line_login', 'logistics', 'smtp', 'header_footer', 'faq', 'error_page', 'auth_page', 'coming_soon', 'cart_page', 'wishlist_page', 'product_detail', 'grid_layout', 'bestseller']),
   settings: z.record(z.string(), z.unknown()),
 });
 
@@ -344,6 +365,7 @@ export const settingsSchemaMap: Record<string, z.ZodType> = {
   featured: featuredSettingsSchema,
   about: aboutSettingsSchema,
   shipping: shippingSettingsSchema,
+  payment: paymentSettingsSchema,
   linepay: linePaySettingsSchema,
   line_login: lineLoginSettingsSchema,
   logistics: logisticsSettingsSchema,
@@ -378,6 +400,7 @@ export const groupLabels: Record<string, string> = {
   featured: '精選商品',
   about: '關於我們',
   shipping: '運費設定',
+  payment: '付款方式',
   linepay: 'LINE Pay',
   line_login: 'LINE 登入',
   logistics: '物流設定',
@@ -394,5 +417,5 @@ export const groupLabels: Record<string, string> = {
   bestseller: '暢銷商品設定',
 };
 
-export const groupKeys = ['general', 'homepage', 'currency', 'branches', 'contact', 'social', 'product_display', 'content', 'video', 'offer', 'brands', 'hero', 'featured', 'about', 'shipping', 'linepay', 'line_login', 'logistics', 'smtp', 'header_footer', 'faq', 'error_page', 'auth_page', 'coming_soon', 'cart_page', 'wishlist_page', 'product_detail', 'grid_layout', 'bestseller'] as const;
+export const groupKeys = ['general', 'homepage', 'currency', 'branches', 'contact', 'social', 'product_display', 'content', 'video', 'offer', 'brands', 'hero', 'featured', 'about', 'shipping', 'payment', 'linepay', 'line_login', 'logistics', 'smtp', 'header_footer', 'faq', 'error_page', 'auth_page', 'coming_soon', 'cart_page', 'wishlist_page', 'product_detail', 'grid_layout', 'bestseller'] as const;
 export type SettingsGroup = (typeof groupKeys)[number];

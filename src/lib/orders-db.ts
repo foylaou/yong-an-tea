@@ -46,6 +46,46 @@ export async function getShippingSettings(): Promise<ShippingSettings> {
   };
 }
 
+// --- Payment Method Toggles ---
+
+export interface PaymentToggles {
+  linepay: boolean;
+  atm: boolean;
+  credit_card: boolean;
+  cod: boolean;
+}
+
+export async function getPaymentToggles(): Promise<PaymentToggles> {
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
+    .from('site_settings')
+    .select('key, value')
+    .in('key', [
+      'payment_linepay_enabled',
+      'payment_atm_enabled',
+      'payment_credit_card_enabled',
+      'payment_cod_enabled',
+    ]);
+
+  if (error) {
+    console.error('Failed to fetch payment toggles:', error);
+    // Default: LINE Pay and COD enabled, ATM and credit card disabled
+    return { linepay: true, atm: false, credit_card: false, cod: true };
+  }
+
+  const settings: Record<string, unknown> = {};
+  for (const row of data ?? []) {
+    settings[row.key] = row.value;
+  }
+
+  return {
+    linepay: String(settings.payment_linepay_enabled ?? 'true') !== 'false',
+    atm: String(settings.payment_atm_enabled ?? 'false') === 'true',
+    credit_card: String(settings.payment_credit_card_enabled ?? 'false') === 'true',
+    cod: String(settings.payment_cod_enabled ?? 'true') !== 'false',
+  };
+}
+
 export function calculateCodFee(total: number, tiers: CodFeeTier[]): number {
   if (!tiers.length) return 0;
   const sorted = [...tiers].sort((a, b) => a.max - b.max);

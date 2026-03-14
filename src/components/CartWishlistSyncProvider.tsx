@@ -13,13 +13,29 @@ function mergeCartItems(
   server: CartItem[]
 ): CartItem[] {
   const map = new Map<string, CartItem>();
+
+  // Collect base product IDs that exist as variants in local cart.
+  // Server only stores base IDs, so we must skip them when the local
+  // store already carries more-specific variant entries.
+  const localVariantBaseIds = new Set<string>();
+  for (const item of local) {
+    if (item.id.includes('_')) {
+      localVariantBaseIds.add(item.id.split('_')[0]);
+    }
+  }
+
+  // Add server items first, skipping those whose base ID is already
+  // represented by a local variant item.
   for (const item of server) {
+    if (localVariantBaseIds.has(item.id)) continue;
     map.set(item.id, { ...item });
   }
+
+  // Merge local items (may override or add to map)
   for (const item of local) {
     const existing = map.get(item.id);
     if (existing) {
-      // Same product in both: take max quantity
+      // Same exact ID in both: take max quantity
       const qty = Math.max(existing.quantity, item.quantity);
       map.set(item.id, {
         ...item,
@@ -108,12 +124,16 @@ function CartWishlistSyncProvider() {
   // Guard to skip the first store subscription fire that happens right after
   // we call replaceCart / replaceWishlist during the merge phase.
   const isMerging = useRef(false);
+  // Prevent concurrent handleSignIn calls (getUser + onAuthStateChange race)
+  const isSyncing = useRef(false);
 
   const replaceCart = useCartStore((s) => s.replaceCart);
   const replaceWishlist = useWishlistStore((s) => s.replaceWishlist);
 
   // ---- Sync on auth change ----
   const handleSignIn = useCallback(async () => {
+    if (isSyncing.current) return;
+    isSyncing.current = true;
     isLoggedIn.current = true;
     isMerging.current = true;
 
@@ -148,6 +168,7 @@ function CartWishlistSyncProvider() {
       // Small delay so the subscribe callback skips the merge-triggered change
       setTimeout(() => {
         isMerging.current = false;
+        isSyncing.current = false;
       }, 100);
     }
   }, [replaceCart, replaceWishlist]);

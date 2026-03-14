@@ -197,20 +197,31 @@ function OrderDetail({ order: initialOrder }: OrderDetailProps) {
 
       {/* Shipping info */}
       <div className="mb-6">
-        <h3 className="text-sm font-medium mb-3 text-gray-600">收件資訊</h3>
+        <h3 className="text-sm font-medium mb-3 text-gray-600">
+          {order.shipping_method === 'tcat_b2s' ? '取貨門市' : '收件資訊'}
+        </h3>
         <div className="text-sm space-y-1">
           <p>
             {order.customer_name} / {order.customer_phone}
           </p>
           <p>{order.customer_email}</p>
-          {order.shipping_address && (
-            <p>
-              {order.shipping_address.postal_code && `${order.shipping_address.postal_code} `}
-              {order.shipping_address.city}
-              {order.shipping_address.district}
-              {order.shipping_address.address_line1}
-              {order.shipping_address.address_line2 && ` ${order.shipping_address.address_line2}`}
-            </p>
+          {order.shipping_method === 'tcat_b2s' ? (
+            <>
+              <p className="text-xs text-gray-400">7-11 超商取貨</p>
+              {order.store_name && <p className="font-medium">{order.store_name}</p>}
+              {order.store_id && <p className="text-gray-500">門市代號：{order.store_id}</p>}
+              {order.store_address && <p>{order.store_address}</p>}
+            </>
+          ) : (
+            order.shipping_address && (
+              <p>
+                {order.shipping_address.postal_code && `${order.shipping_address.postal_code} `}
+                {order.shipping_address.city}
+                {order.shipping_address.district}
+                {order.shipping_address.address_line1}
+                {order.shipping_address.address_line2 && ` ${order.shipping_address.address_line2}`}
+              </p>
+            )
           )}
         </div>
       </div>

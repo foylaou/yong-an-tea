@@ -102,7 +102,7 @@ function CartPageComps() {
                                                     </Link>
                                                     <h2 className="product-name">
                                                         <Link
-                                                            href={item.slug}
+                                                            href={`/products/${item.slug}`}
                                                             className="text-[14px] transition-all hover:text-primary"
                                                         >
                                                             {item.name}
@@ -207,7 +207,9 @@ function CartPageComps() {
                                                     </div>
                                                 </td>
                                                 <td className="py-4">
-                                                    {formatPrice(item.totalPrice)}
+                                                    {formatPrice(
+                                                        item.totalPrice
+                                                    )}
                                                 </td>
                                                 <td className="py-4 text-right">
                                                     <button
@@ -266,7 +268,9 @@ function CartPageComps() {
                                                     type="submit"
                                                     className=" border border-black h-[46px] px-[42px] transition-all hover:bg-[#222222] hover:text-white"
                                                 >
-                                                    {settings.cart_coupon_btn_text}
+                                                    {
+                                                        settings.cart_coupon_btn_text
+                                                    }
                                                 </button>
                                             </div>
                                         </div>
@@ -280,7 +284,9 @@ function CartPageComps() {
                                                             小計：
                                                         </span>
                                                         <span>
-                                                            {formatPrice(SubTotal)}
+                                                            {formatPrice(
+                                                                SubTotal
+                                                            )}
                                                         </span>
                                                     </li>
                                                     <li className="item flex justify-between">
@@ -288,7 +294,9 @@ function CartPageComps() {
                                                             合計：
                                                         </span>
                                                         <span>
-                                                            {formatPrice(SubTotal)}
+                                                            {formatPrice(
+                                                                SubTotal
+                                                            )}
                                                         </span>
                                                     </li>
                                                 </ul>
@@ -298,7 +306,9 @@ function CartPageComps() {
                                                     href="/checkout"
                                                     className="bg-black text-white h-[46px] leading-[46px] w-full text-center px-[42px] transition-all hover:bg-[#222222]"
                                                 >
-                                                    {settings.cart_proceed_btn_text}
+                                                    {
+                                                        settings.cart_proceed_btn_text
+                                                    }
                                                 </Link>
                                             </div>
                                         </div>

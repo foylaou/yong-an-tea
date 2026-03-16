@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import { compressImage } from '@/lib/client-image-compress';
 import dynamic from 'next/dynamic';
 import type { Area } from 'react-easy-crop';
 
@@ -54,8 +55,9 @@ export default function AdminImageUploader({
     setState('preparing');
     setError(null);
 
+    const compressed = await compressImage(file);
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('file', compressed);
 
     try {
       const res = await fetch('/api/admin/upload-prepare', {

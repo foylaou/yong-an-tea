@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import { compressImage } from '@/lib/client-image-compress';
 
 interface FileItem {
   id: string;
@@ -40,8 +41,9 @@ export function FileUploaderField({ value, onChange, label }: FileUploaderFieldP
   async function handleFile(file: File) {
     setUploading(true);
     try {
+      const compressed = await compressImage(file);
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append('file', compressed);
 
       const prepRes = await fetch('/api/admin/upload-prepare', {
         method: 'POST',

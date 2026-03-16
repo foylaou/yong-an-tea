@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import { compressImage } from '@/lib/client-image-compress';
 
 interface ImageUploadFieldProps {
   value: string;
@@ -19,8 +20,9 @@ export function ImageUploadField({ value, onChange, label }: ImageUploadFieldPro
     setUploading(true);
     setError(null);
 
+    const compressed = await compressImage(file);
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('file', compressed);
 
     try {
       // Step 1: upload-prepare

@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
     // Convert all formats to WebP via sharp
     const outputBuffer = await sharp(buffer)
       .rotate() // auto-rotate based on EXIF
-      .webp({ quality: 85 })
+      .webp({ quality: 100 })
       .toBuffer();
 
     const filePath = `${slug}/${imageType}.webp`;

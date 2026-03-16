@@ -70,7 +70,7 @@ export async function POST(request: NextRequest) {
       targets.map(async (target) => {
         const resized = await sharp(croppedBuffer)
           .resize(target.width, target.height, { fit: 'cover' })
-          .webp({ quality: 85 })
+          .webp({ quality: 100 })
           .toBuffer();
 
         const filePath = `${target.slug}/${target.imageType}.webp`;

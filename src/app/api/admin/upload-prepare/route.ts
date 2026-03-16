@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
     const processed = sharp(buffer)
       .rotate() // auto-rotate based on EXIF
       .resize(2000, 2000, { fit: 'inside', withoutEnlargement: true })
-      .webp({ quality: 85 });
+      .webp({ quality: 100 });
 
     const outputBuffer = await processed.toBuffer();
     const metadata = await sharp(outputBuffer).metadata();

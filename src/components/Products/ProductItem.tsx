@@ -104,15 +104,14 @@ function ProductItem({ product, productFilter, productFilterPath }: ProductItemP
         const cartPrice = variant
             ? (variant.discountPrice ?? variant.price)
             : (discountPrice ?? price);
-        const cartTitle = variant
-            ? `${title} - ${variant.name}`
-            : title;
         const img = getVariantImage(variant);
 
         useFlyAnimationStore.getState().trigger('cart', img, e.clientX - 30, e.clientY - 30);
         useCartStore.getState().addItemToCart({
-            id: variant ? `${id}_${variant.id}` : id,
-            title: cartTitle,
+            id,
+            variantId: variant?.id ?? null,
+            variantName: variant?.name ?? null,
+            title,
             price: cartPrice,
             quantity: quantityCount,
             totalPrice: cartPrice * quantityCount,

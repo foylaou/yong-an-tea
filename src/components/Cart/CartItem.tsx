@@ -6,6 +6,7 @@ import { formatPrice } from '../../store/settings/settings-slice';
 interface CartItemData {
     id: string;
     title: string;
+    variantName: string | null;
     quantity: number;
     price: number;
     slug: string;
@@ -21,10 +22,9 @@ function CartItem({ items }: CartGroupProps) {
     const slug = firstItem.slug;
     const image = firstItem.image;
 
-    // Extract base product name (strip variant suffix " - xxx")
-    const productName = firstItem.title.split(' - ')[0];
+    const productName = firstItem.title;
 
-    const hasVariants = items.some((item) => item.title.includes(' - '));
+    const hasVariants = items.some((item) => item.variantName);
 
     const groupTotal = items.reduce(
         (sum, item) => sum + item.price * item.quantity,
@@ -74,31 +74,21 @@ function CartItem({ items }: CartGroupProps) {
                     </div>
                     {hasVariants ? (
                         <div className="mt-[8px] space-y-[4px]">
-                            {items.map((item) => {
-                                const variantName = item.title.includes(
-                                    ' - '
-                                )
-                                    ? item.title
-                                          .split(' - ')
-                                          .slice(1)
-                                          .join(' - ')
-                                    : item.title;
-                                return (
-                                    <div
-                                        key={item.id}
-                                        className="flex justify-between text-[13px] text-[#666666]"
-                                    >
-                                        <span>
-                                            {variantName} x{item.quantity}
-                                        </span>
-                                        <span>
-                                            {formatPrice(
-                                                item.price * item.quantity
-                                            )}
-                                        </span>
-                                    </div>
-                                );
-                            })}
+                            {items.map((item) => (
+                                <div
+                                    key={item.id}
+                                    className="flex justify-between text-[13px] text-[#666666]"
+                                >
+                                    <span>
+                                        {item.variantName ?? item.title} x{item.quantity}
+                                    </span>
+                                    <span>
+                                        {formatPrice(
+                                            item.price * item.quantity
+                                        )}
+                                    </span>
+                                </div>
+                            ))}
                             <div className="flex justify-between text-[13px] font-medium pt-[6px] border-t border-[#eee]">
                                 <span>小計</span>
                                 <span>{formatPrice(groupTotal)}</span>

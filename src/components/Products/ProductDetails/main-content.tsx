@@ -83,11 +83,11 @@ function MainContent({ product }: MainContentProps) {
         const cartPrice = selectedVariant
             ? (selectedVariant.discountPrice ?? selectedVariant.price)
             : (discountPrice ?? price);
-        const cartTitle = selectedVariant
-            ? `${title} - ${selectedVariant.name}`
-            : title;
+        const cartTitle = title;
         useCartStore.getState().addItemToCart({
-            id: selectedVariant ? `${id}_${selectedVariant.id}` : id,
+            id,
+            variantId: selectedVariant?.id ?? null,
+            variantName: selectedVariant?.name ?? null,
             title: cartTitle,
             price: cartPrice,
             quantity: quantityCount,

@@ -16,12 +16,19 @@ export async function GET() {
     .select(
       `
       quantity,
+      variant_id,
       product:products (
         id,
         title,
         price,
         slug,
         sm_image
+      ),
+      variant:product_variants (
+        id,
+        name,
+        price,
+        discount_price
       )
     `
     )
@@ -33,15 +40,27 @@ export async function GET() {
 
   const items = (data ?? [])
     .filter((row: any) => row.product)
-    .map((row: any) => ({
-      id: row.product.id,
-      name: row.product.title,
-      price: Number(row.product.price),
-      quantity: row.quantity,
-      totalPrice: Number(row.product.price) * row.quantity,
-      image: row.product.sm_image ?? '',
-      slug: `/products/${row.product.slug}`,
-    }));
+    .map((row: any) => {
+      const hasVariant = row.variant != null;
+      const effectivePrice = hasVariant
+        ? Number(row.variant.discount_price ?? row.variant.price)
+        : Number(row.product.price);
+      const id = hasVariant
+        ? `${row.product.id}_${row.variant.id}`
+        : row.product.id;
+
+      return {
+        id,
+        variantId: row.variant?.id ?? null,
+        variantName: row.variant?.name ?? null,
+        name: row.product.title,
+        price: effectivePrice,
+        quantity: row.quantity,
+        totalPrice: effectivePrice * row.quantity,
+        image: row.product.sm_image ?? '',
+        slug: `/products/${row.product.slug}`,
+      };
+    });
 
   return NextResponse.json({ items });
 }
@@ -57,7 +76,8 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
-  const items: { product_id: string; quantity: number }[] = body.items ?? [];
+  const items: { product_id: string; variant_id?: string | null; quantity: number }[] =
+    body.items ?? [];
 
   // Full replacement: delete all then insert
   const { error: deleteError } = await supabase
@@ -73,6 +93,7 @@ export async function POST(request: Request) {
     const rows = items.map((item) => ({
       user_id: user.id,
       product_id: item.product_id,
+      variant_id: item.variant_id || null,
       quantity: item.quantity,
     }));
 

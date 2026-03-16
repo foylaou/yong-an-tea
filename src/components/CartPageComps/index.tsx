@@ -9,6 +9,7 @@ import {
     IoRemoveSharp,
 } from 'react-icons/io5';
 import EmptyCart from './EmptyCart';
+import type { CartItem } from '../../types';
 
 function parseJSON<T>(raw: string | undefined, fallback: T): T {
     try {
@@ -17,6 +18,34 @@ function parseJSON<T>(raw: string | undefined, fallback: T): T {
     } catch {
         return fallback;
     }
+}
+
+interface CartGroup {
+    slug: string;
+    name: string;
+    image: string;
+    items: CartItem[];
+    groupTotal: number;
+}
+
+function groupByProduct(items: CartItem[]): CartGroup[] {
+    const groups = new Map<string, CartGroup>();
+    for (const item of items) {
+        const key = item.slug.replace(/^\/products\//, '');
+        if (!groups.has(key)) {
+            groups.set(key, {
+                slug: item.slug,
+                name: item.name,
+                image: item.image,
+                items: [],
+                groupTotal: 0,
+            });
+        }
+        const group = groups.get(key)!;
+        group.items.push(item);
+        group.groupTotal += item.price * item.quantity;
+    }
+    return [...groups.values()];
 }
 
 const qtybutton = `cursor-pointer text-center absolute`;
@@ -37,7 +66,6 @@ function CartPageComps() {
             cartItems.forEach((item) => {
                 tempObj[item.id] = item.quantity;
             });
-
             setQuantityCount(tempObj);
         }
     }, [cartItems, quantityCount.empty]);
@@ -48,19 +76,74 @@ function CartPageComps() {
         }
     }, [quantityCount]);
 
-    const removeItemFromCartHandler = (id: string) => {
+    const removeItemHandler = (id: string) => {
         useCartStore.getState().removeItemFromCart(id);
+    };
+
+    const removeGroupHandler = (items: CartItem[]) => {
+        items.forEach((item) => useCartStore.getState().removeItemFromCart(item.id));
     };
 
     const clearAllItemHandler = () => {
         useCartStore.getState().clearAllFromCart();
     };
 
-    const initialValue = 0;
     const SubTotal = cartItems.reduce(
-        (accumulator, current) =>
-            accumulator + current.price * current.quantity,
-        initialValue
+        (acc, cur) => acc + cur.price * cur.quantity,
+        0
+    );
+
+    const grouped = groupByProduct(cartItems);
+
+    const linkPath = (slug: string) =>
+        slug.startsWith('/products/') ? slug : `/products/${slug}`;
+
+    // Quantity control helpers
+    const decQty = (id: string) => {
+        setQuantityCount((prev) => ({
+            ...prev,
+            [id]: (prev[id] as number) > 1 ? (prev[id] as number) - 1 : 1,
+        }));
+    };
+    const incQty = (id: string) => {
+        setQuantityCount((prev) => ({
+            ...prev,
+            [id]: (prev[id] as number) + 1,
+        }));
+    };
+    const changeQty = (id: string, value: string) => {
+        const num = Number(value);
+        if (!isNaN(num) && num >= 0) {
+            setQuantityCount((prev) => ({ ...prev, [id]: num }));
+        }
+    };
+
+    const renderQtyControl = (item: CartItem) => (
+        <div className={`${qtyButtonWrap}`}>
+            <div className="flex justify-center w-[120px]">
+                <button
+                    type="button"
+                    className={`${qtybutton} dec top-1/2 -translate-y-1/2 left-[4px]`}
+                    onClick={() => decQty(item.id)}
+                >
+                    <IoRemoveSharp />
+                </button>
+                <input
+                    className="qty-input outline-hidden text-center w-[100px] px-[15px] h-[46px] leading-[40px]"
+                    type="number"
+                    name="qtybutton"
+                    value={(quantityCount[item.id] as number) || item.quantity}
+                    onChange={(e) => changeQty(item.id, e.target.value)}
+                />
+                <button
+                    type="button"
+                    className={`${qtybutton} inc top-1/2 -translate-y-1/2 right-[4px]`}
+                    onClick={() => incQty(item.id)}
+                >
+                    <IoAddSharp />
+                </button>
+            </div>
+        </div>
     );
 
     return (
@@ -68,7 +151,7 @@ function CartPageComps() {
             <div className="container">
                 {cartItems.length <= 0 && <EmptyCart />}
                 {cartItems.length <= 0 ||
-                    (initialValue === 0 && (
+                    (SubTotal >= 0 && (
                         <>
                             <div className="relative overflow-x-auto">
                                 <table className="cart-table w-full text-sm text-left">
@@ -87,146 +170,78 @@ function CartPageComps() {
                                             )}
                                         </tr>
                                     </thead>
-                                    {cartItems.map((item) => (
-                                        <tbody key={item.id}>
-                                            <tr className="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                                                <td className="py-4 product-name pr-[25px] flex items-center font-medium text-gray-900 dark:text-white whitespace-nowrap">
-                                                    <Link
-                                                        href={item.slug}
-                                                        className="product-img w-[100px]"
-                                                    >
-                                                        <img
-                                                            src={item.image}
-                                                            alt={item.name}
-                                                        />
-                                                    </Link>
-                                                    <h2 className="product-name">
-                                                        <Link
-                                                            href={`${item.slug}`}
-                                                            className="text-[14px] transition-all hover:text-primary"
-                                                        >
-                                                            {item.name}
-                                                        </Link>
-                                                    </h2>
-                                                </td>
-                                                <td className="py-4">
-                                                    {formatPrice(item.price)}
-                                                </td>
-                                                <td className="py-4">
-                                                    <div
-                                                        className={`${qtyButtonWrap} mr-[15px]`}
-                                                    >
-                                                        <div className="flex justify-center w-[120px]">
-                                                            <button
-                                                                type="button"
-                                                                className={`${qtybutton} dec top-1/2 -translate-y-1/2 left-[4px]`}
-                                                                onClick={() => {
-                                                                    setQuantityCount(
-                                                                        (
-                                                                            prevData
-                                                                        ) => ({
-                                                                            ...prevData,
-                                                                            [item.id]:
-                                                                                (prevData[
-                                                                                    item
-                                                                                        .id
-                                                                                ] as number) >
-                                                                                0
-                                                                                    ? (prevData[
-                                                                                          item
-                                                                                              .id
-                                                                                      ] as number) -
-                                                                                      1
-                                                                                    : prevData[
-                                                                                          item
-                                                                                              .id
-                                                                                      ],
-                                                                        })
-                                                                    );
-                                                                }}
-                                                            >
-                                                                <IoRemoveSharp />
+                                    <tbody>
+                                        {grouped.map((group) => {
+                                            const hasVariants = group.items.some((i) => i.variantName);
+
+                                            if (!hasVariants) {
+                                                // Single item, no variants — original row
+                                                const item = group.items[0];
+                                                return (
+                                                    <tr key={item.id} className="bg-white border-b">
+                                                        <td className="py-4 product-name pr-[25px] flex items-center font-medium text-gray-900 whitespace-nowrap">
+                                                            <Link href={linkPath(item.slug)} className="product-img w-[100px]">
+                                                                <img src={item.image} alt={item.name} />
+                                                            </Link>
+                                                            <h2 className="product-name">
+                                                                <Link href={linkPath(item.slug)} className="text-[14px] transition-all hover:text-primary">
+                                                                    {item.name}
+                                                                </Link>
+                                                            </h2>
+                                                        </td>
+                                                        <td className="py-4">{formatPrice(item.price)}</td>
+                                                        <td className="py-4">{renderQtyControl(item)}</td>
+                                                        <td className="py-4">{formatPrice(item.price * ((quantityCount[item.id] as number) || item.quantity))}</td>
+                                                        <td className="py-4 text-right">
+                                                            <button type="button" className="item-remove flex items-start text-[20px]" onClick={() => removeItemHandler(item.id)}>
+                                                                <IoCloseOutline />
                                                             </button>
-                                                            <input
-                                                                className="qty-input outline-hidden text-center w-[100px] px-[15px] h-[46px] leading-[40px]"
-                                                                type="number"
-                                                                name="qtybutton"
-                                                                value={
-                                                                    (quantityCount[
-                                                                        item.id
-                                                                    ] as number) ||
-                                                                    item.quantity
-                                                                }
-                                                                onChange={(
-                                                                    e
-                                                                ) => {
-                                                                    const userInput =
-                                                                        Number(
-                                                                            e
-                                                                                .target
-                                                                                .value
-                                                                        );
-                                                                    if (
-                                                                        userInput.toString() !==
-                                                                        'NaN'
-                                                                    ) {
-                                                                        setQuantityCount(
-                                                                            (
-                                                                                prevData
-                                                                            ) => ({
-                                                                                ...prevData,
-                                                                                [item.id]:
-                                                                                    userInput,
-                                                                            })
-                                                                        );
-                                                                    }
-                                                                }}
-                                                            />
-                                                            <button
-                                                                type="button"
-                                                                className={`${qtybutton} inc top-1/2 -translate-y-1/2 right-[4px]`}
-                                                                onClick={() => {
-                                                                    setQuantityCount(
-                                                                        (
-                                                                            prevData
-                                                                        ) => ({
-                                                                            ...prevData,
-                                                                            [item.id]:
-                                                                                (prevData[
-                                                                                    item
-                                                                                        .id
-                                                                                ] as number) +
-                                                                                1,
-                                                                        })
-                                                                    );
-                                                                }}
-                                                            >
-                                                                <IoAddSharp />
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td className="py-4">
-                                                    {formatPrice(
-                                                        item.totalPrice
-                                                    )}
-                                                </td>
-                                                <td className="py-4 text-right">
-                                                    <button
-                                                        type="button"
-                                                        className="item-remove flex items-start text-[20px]"
-                                                        onClick={() =>
-                                                            removeItemFromCartHandler(
-                                                                item.id
-                                                            )
-                                                        }
-                                                    >
-                                                        <IoCloseOutline />
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    ))}
+                                                        </td>
+                                                    </tr>
+                                                );
+                                            }
+
+                                            // Variant group
+                                            return group.items.map((item, idx) => (
+                                                <tr key={item.id} className={`bg-white ${idx === group.items.length - 1 ? 'border-b' : ''}`}>
+                                                    {idx === 0 ? (
+                                                        <td rowSpan={group.items.length} className="py-4 product-name pr-[25px] font-medium text-gray-900 whitespace-nowrap align-top">
+                                                            <div className="flex items-start">
+                                                                <Link href={linkPath(group.slug)} className="product-img w-[100px] shrink-0">
+                                                                    <img src={group.image} alt={group.name} />
+                                                                </Link>
+                                                                <div className="pl-[10px]">
+                                                                    <h2 className="product-name">
+                                                                        <Link href={linkPath(group.slug)} className="text-[14px] transition-all hover:text-primary">
+                                                                            {group.name}
+                                                                        </Link>
+                                                                    </h2>
+                                                                    <button
+                                                                        type="button"
+                                                                        className="text-[12px] text-[#999999] mt-[4px] transition-all hover:text-red-500"
+                                                                        onClick={() => removeGroupHandler(group.items)}
+                                                                    >
+                                                                        移除全部規格
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    ) : null}
+                                                    <td className="py-3">
+                                                        <div className="text-[13px] text-[#666666] mb-[2px]">{item.variantName}</div>
+                                                        {formatPrice(item.price)}
+                                                    </td>
+                                                    <td className="py-3">{renderQtyControl(item)}</td>
+                                                    <td className="py-3">{formatPrice(item.price * ((quantityCount[item.id] as number) || item.quantity))}</td>
+                                                    <td className="py-3 text-right">
+                                                        <button type="button" className="item-remove flex items-start text-[20px]" onClick={() => removeItemHandler(item.id)}>
+                                                            <IoCloseOutline />
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ));
+                                        })}
+                                    </tbody>
                                 </table>
                             </div>
                             <div className="group-btn flex justify-between pt-[50px]">
@@ -268,9 +283,7 @@ function CartPageComps() {
                                                     type="submit"
                                                     className=" border border-black h-[46px] px-[42px] transition-all hover:bg-[#222222] hover:text-white"
                                                 >
-                                                    {
-                                                        settings.cart_coupon_btn_text
-                                                    }
+                                                    {settings.cart_coupon_btn_text}
                                                 </button>
                                             </div>
                                         </div>
@@ -280,24 +293,12 @@ function CartPageComps() {
                                             <div className="border border-[#bfbfbf] bg-[#f9f9f9] px-[30px]">
                                                 <ul className="content py-[30px]">
                                                     <li className="item flex justify-between border-b border-[#cdcdcd] pb-[16px] mb-[17px]">
-                                                        <span className="font-bold">
-                                                            小計：
-                                                        </span>
-                                                        <span>
-                                                            {formatPrice(
-                                                                SubTotal
-                                                            )}
-                                                        </span>
+                                                        <span className="font-bold">小計：</span>
+                                                        <span>{formatPrice(SubTotal)}</span>
                                                     </li>
                                                     <li className="item flex justify-between">
-                                                        <span className="font-bold">
-                                                            合計：
-                                                        </span>
-                                                        <span>
-                                                            {formatPrice(
-                                                                SubTotal
-                                                            )}
-                                                        </span>
+                                                        <span className="font-bold">合計：</span>
+                                                        <span>{formatPrice(SubTotal)}</span>
                                                     </li>
                                                 </ul>
                                             </div>
@@ -306,9 +307,7 @@ function CartPageComps() {
                                                     href="/checkout"
                                                     className="bg-black text-white h-[46px] leading-[46px] w-full text-center px-[42px] transition-all hover:bg-[#222222]"
                                                 >
-                                                    {
-                                                        settings.cart_proceed_btn_text
-                                                    }
+                                                    {settings.cart_proceed_btn_text}
                                                 </Link>
                                             </div>
                                         </div>

@@ -14,20 +14,8 @@ function mergeCartItems(
 ): CartItem[] {
   const map = new Map<string, CartItem>();
 
-  // Collect base product IDs that exist as variants in local cart.
-  // Server only stores base IDs, so we must skip them when the local
-  // store already carries more-specific variant entries.
-  const localVariantBaseIds = new Set<string>();
-  for (const item of local) {
-    if (item.id.includes('_')) {
-      localVariantBaseIds.add(item.id.split('_')[0]);
-    }
-  }
-
-  // Add server items first, skipping those whose base ID is already
-  // represented by a local variant item.
+  // Add server items first
   for (const item of server) {
-    if (localVariantBaseIds.has(item.id)) continue;
     map.set(item.id, { ...item });
   }
 
@@ -68,22 +56,21 @@ function mergeWishlistItems(
 // --------------- server push / pull ---------------
 
 async function pushCartToServer(items: CartItem[]) {
-  // Variant cart items have compound id "productId_variantId".
-  // Aggregate quantities by base product_id so the FK to products stays valid.
-  const agg = new Map<string, number>();
-  for (const item of items) {
-    const baseId = item.id.includes('_') ? item.id.split('_')[0] : item.id;
-    agg.set(baseId, (agg.get(baseId) ?? 0) + item.quantity);
-  }
-
   await fetch('/api/cart', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      items: [...agg.entries()].map(([product_id, quantity]) => ({
-        product_id,
-        quantity,
-      })),
+      items: items.map((item) => {
+        // Extract base product_id from compound id
+        const product_id = item.id.includes('_')
+          ? item.id.split('_')[0]
+          : item.id;
+        return {
+          product_id,
+          variant_id: item.variantId,
+          quantity: item.quantity,
+        };
+      }),
     }),
   });
 }

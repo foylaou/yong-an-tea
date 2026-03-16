@@ -417,13 +417,11 @@ function Checkout({ checkoutItems }: CheckoutProps) {
                                                                         scope="row"
                                                                         className="py-[15px] font-normal whitespace-nowrap"
                                                                     >
-                                                                        {
-                                                                            item.name
-                                                                        }{' '}
-                                                                        X
-                                                                        {
-                                                                            item.quantity
-                                                                        }
+                                                                        {item.name}
+                                                                        {item.variantName && (
+                                                                            <span className="text-[#999999]"> - {item.variantName}</span>
+                                                                        )}
+                                                                        {' '}X{item.quantity}
                                                                     </th>
                                                                     <td className="py-[15px] text-right">
                                                                         {formatPrice(item.price)}

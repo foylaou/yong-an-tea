@@ -4,12 +4,19 @@ import type { CartItem, CartState } from '../../types';
 
 interface AddToCartPayload {
     id: string;
+    variantId?: string | null;
+    variantName?: string | null;
     title: string;
     price: number;
     quantity?: number;
     totalPrice?: number;
     image: string;
     slug: string;
+}
+
+/** Unique key for a cart item: product_id or product_id_variant_id */
+function cartKey(id: string, variantId?: string | null): string {
+    return variantId ? `${id}_${variantId}` : id;
 }
 
 interface CartActions {
@@ -36,8 +43,9 @@ export const useCartStore = create<CartState & CartActions>()(
 
             addItemToCart: (payload) =>
                 set((state) => {
+                    const key = cartKey(payload.id, payload.variantId);
                     const existingItem = state.items.find(
-                        (item) => item.id === payload.id
+                        (item) => item.id === key
                     );
                     const itemQuantity = payload.quantity || 1;
 
@@ -48,7 +56,9 @@ export const useCartStore = create<CartState & CartActions>()(
                             items: [
                                 ...state.items,
                                 {
-                                    id: payload.id,
+                                    id: key,
+                                    variantId: payload.variantId ?? null,
+                                    variantName: payload.variantName ?? null,
                                     price: payload.price,
                                     quantity: itemQuantity,
                                     totalPrice: payload.price * itemQuantity,
@@ -65,7 +75,7 @@ export const useCartStore = create<CartState & CartActions>()(
                         totalQuantity: state.totalQuantity + itemQuantity,
                         changed: true,
                         items: state.items.map((item) =>
-                            item.id === payload.id
+                            item.id === key
                                 ? {
                                       ...item,
                                       quantity: item.quantity + itemQuantity,

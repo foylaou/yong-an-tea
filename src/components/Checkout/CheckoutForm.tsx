@@ -208,7 +208,9 @@ function CheckoutForm({ addresses, shippingSettings, paymentToggles, userEmail, 
         body: JSON.stringify({
           code: couponCode.trim(),
           subtotal,
-          product_ids: cartItems.map((item) => item.id),
+          product_ids: cartItems.map((item) =>
+            item.id.includes('_') ? item.id.split('_')[0] : item.id
+          ),
         }),
       });
 
@@ -263,7 +265,8 @@ function CheckoutForm({ addresses, shippingSettings, paymentToggles, userEmail, 
           note: formData.note || '',
           save_address: formData.save_address || false,
           items: cartItems.map((item) => ({
-            product_id: item.id,
+            product_id: item.id.includes('_') ? item.id.split('_')[0] : item.id,
+            variant_id: item.variantId ?? undefined,
             quantity: item.quantity,
           })),
           ...(appliedCoupon && { coupon_code: appliedCoupon.code }),

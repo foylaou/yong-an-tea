@@ -11,14 +11,15 @@ interface CartProps {
 
 const minicartGroupBtn = `flex items-center justify-center border border-[#222222]  w-full h-[50px]`;
 
-function groupByProduct(items: { id: string; name: string; quantity: number; totalPrice: number; price: number; slug: string; image: string }[]) {
-    const groups = new Map<string, { id: string; title: string; quantity: number; price: number; slug: string; image: string }[]>();
+function groupByProduct(items: { id: string; name: string; variantName: string | null; quantity: number; totalPrice: number; price: number; slug: string; image: string }[]) {
+    const groups = new Map<string, { id: string; title: string; variantName: string | null; quantity: number; price: number; slug: string; image: string }[]>();
     for (const item of items) {
         const key = item.slug.replace(/^\/products\//, '');
         if (!groups.has(key)) groups.set(key, []);
         groups.get(key)!.push({
             id: item.id,
             title: item.name,
+            variantName: item.variantName,
             quantity: item.quantity,
             price: item.price,
             slug: item.slug,
@@ -54,14 +55,14 @@ function Cart({ minicart, showMiniCart }: CartProps) {
                         onClick={showMiniCart}
                     />
                 </div>
-                <div className="minicart-body pt-[25px]">
-                    <div className="minicart-container">
+                <div className="minicart-body pt-[25px] flex flex-col flex-1 min-h-0">
+                    <div className="minicart-container flex flex-col flex-1 min-h-0">
                         {cartItems.length <= 0 && (
                             <h2 className="text-[20px]">
                                 您的購物車目前是空的。
                             </h2>
                         )}
-                        <ul className="overflow-auto max-h-[205px]">
+                        <ul className="overflow-auto flex-1 min-h-0">
                             {grouped.map((group) => (
                                 <CartItem
                                     key={group.map((i) => i.id).join('_')}
@@ -71,12 +72,12 @@ function Cart({ minicart, showMiniCart }: CartProps) {
                         </ul>
                         {cartItems.length <= 0 ||
                             (SubTotal >= 0 && (
-                                <>
-                                    <div className="minicart-subtotal flex justify-between text-[24px] font-medium pt-[40px]">
+                                <div className="mt-auto pt-[20px]">
+                                    <div className="minicart-subtotal flex justify-between text-[24px] font-medium">
                                         <span>小計：</span>
                                         <span>{formatPrice(SubTotal)}</span>
                                     </div>
-                                    <ul className="minicart-group-btn pt-[40px]">
+                                    <ul className="minicart-group-btn pt-[20px]">
                                         <li className="mb-[15px]">
                                             <Link
                                                 href="/cart"
@@ -94,7 +95,7 @@ function Cart({ minicart, showMiniCart }: CartProps) {
                                             </Link>
                                         </li>
                                     </ul>
-                                </>
+                                </div>
                             ))}
                     </div>
                 </div>

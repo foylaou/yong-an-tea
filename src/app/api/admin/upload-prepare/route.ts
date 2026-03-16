@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import sharp from 'sharp';
 
+
 const ALLOWED_TYPES = [
   'image/jpeg',
   'image/png',

@@ -114,6 +114,7 @@ function ProductItem({ product, productFilter, productFilterPath }: ProductItemP
             title,
             price: cartPrice,
             quantity: quantityCount,
+            maxQty: (product as any)?.maxQty || 0,
             totalPrice: cartPrice * quantityCount,
             image: img,
             slug: `/products/${product?.slug}`,

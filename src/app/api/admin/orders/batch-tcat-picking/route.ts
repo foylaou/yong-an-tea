@@ -152,20 +152,16 @@ export async function POST(request: NextRequest) {
       if (t === '0002' && orderThermosphere !== '0003') orderThermosphere = '0002';
     }
 
-    const detailBody: PickingDetailBody[] = items.map((item: any) => {
-      const name = item.variant_label
+    const detailBody: PickingDetailBody[] = items.map((item: any) => ({
+      orderId: order.order_number,
+      productTypeId: ProductTypeId.GeneralFood,
+      productName: item.variant_label
         ? `${item.product_title} - ${item.variant_label}`
-        : (item.product_title || '商品');
-      console.log('[tcat-picking] item:', item.product_title, 'variant_label:', item.variant_label, '→', name);
-      return {
-        orderId: order.order_number,
-        productTypeId: ProductTypeId.GeneralFood,
-        productName: name,
-        quantity: item.quantity,
-        price: Number(item.price),
-        amount: Number(item.subtotal),
-      };
-    });
+        : (item.product_title || '商品'),
+      quantity: item.quantity,
+      price: Number(item.price),
+      amount: Number(item.subtotal),
+    }));
 
     const totalQuantity = items.reduce((sum: number, i: any) => sum + i.quantity, 0);
 

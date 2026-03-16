@@ -91,6 +91,7 @@ function MainContent({ product }: MainContentProps) {
             title: cartTitle,
             price: cartPrice,
             quantity: quantityCount,
+            maxQty: maxQty || 0,
             totalPrice: cartPrice * quantityCount,
             image: img,
             slug: `/products/${product?.slug}`,

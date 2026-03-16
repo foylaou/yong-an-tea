@@ -15,6 +15,7 @@ export interface Product {
     category: string;
     availability: string;
     stockQty: number;
+    variantStockMode?: 'shared' | 'independent';
     tag: string;
     isFeatured?: boolean;
     soldOutSticker?: string;

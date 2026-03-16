@@ -140,7 +140,7 @@ export async function validateCartItems(
 
   const { data: products, error } = await supabase
     .from('products')
-    .select('id, title, sm_image, price, stock_qty, availability, is_active')
+    .select('id, title, sm_image, price, stock_qty, variant_stock_mode, availability, is_active')
     .in('id', productIds);
 
   if (error) {
@@ -168,6 +168,18 @@ export async function validateCartItems(
   const validatedItems: ValidatedCartItem[] = [];
   let subtotal = 0;
 
+  // Pre-calculate total quantity per product (for shared stock mode)
+  const productTotalQty = new Map<string, number>();
+  for (const item of items) {
+    productTotalQty.set(
+      item.product_id,
+      (productTotalQty.get(item.product_id) ?? 0) + item.quantity
+    );
+  }
+
+  // Track which products already had shared stock checked
+  const sharedStockChecked = new Set<string>();
+
   for (const item of items) {
     const product = productMap.get(item.product_id) as Record<string, unknown> | undefined;
 
@@ -181,6 +193,7 @@ export async function validateCartItems(
       continue;
     }
 
+    const stockMode = (product.variant_stock_mode as string) || 'shared';
     let price: number;
 
     if (item.variant_id) {
@@ -193,10 +206,25 @@ export async function validateCartItems(
         errors.push(`變體已下架: ${product.title} - ${variant.name}`);
         continue;
       }
-      if ((variant.stock_qty as number) < item.quantity) {
-        errors.push(`變體庫存不足: ${product.title} - ${variant.name}（剩餘 ${variant.stock_qty}）`);
-        continue;
+
+      if (stockMode === 'independent') {
+        // Independent: check variant stock
+        if ((variant.stock_qty as number) < item.quantity) {
+          errors.push(`庫存不足: ${product.title} - ${variant.name}（剩餘 ${variant.stock_qty}）`);
+          continue;
+        }
+      } else {
+        // Shared: check product stock with total qty (only once per product)
+        if (!sharedStockChecked.has(item.product_id)) {
+          sharedStockChecked.add(item.product_id);
+          const totalQty = productTotalQty.get(item.product_id) ?? 0;
+          if ((product.stock_qty as number) < totalQty) {
+            errors.push(`庫存不足: ${product.title}（剩餘 ${product.stock_qty}，需要 ${totalQty}）`);
+            continue;
+          }
+        }
       }
+
       price = Number(variant.discount_price ?? variant.price);
     } else {
       if ((product.stock_qty as number) < item.quantity) {

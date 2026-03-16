@@ -9,6 +9,7 @@ interface AddToCartPayload {
     title: string;
     price: number;
     quantity?: number;
+    maxQty?: number;
     totalPrice?: number;
     image: string;
     slug: string;
@@ -47,9 +48,11 @@ export const useCartStore = create<CartState & CartActions>()(
                     const existingItem = state.items.find(
                         (item) => item.id === key
                     );
-                    const itemQuantity = payload.quantity || 1;
+                    const maxQty = payload.maxQty && payload.maxQty > 0 ? payload.maxQty : Infinity;
+                    let itemQuantity = payload.quantity || 1;
 
                     if (!existingItem) {
+                        itemQuantity = Math.min(itemQuantity, maxQty);
                         return {
                             totalQuantity: state.totalQuantity + itemQuantity,
                             changed: true,
@@ -70,17 +73,20 @@ export const useCartStore = create<CartState & CartActions>()(
                         };
                     }
 
-                    // 已在購物車中，累加數量
+                    // 已在購物車中，累加數量但不超過上限
+                    const newQty = Math.min(existingItem.quantity + itemQuantity, maxQty);
+                    const added = newQty - existingItem.quantity;
+                    if (added <= 0) return state;
+
                     return {
-                        totalQuantity: state.totalQuantity + itemQuantity,
+                        totalQuantity: state.totalQuantity + added,
                         changed: true,
                         items: state.items.map((item) =>
                             item.id === key
                                 ? {
                                       ...item,
-                                      quantity: item.quantity + itemQuantity,
-                                      totalPrice:
-                                          (item.quantity + itemQuantity) * item.price,
+                                      quantity: newQty,
+                                      totalPrice: newQty * item.price,
                                   }
                                 : item
                         ),

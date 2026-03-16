@@ -123,6 +123,9 @@ export default function ProductForm({ categories, initialData, isEdit = false }:
       image_index: v.image_index ?? null,
     })) || []
   );
+  const [variantStockMode, setVariantStockMode] = useState<'shared' | 'independent'>(
+    initialData?.variant_stock_mode || 'shared'
+  );
   const addVariant = () => setVariants([...variants, { name: '', price: 0, discount_price: null, stock_qty: 0, sku: '', image_index: null }]);
   const removeVariant = (idx: number) => setVariants(variants.filter((_, i) => i !== idx));
   const updateVariant = (idx: number, field: keyof Variant, val: string | number | null) => {
@@ -150,7 +153,7 @@ export default function ProductForm({ categories, initialData, isEdit = false }:
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...data, variants, gallery_images: galleryImages }),
+        body: JSON.stringify({ ...data, variant_stock_mode: variantStockMode, variants, gallery_images: galleryImages }),
       });
 
       const result = await res.json();
@@ -366,6 +369,36 @@ export default function ProductForm({ categories, initialData, isEdit = false }:
         <p className="mb-3 text-xs text-gray-400">
           例如：罐裝 $500、無罐裝 $400。未選擇時前台顯示價格區間。
         </p>
+        {variants.length > 0 && (
+          <div className="mb-4 rounded-md border border-gray-200 bg-gray-50 p-3">
+            <label className="mb-2 block text-xs font-medium text-gray-600">庫存管理方式</label>
+            <div className="flex gap-4">
+              <label className="flex items-center gap-2 text-sm cursor-pointer">
+                <input
+                  type="radio"
+                  name="variant_stock_mode"
+                  value="shared"
+                  checked={variantStockMode === 'shared'}
+                  onChange={() => setVariantStockMode('shared')}
+                  className="w-4 h-4"
+                />
+                <span>與商品共用庫存</span>
+                <span className="text-xs text-gray-400">（所有規格共用商品庫存{watch('stock_qty') ?? 0}）</span>
+              </label>
+              <label className="flex items-center gap-2 text-sm cursor-pointer">
+                <input
+                  type="radio"
+                  name="variant_stock_mode"
+                  value="independent"
+                  checked={variantStockMode === 'independent'}
+                  onChange={() => setVariantStockMode('independent')}
+                  className="w-4 h-4"
+                />
+                <span>各規格獨立庫存</span>
+              </label>
+            </div>
+          </div>
+        )}
         {variants.length === 0 && (
           <p className="text-sm text-gray-400">尚未新增變體（使用主商品價格）</p>
         )}
@@ -401,16 +434,18 @@ export default function ProductForm({ categories, initialData, isEdit = false }:
                   className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                 />
               </div>
-              <div className="w-20">
-                {idx === 0 && <label className="mb-1 block text-xs font-medium text-gray-500">庫存</label>}
-                <input
-                  type="number"
-                  min="0"
-                  value={v.stock_qty}
-                  onChange={(e) => updateVariant(idx, 'stock_qty', Number(e.target.value))}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                />
-              </div>
+              {variantStockMode === 'independent' && (
+                <div className="w-20">
+                  {idx === 0 && <label className="mb-1 block text-xs font-medium text-gray-500">庫存</label>}
+                  <input
+                    type="number"
+                    min="0"
+                    value={v.stock_qty}
+                    onChange={(e) => updateVariant(idx, 'stock_qty', Number(e.target.value))}
+                    className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  />
+                </div>
+              )}
               <div className="w-28">
                 {idx === 0 && <label className="mb-1 block text-xs font-medium text-gray-500">SKU</label>}
                 <input

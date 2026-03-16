@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { updateOrderStatusSchema } from '@/lib/validations/order';
 import { sendEmail } from '@/lib/email';
 import { shippingNotificationEmail } from '@/lib/email-templates';
@@ -152,6 +153,16 @@ export async function PUT(
 
   if (updateError) {
     return NextResponse.json({ error: updateError.message }, { status: 500 });
+  }
+
+  // Restore stock on cancellation or refund
+  if (result.data.status === 'cancelled' || result.data.status === 'refunded') {
+    try {
+      const adminDb = createAdminClient();
+      await adminDb.rpc('restore_order_stock', { p_order_id: id });
+    } catch (err) {
+      console.error('Failed to restore stock:', err);
+    }
   }
 
   // Send shipping notification email (non-blocking)

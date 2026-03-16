@@ -134,7 +134,9 @@ export async function POST(
   const detailBody: PickingDetailBody[] = items.map((item: any) => ({
     orderId: order.order_number,
     productTypeId: body.productTypeId || ProductTypeId.GeneralFood,
-    productName: item.product_title || '商品',
+    productName: item.variant_label
+      ? `${item.product_title} - ${item.variant_label}`
+      : (item.product_title || '商品'),
     quantity: item.quantity,
     price: Number(item.price),
     amount: Number(item.subtotal),
@@ -167,7 +169,7 @@ export async function POST(
           isCollection: order.payment_method === 'cod' ? 'Y' : 'N',
           collectionAmount: order.payment_method === 'cod' ? Number(order.total) : 0,
           productName: items.length === 1
-            ? items[0].product_title
+            ? (items[0].variant_label ? `${items[0].product_title} - ${items[0].variant_label}` : items[0].product_title)
             : `${items[0]?.product_title || '商品'} 等${items.length}項`,
           memo: order.note || '',
           detail: {

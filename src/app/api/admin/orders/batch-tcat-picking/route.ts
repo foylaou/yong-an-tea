@@ -152,14 +152,20 @@ export async function POST(request: NextRequest) {
       if (t === '0002' && orderThermosphere !== '0003') orderThermosphere = '0002';
     }
 
-    const detailBody: PickingDetailBody[] = items.map((item: any) => ({
-      orderId: order.order_number,
-      productTypeId: ProductTypeId.GeneralFood,
-      productName: item.product_title || '商品',
-      quantity: item.quantity,
-      price: Number(item.price),
-      amount: Number(item.subtotal),
-    }));
+    const detailBody: PickingDetailBody[] = items.map((item: any) => {
+      const name = item.variant_label
+        ? `${item.product_title} - ${item.variant_label}`
+        : (item.product_title || '商品');
+      console.log('[tcat-picking] item:', item.product_title, 'variant_label:', item.variant_label, '→', name);
+      return {
+        orderId: order.order_number,
+        productTypeId: ProductTypeId.GeneralFood,
+        productName: name,
+        quantity: item.quantity,
+        price: Number(item.price),
+        amount: Number(item.subtotal),
+      };
+    });
 
     const totalQuantity = items.reduce((sum: number, i: any) => sum + i.quantity, 0);
 
@@ -183,7 +189,7 @@ export async function POST(request: NextRequest) {
       isCollection: order.payment_method === 'cod' ? 'Y' as const : 'N' as const,
       collectionAmount: order.payment_method === 'cod' ? Number(order.total) : 0,
       productName: items.length === 1
-        ? items[0].product_title
+        ? (items[0].variant_label ? `${items[0].product_title} - ${items[0].variant_label}` : items[0].product_title)
         : `${items[0]?.product_title || '商品'} 等${items.length}項`,
       memo: order.note || '',
       detail: {

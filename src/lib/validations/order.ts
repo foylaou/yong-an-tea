@@ -66,6 +66,7 @@ export const createOrderApiSchema = z.object({
   save_address: z.boolean().optional().default(false),
   items: z.array(z.object({
     product_id: z.string().uuid(),
+    variant_id: z.string().uuid().optional(),
     quantity: z.number().int().min(1),
   })).min(1, '購物車不能為空'),
   coupon_code: z.string().optional(),

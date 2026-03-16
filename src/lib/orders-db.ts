@@ -111,11 +111,13 @@ export function calculateShippingFee(
 
 export interface CartItemInput {
   product_id: string;
+  variant_id?: string;
   quantity: number;
 }
 
 export interface ValidatedCartItem {
   product_id: string;
+  variant_id?: string;
   product_title: string;
   product_image: string | null;
   price: number;
@@ -146,6 +148,19 @@ export async function validateCartItems(
     return { valid: false, items: [], subtotal: 0, errors: ['無法驗證商品資料'] };
   }
 
+  // Fetch variants if any items reference them
+  const variantIds = items.map((i) => i.variant_id).filter(Boolean) as string[];
+  let variantMap = new Map<string, Record<string, unknown>>();
+  if (variantIds.length > 0) {
+    const { data: variants } = await supabase
+      .from('product_variants')
+      .select('id, name, price, discount_price, stock_qty, is_active, product_id')
+      .in('id', variantIds);
+    variantMap = new Map(
+      (variants ?? []).map((v: Record<string, unknown>) => [v.id as string, v])
+    );
+  }
+
   const productMap = new Map(
     (products ?? []).map((p: Record<string, unknown>) => [p.id as string, p])
   );
@@ -166,17 +181,37 @@ export async function validateCartItems(
       continue;
     }
 
-    if ((product.stock_qty as number) < item.quantity) {
-      errors.push(`庫存不足: ${product.title}（剩餘 ${product.stock_qty}）`);
-      continue;
+    let price: number;
+
+    if (item.variant_id) {
+      const variant = variantMap.get(item.variant_id) as Record<string, unknown> | undefined;
+      if (!variant) {
+        errors.push(`變體不存在: ${product.title}`);
+        continue;
+      }
+      if (!variant.is_active) {
+        errors.push(`變體已下架: ${product.title} - ${variant.name}`);
+        continue;
+      }
+      if ((variant.stock_qty as number) < item.quantity) {
+        errors.push(`變體庫存不足: ${product.title} - ${variant.name}（剩餘 ${variant.stock_qty}）`);
+        continue;
+      }
+      price = Number(variant.discount_price ?? variant.price);
+    } else {
+      if ((product.stock_qty as number) < item.quantity) {
+        errors.push(`庫存不足: ${product.title}（剩餘 ${product.stock_qty}）`);
+        continue;
+      }
+      price = Number(product.price);
     }
 
-    const price = Number(product.price);
     const itemSubtotal = price * item.quantity;
     subtotal += itemSubtotal;
 
     validatedItems.push({
       product_id: item.product_id,
+      variant_id: item.variant_id,
       product_title: product.title as string,
       product_image: (product.sm_image as string) || null,
       price,

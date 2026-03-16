@@ -592,16 +592,44 @@ function CheckoutForm({ addresses, shippingSettings, paymentToggles, userEmail, 
                       </tr>
                     </thead>
                     <tbody className="border-t border-[#cdcdcd]">
-                      {cartItems.map((item) => (
-                        <tr key={item.id} className="border-t border-[#cdcdcd]">
-                          <td className="py-[15px] font-normal">
-                            {item.name} x {item.quantity}
-                          </td>
-                          <td className="py-[15px] text-right">
-                            {formatPrice(item.price * item.quantity)}
-                          </td>
-                        </tr>
-                      ))}
+                      {(() => {
+                        const groups = new Map<string, { name: string; items: typeof cartItems; total: number }>();
+                        for (const item of cartItems) {
+                          const key = item.slug.replace(/^\/products\//, '');
+                          if (!groups.has(key)) groups.set(key, { name: item.name, items: [], total: 0 });
+                          const g = groups.get(key)!;
+                          g.items.push(item);
+                          g.total += item.price * item.quantity;
+                        }
+                        return [...groups.values()].map((group) => {
+                          const hasVariants = group.items.some((i) => i.variantName);
+                          if (!hasVariants) {
+                            const item = group.items[0];
+                            return (
+                              <tr key={item.id} className="border-t border-[#cdcdcd]">
+                                <td className="py-[15px] font-normal">{item.name} x {item.quantity}</td>
+                                <td className="py-[15px] text-right">{formatPrice(item.price * item.quantity)}</td>
+                              </tr>
+                            );
+                          }
+                          return (
+                            <tr key={group.name} className="border-t border-[#cdcdcd]">
+                              <td className="py-[15px] font-normal align-top">
+                                <div className="font-medium">{group.name}</div>
+                                <div className="mt-[4px] space-y-[2px]">
+                                  {group.items.map((item) => (
+                                    <div key={item.id} className="text-[13px] text-[#666666]">
+                                      {item.variantName ?? item.name} x {item.quantity}
+                                      <span className="ml-[8px]">{formatPrice(item.price * item.quantity)}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </td>
+                              <td className="py-[15px] text-right align-top font-medium">{formatPrice(group.total)}</td>
+                            </tr>
+                          );
+                        });
+                      })()}
                       <tr className="border-t border-[#cdcdcd]">
                         <td className="py-[15px] font-bold">小計</td>
                         <td className="py-[15px] text-right">{formatPrice(subtotal)}</td>

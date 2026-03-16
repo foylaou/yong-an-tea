@@ -37,8 +37,10 @@ export async function POST(request: NextRequest) {
   const data = result.data;
 
   // Validate cart items (check stock, prices, active status)
+  console.log('[orders] items received:', JSON.stringify(data.items));
   const validation = await validateCartItems(data.items);
   if (!validation.valid) {
+    console.log('[orders] validation errors:', validation.errors);
     return NextResponse.json(
       { error: '購物車驗證失敗', details: validation.errors },
       { status: 400 }

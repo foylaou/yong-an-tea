@@ -508,25 +508,63 @@ export default function AdminOrderDetail({ order: initialOrder }: AdminOrderDeta
                 </tr>
               </thead>
               <tbody>
-                {(order.order_items || []).map((item: any) => (
-                  <tr key={item.id} className="border-t border-gray-100">
-                    <td className="px-3 py-2">
-                      <div className="flex items-center gap-2">
-                        {item.product_image && (
-                          <img
-                            src={item.product_image}
-                            alt={item.product_title}
-                            className="w-10 h-10 object-cover rounded"
-                          />
+                {(() => {
+                  const items = order.order_items || [];
+                  // Group by product_id to detect variants
+                  const groups = new Map<string, any[]>();
+                  for (const item of items) {
+                    const key = item.product_id || item.id;
+                    if (!groups.has(key)) groups.set(key, []);
+                    groups.get(key)!.push(item);
+                  }
+                  return [...groups.values()].flatMap((group) => {
+                    const isVariantGroup = group.length > 1 || group[0].variant_label;
+                    if (!isVariantGroup) {
+                      const item = group[0];
+                      return (
+                        <tr key={item.id} className="border-t border-gray-100">
+                          <td className="px-3 py-2">
+                            <div className="flex items-center gap-2">
+                              {item.product_image && (
+                                <img src={item.product_image} alt={item.product_title} className="w-10 h-10 object-cover rounded" />
+                              )}
+                              <span>{item.product_title}</span>
+                            </div>
+                          </td>
+                          <td className="px-3 py-2 text-center">${Number(item.price).toLocaleString()}</td>
+                          <td className="px-3 py-2 text-center">{item.quantity}</td>
+                          <td className="px-3 py-2 text-right">${Number(item.subtotal).toLocaleString()}</td>
+                        </tr>
+                      );
+                    }
+                    // Variant group: product image + name row, then sub-rows
+                    const first = group[0];
+                    const groupTotal = group.reduce((sum: number, i: any) => sum + Number(i.subtotal), 0);
+                    return group.map((item: any, idx: number) => (
+                      <tr key={item.id} className={idx === 0 ? 'border-t border-gray-100' : ''}>
+                        {idx === 0 && (
+                          <td rowSpan={group.length} className="px-3 py-2 align-top">
+                            <div className="flex items-start gap-2">
+                              {first.product_image && (
+                                <img src={first.product_image} alt={first.product_title} className="w-10 h-10 object-cover rounded shrink-0" />
+                              )}
+                              <div>
+                                <span className="font-medium">{first.product_title}</span>
+                                <div className="text-xs text-gray-400 mt-0.5">小計 ${groupTotal.toLocaleString()}</div>
+                              </div>
+                            </div>
+                          </td>
                         )}
-                        <span>{item.product_title}</span>
-                      </div>
-                    </td>
-                    <td className="px-3 py-2 text-center">${Number(item.price).toLocaleString()}</td>
-                    <td className="px-3 py-2 text-center">{item.quantity}</td>
-                    <td className="px-3 py-2 text-right">${Number(item.subtotal).toLocaleString()}</td>
-                  </tr>
-                ))}
+                        <td className="px-3 py-1.5 text-center">
+                          {item.variant_label && <div className="text-xs text-gray-500">{item.variant_label}</div>}
+                          ${Number(item.price).toLocaleString()}
+                        </td>
+                        <td className="px-3 py-1.5 text-center">{item.quantity}</td>
+                        <td className="px-3 py-1.5 text-right">${Number(item.subtotal).toLocaleString()}</td>
+                      </tr>
+                    ));
+                  });
+                })()}
               </tbody>
               <tfoot className="border-t border-gray-200">
                 <tr>

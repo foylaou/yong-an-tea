@@ -76,27 +76,47 @@ export async function PUT(
     }
   }
 
-  // Rebuild variants: delete all then re-insert
+  // Sync variants: upsert existing, insert new, remove deleted
   if (variants !== undefined) {
-    await supabase
+    // Get current variant IDs for this product
+    const { data: existingVariants } = await supabase
       .from('product_variants')
-      .delete()
+      .select('id')
       .eq('product_id', id);
+    const existingIds = new Set((existingVariants ?? []).map((v: any) => v.id));
 
-    if (variants.length > 0) {
+    // Separate into upsert vs new
+    const incomingIds = new Set<string>();
+    const rows = variants.map((v: any, idx: number) => {
+      if (v.id) incomingIds.add(v.id);
+      return {
+        ...(v.id ? { id: v.id } : {}),
+        product_id: id,
+        name: v.name,
+        price: v.price,
+        discount_price: v.discount_price || null,
+        stock_qty: v.stock_qty ?? 0,
+        sku: v.sku || null,
+        sort_order: idx,
+        is_active: v.is_active ?? true,
+        image_index: v.image_index ?? null,
+      };
+    });
+
+    // Delete variants that were removed by the user
+    const toDelete = [...existingIds].filter((eid) => !incomingIds.has(eid));
+    if (toDelete.length > 0) {
+      await supabase
+        .from('product_variants')
+        .delete()
+        .in('id', toDelete);
+    }
+
+    // Upsert remaining (update existing + insert new)
+    if (rows.length > 0) {
       const { error: varError } = await supabase
         .from('product_variants')
-        .insert(variants.map((v: any, idx: number) => ({
-          product_id: id,
-          name: v.name,
-          price: v.price,
-          discount_price: v.discount_price || null,
-          stock_qty: v.stock_qty ?? 0,
-          sku: v.sku || null,
-          sort_order: idx,
-          is_active: v.is_active ?? true,
-          image_index: v.image_index ?? null,
-        })));
+        .upsert(rows, { onConflict: 'id' });
       if (varError) {
         return NextResponse.json({ error: varError.message }, { status: 500 });
       }

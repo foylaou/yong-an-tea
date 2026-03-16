@@ -14,8 +14,19 @@ function mergeCartItems(
 ): CartItem[] {
   const map = new Map<string, CartItem>();
 
-  // Add server items first
+  // Collect base product IDs that exist as variants in local cart.
+  // Server may return base-only items (before migration or legacy data),
+  // so we must skip them when local already has variant-specific entries.
+  const localVariantBaseIds = new Set<string>();
+  for (const item of local) {
+    if (item.id.includes('_')) {
+      localVariantBaseIds.add(item.id.split('_')[0]);
+    }
+  }
+
+  // Add server items first, skipping base items already covered by local variants
   for (const item of server) {
+    if (localVariantBaseIds.has(item.id)) continue;
     map.set(item.id, { ...item });
   }
 

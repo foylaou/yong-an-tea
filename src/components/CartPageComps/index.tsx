@@ -11,6 +11,13 @@ import {
 import EmptyCart from './EmptyCart';
 import type { CartItem } from '../../types';
 
+interface AppliedCoupon {
+    code: string;
+    discount_type: string;
+    discount_amount: number;
+    description: string;
+}
+
 function parseJSON<T>(raw: string | undefined, fallback: T): T {
     try {
         if (raw) return JSON.parse(raw);
@@ -59,6 +66,10 @@ function CartPageComps() {
     const [quantityCount, setQuantityCount] = useState<Record<string, number | boolean>>({
         empty: true,
     });
+    const [couponCode, setCouponCode] = useState('');
+    const [couponLoading, setCouponLoading] = useState(false);
+    const [couponError, setCouponError] = useState('');
+    const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(null);
 
     useEffect(() => {
         if (quantityCount.empty && cartItems.length) {
@@ -88,10 +99,54 @@ function CartPageComps() {
         useCartStore.getState().clearAllFromCart();
     };
 
+    const handleApplyCoupon = async () => {
+        if (!couponCode.trim()) return;
+        setCouponLoading(true);
+        setCouponError('');
+        setAppliedCoupon(null);
+        try {
+            const res = await fetch('/api/coupons/validate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    code: couponCode.trim(),
+                    subtotal: cartItems.reduce((acc, cur) => acc + cur.price * cur.quantity, 0),
+                    product_ids: cartItems.map((item) =>
+                        item.id.includes('_') ? item.id.split('_')[0] : item.id
+                    ),
+                }),
+            });
+            const result = await res.json();
+            if (!res.ok) {
+                setCouponError(result.error || '折扣碼無效');
+            } else {
+                setAppliedCoupon({
+                    code: couponCode.trim().toUpperCase(),
+                    discount_type: result.discount_type,
+                    discount_amount: result.discount_amount,
+                    description: result.description,
+                });
+            }
+        } catch {
+            setCouponError('驗證折扣碼失敗，請稍後再試');
+        } finally {
+            setCouponLoading(false);
+        }
+    };
+
+    const handleRemoveCoupon = () => {
+        setAppliedCoupon(null);
+        setCouponCode('');
+        setCouponError('');
+    };
+
     const SubTotal = cartItems.reduce(
         (acc, cur) => acc + cur.price * cur.quantity,
         0
     );
+
+    const discountAmount = appliedCoupon?.discount_amount ?? 0;
+    const Total = SubTotal - discountAmount;
 
     const grouped = groupByProduct(cartItems);
 
@@ -272,20 +327,47 @@ function CartPageComps() {
                                             <p className="desc mb-[15px]">
                                                 {settings.cart_coupon_desc}
                                             </p>
-                                            <input
-                                                type="text"
-                                                name="coupon"
-                                                placeholder="優惠券代碼"
-                                                className="border border-[#cccccc] outline-hidden p-[15px_15px_13px]"
-                                            />
-                                            <div className="btn-wrap inline-flex items-center pt-[30px]">
-                                                <button
-                                                    type="submit"
-                                                    className=" border border-black h-[46px] px-[42px] transition-all hover:bg-[#222222] hover:text-white"
-                                                >
-                                                    {settings.cart_coupon_btn_text}
-                                                </button>
-                                            </div>
+                                            {appliedCoupon ? (
+                                                <div className="border border-green-300 bg-green-50 p-[15px] flex items-center justify-between">
+                                                    <div>
+                                                        <span className="font-medium text-green-700">{appliedCoupon.code}</span>
+                                                        <span className="text-sm text-green-600 ml-[10px]">-{formatPrice(appliedCoupon.discount_amount)}</span>
+                                                        {appliedCoupon.description && (
+                                                            <p className="text-xs text-green-600 mt-[4px]">{appliedCoupon.description}</p>
+                                                        )}
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        onClick={handleRemoveCoupon}
+                                                        className="text-red-500 hover:text-red-700 text-sm"
+                                                    >
+                                                        移除
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    <input
+                                                        type="text"
+                                                        value={couponCode}
+                                                        onChange={(e) => setCouponCode(e.target.value)}
+                                                        placeholder="優惠券代碼"
+                                                        className="border border-[#cccccc] outline-hidden p-[15px_15px_13px]"
+                                                    />
+                                                    {couponError && (
+                                                        <p className="text-red-500 text-xs mt-[8px]">{couponError}</p>
+                                                    )}
+                                                    <div className="btn-wrap inline-flex items-center pt-[30px]">
+                                                        <button
+                                                            type="button"
+                                                            onClick={handleApplyCoupon}
+                                                            disabled={couponLoading || !couponCode.trim()}
+                                                            className="border border-black h-[46px] px-[42px] transition-all hover:bg-[#222222] hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                                                        >
+                                                            {couponLoading ? '驗證中...' : settings.cart_coupon_btn_text}
+                                                        </button>
+                                                    </div>
+                                                </>
+                                            )}
                                         </div>
                                     </div>
                                     <div className="md:col-span-6 col-span-12">
@@ -296,9 +378,15 @@ function CartPageComps() {
                                                         <span className="font-bold">小計：</span>
                                                         <span>{formatPrice(SubTotal)}</span>
                                                     </li>
+                                                    {appliedCoupon && discountAmount > 0 && (
+                                                        <li className="item flex justify-between border-b border-[#cdcdcd] pb-[16px] mb-[17px] text-green-600">
+                                                            <span className="font-bold">折扣：</span>
+                                                            <span>-{formatPrice(discountAmount)}</span>
+                                                        </li>
+                                                    )}
                                                     <li className="item flex justify-between">
                                                         <span className="font-bold">合計：</span>
-                                                        <span>{formatPrice(SubTotal)}</span>
+                                                        <span>{formatPrice(Total)}</span>
                                                     </li>
                                                 </ul>
                                             </div>

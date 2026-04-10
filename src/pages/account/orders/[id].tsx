@@ -1,17 +1,20 @@
 import type { GetServerSideProps } from 'next';
 import type { Order, OrderItem } from '../../../types/order';
+import type { BankTransferInfo } from '../../../lib/orders-db';
 import HeaderOne from '../../../components/HeaderComps';
 import Breadcrumb from '../../../components/Breadcrumb';
 import FooterComps from '../../../components/FooterComps';
 import AccountLayout from '../../../components/Account/AccountLayout';
 import OrderDetail from '../../../components/Account/OrderDetail';
 import { createPagesClient } from '../../../lib/supabase/server-pages';
+import { getBankTransferInfo } from '../../../lib/orders-db';
 
 interface OrderDetailPageProps {
     order: Order & { order_items: OrderItem[] };
+    bankTransferInfo: BankTransferInfo | null;
 }
 
-function OrderDetailPage({ order }: OrderDetailPageProps) {
+function OrderDetailPage({ order, bankTransferInfo }: OrderDetailPageProps) {
     return (
         <>
             <HeaderOne headerContainer="container" />
@@ -23,7 +26,7 @@ function OrderDetailPage({ order }: OrderDetailPageProps) {
                 activeItem="訂單詳情"
             />
             <AccountLayout>
-                <OrderDetail order={order} />
+                <OrderDetail order={order} bankTransferInfo={bankTransferInfo} />
             </AccountLayout>
             <FooterComps footerContainer="container" />
         </>
@@ -50,9 +53,15 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
         return { notFound: true };
     }
 
+    const bankTransferInfo =
+        order.payment_method === 'bank_transfer' && order.payment_status === 'pending'
+            ? await getBankTransferInfo()
+            : null;
+
     return {
         props: {
             order,
+            bankTransferInfo,
         },
     };
 };

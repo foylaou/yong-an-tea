@@ -86,6 +86,47 @@ export async function getPaymentToggles(): Promise<PaymentToggles> {
   };
 }
 
+// --- Bank Transfer Info ---
+
+export interface BankTransferInfo {
+  bank_name: string;
+  bank_code: string;
+  account_number: string;
+  account_holder: string;
+  note: string;
+}
+
+export async function getBankTransferInfo(): Promise<BankTransferInfo | null> {
+  const supabase = createAdminClient();
+  const { data, error } = await supabase
+    .from('site_settings')
+    .select('key, value')
+    .in('key', [
+      'payment_atm_bank_name',
+      'payment_atm_bank_code',
+      'payment_atm_account_number',
+      'payment_atm_account_holder',
+      'payment_atm_note',
+    ]);
+
+  if (error || !data?.length) return null;
+
+  const settings: Record<string, string> = {};
+  for (const row of data) {
+    settings[row.key] = String(row.value ?? '');
+  }
+
+  if (!settings.payment_atm_account_number) return null;
+
+  return {
+    bank_name: settings.payment_atm_bank_name || '',
+    bank_code: settings.payment_atm_bank_code || '',
+    account_number: settings.payment_atm_account_number || '',
+    account_holder: settings.payment_atm_account_holder || '',
+    note: settings.payment_atm_note || '',
+  };
+}
+
 export function calculateCodFee(total: number, tiers: CodFeeTier[]): number {
   if (!tiers.length) return 0;
   const sorted = [...tiers].sort((a, b) => a.max - b.max);

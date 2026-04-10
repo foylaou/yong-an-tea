@@ -4,10 +4,12 @@ import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import type { Order, OrderItem } from '../../types/order';
+import type { BankTransferInfo } from '../../lib/orders-db';
 import { formatPrice } from '../../store/settings/settings-slice';
 
 interface OrderDetailProps {
   order: Order & { order_items: OrderItem[] };
+  bankTransferInfo?: BankTransferInfo | null;
 }
 
 const CUSTOMER_CANCELLABLE = ['pending', 'paid'];
@@ -54,7 +56,7 @@ interface TrackingInfo {
   history: TrackingEvent[];
 }
 
-function OrderDetail({ order: initialOrder }: OrderDetailProps) {
+function OrderDetail({ order: initialOrder, bankTransferInfo }: OrderDetailProps) {
   const [order, setOrder] = useState(initialOrder);
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [cancelReason, setCancelReason] = useState('');
@@ -178,6 +180,46 @@ function OrderDetail({ order: initialOrder }: OrderDetailProps) {
           </div>
         )}
       </div>
+
+      {/* Bank transfer info */}
+      {order.payment_method === 'bank_transfer' && (
+        <div className="mb-6">
+          {order.payment_status === 'pending' && bankTransferInfo ? (
+            <div className="border border-blue-200 bg-blue-50 rounded p-5">
+              <h3 className="text-sm font-medium text-blue-800 mb-3">匯款資訊</h3>
+              <div className="text-sm space-y-1.5">
+                {bankTransferInfo.bank_name && (
+                  <p>
+                    <span className="text-gray-500">銀行名稱：</span>
+                    <span className="font-medium">{bankTransferInfo.bank_name}</span>
+                    {bankTransferInfo.bank_code && (
+                      <span className="text-gray-400 ml-1">({bankTransferInfo.bank_code})</span>
+                    )}
+                  </p>
+                )}
+                <p>
+                  <span className="text-gray-500">帳號：</span>
+                  <span className="font-mono font-medium">{bankTransferInfo.account_number}</span>
+                </p>
+                {bankTransferInfo.account_holder && (
+                  <p>
+                    <span className="text-gray-500">戶名：</span>
+                    <span className="font-medium">{bankTransferInfo.account_holder}</span>
+                  </p>
+                )}
+                {bankTransferInfo.note && (
+                  <p className="text-xs text-blue-600 mt-2">{bankTransferInfo.note}</p>
+                )}
+              </div>
+            </div>
+          ) : order.payment_status === 'paid' ? (
+            <div className="border border-green-200 bg-green-50 rounded p-4 flex items-center gap-2">
+              <span className="w-2 h-2 bg-green-500 rounded-full" />
+              <span className="text-sm font-medium text-green-700">匯款已確認</span>
+            </div>
+          ) : null}
+        </div>
+      )}
 
       {/* Timeline */}
       {timeline.length > 0 && (

@@ -2,16 +2,19 @@ import type { GetServerSideProps } from 'next';
 import Link from 'next/link';
 import { useEffect } from 'react';
 import type { Order, OrderItem } from '../../types/order';
+import type { BankTransferInfo } from '../../lib/orders-db';
 import HeaderOne from '../../components/HeaderComps';
 import Breadcrumb from '../../components/Breadcrumb';
 import FooterComps from '../../components/FooterComps';
 import { createPagesClient } from '../../lib/supabase/server-pages';
+import { getBankTransferInfo } from '../../lib/orders-db';
 import { formatPrice } from '../../store/settings/settings-slice';
 import { useCartStore } from '../../store/cart/cart-slice';
 import { IoCheckmarkCircleOutline } from 'react-icons/io5';
 
 interface OrderSuccessProps {
     order: Order & { order_items: OrderItem[] };
+    bankTransferInfo: BankTransferInfo | null;
 }
 
 const paymentMethodLabel: Record<string, string> = {
@@ -27,7 +30,7 @@ const paymentStatusLabel: Record<string, string> = {
     refunded: '已退款',
 };
 
-function OrderSuccessPage({ order }: OrderSuccessProps) {
+function OrderSuccessPage({ order, bankTransferInfo }: OrderSuccessProps) {
     const clearAllFromCart = useCartStore((state) => state.clearAllFromCart);
 
     // Clear cart on mount (in case redirect didn't clear it)
@@ -78,6 +81,36 @@ function OrderSuccessPage({ order }: OrderSuccessProps) {
                                 <span>{order.customer_phone}</span>
                             </div>
                         </div>
+
+                        {order.payment_method === 'bank_transfer' && bankTransferInfo && (
+                            <div className="border border-blue-200 bg-blue-50 rounded p-4 mb-[20px]">
+                                <h3 className="text-sm font-medium text-blue-800 mb-2">匯款資訊</h3>
+                                <div className="text-sm space-y-1">
+                                    {bankTransferInfo.bank_name && (
+                                        <p>
+                                            <span className="text-gray-500">銀行名稱：</span>
+                                            <span className="font-medium">{bankTransferInfo.bank_name}</span>
+                                            {bankTransferInfo.bank_code && (
+                                                <span className="text-gray-400 ml-1">({bankTransferInfo.bank_code})</span>
+                                            )}
+                                        </p>
+                                    )}
+                                    <p>
+                                        <span className="text-gray-500">帳號：</span>
+                                        <span className="font-mono font-medium">{bankTransferInfo.account_number}</span>
+                                    </p>
+                                    {bankTransferInfo.account_holder && (
+                                        <p>
+                                            <span className="text-gray-500">戶名：</span>
+                                            <span className="font-medium">{bankTransferInfo.account_holder}</span>
+                                        </p>
+                                    )}
+                                    {bankTransferInfo.note && (
+                                        <p className="text-xs text-blue-600 mt-2">{bankTransferInfo.note}</p>
+                                    )}
+                                </div>
+                            </div>
+                        )}
 
                         {order.shipping_address && (
                             <div className="text-sm mb-[20px]">
@@ -183,9 +216,15 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
         return { notFound: true };
     }
 
+    const bankTransferInfo =
+        order.payment_method === 'bank_transfer'
+            ? await getBankTransferInfo()
+            : null;
+
     return {
         props: {
             order,
+            bankTransferInfo,
         },
     };
 };

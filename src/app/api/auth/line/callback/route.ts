@@ -41,25 +41,21 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${origin}/auth?error=line-auth-state-mismatch`);
   }
 
-  // Read LINE Login settings from DB
-  const supabase = createAdminClient();
-  const { data: settings } = await supabase
-    .from('site_settings')
-    .select('key, value')
-    .eq('group', 'line_login');
-
-  const channelId = JSON.parse(
-    settings?.find((s) => s.key === 'line_login_channel_id')?.value || '""'
-  );
-  const channelSecret = JSON.parse(
-    settings?.find((s) => s.key === 'line_login_channel_secret')?.value || '""'
-  );
-
-  if (!channelId || !channelSecret) {
-    return NextResponse.redirect(`${origin}/auth?error=line-not-configured`);
-  }
-
   try {
+    // Read LINE Login settings from DB
+    const supabase = createAdminClient();
+    const { data: settings } = await supabase
+      .from('site_settings')
+      .select('key, value')
+      .eq('group', 'line_login');
+
+    const channelId = settings?.find((s) => s.key === 'line_login_channel_id')?.value as string | undefined;
+    const channelSecret = settings?.find((s) => s.key === 'line_login_channel_secret')?.value as string | undefined;
+
+    if (!channelId || !channelSecret) {
+      return NextResponse.redirect(`${origin}/auth?error=line-not-configured`);
+    }
+
     // 1. Exchange code for tokens
     const tokenRes = await fetch('https://api.line.me/oauth2/v2.1/token', {
       method: 'POST',
@@ -68,12 +64,14 @@ export async function GET(request: Request) {
         grant_type: 'authorization_code',
         code,
         redirect_uri: `${origin}/api/auth/line/callback`,
-        client_id: channelId,
-        client_secret: channelSecret,
+        client_id: String(channelId),
+        client_secret: String(channelSecret),
       }),
     });
 
     if (!tokenRes.ok) {
+      const body = await tokenRes.text();
+      console.error('[LINE callback] token exchange failed:', tokenRes.status, body);
       return NextResponse.redirect(`${origin}/auth?error=line-token-error`);
     }
 
@@ -99,7 +97,7 @@ export async function GET(request: Request) {
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           body: new URLSearchParams({
             id_token: tokens.id_token,
-            client_id: channelId,
+            client_id: String(channelId),
           }),
         });
         if (verifyRes.ok) {
@@ -140,19 +138,23 @@ export async function GET(request: Request) {
       if (createError) {
         // If email already exists, try to link the LINE account
         if (createError.message.includes('already been registered')) {
-          const { data: existingUsers } = await supabase.auth.admin.listUsers() as { data: { users: { id: string; email?: string }[] } | null };
-          const matchedUser = existingUsers?.users?.find((u: { email?: string }) => u.email === userEmail);
-          if (matchedUser) {
-            userId = matchedUser.id;
+          const { data: userData } = await supabase.auth.admin.getUserById(
+            // Look up user by email via profiles or auth
+            await findUserIdByEmail(supabase, userEmail)
+          );
+          if (userData?.user) {
+            userId = userData.user.id;
             // Link LINE user ID to existing profile
             await supabase
               .from('profiles')
               .update({ line_user_id: lineProfile.userId })
-              .eq('id', matchedUser.id);
+              .eq('id', userData.user.id);
           } else {
+            console.error('[LINE callback] could not find existing user for email:', userEmail);
             return NextResponse.redirect(`${origin}/auth?error=line-create-error`);
           }
         } else {
+          console.error('[LINE callback] createUser error:', createError.message);
           return NextResponse.redirect(`${origin}/auth?error=line-create-error`);
         }
       } else {
@@ -181,20 +183,15 @@ export async function GET(request: Request) {
       email: userData.user.email,
     });
 
-    if (linkError || !linkData?.properties?.action_link) {
+    if (linkError || !linkData?.properties?.hashed_token) {
+      console.error('[LINE callback] generateLink error:', linkError?.message);
       return NextResponse.redirect(`${origin}/auth?error=line-session-error`);
     }
 
-    // 7. Extract token from action link and redirect through our callback
-    const actionUrl = new URL(linkData.properties.action_link);
-    const tokenHash = actionUrl.searchParams.get('token');
-    const type = actionUrl.searchParams.get('type');
-
-    // Redirect to Supabase verify endpoint which will set the session
-    // then redirect to our callback which redirects home
+    // 7. Redirect to Supabase verify endpoint with the hashed token
     const verifyUrl = new URL(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/verify`);
-    verifyUrl.searchParams.set('token', tokenHash || '');
-    verifyUrl.searchParams.set('type', type || 'magiclink');
+    verifyUrl.searchParams.set('token', linkData.properties.hashed_token);
+    verifyUrl.searchParams.set('type', linkData.properties.verification_type || 'magiclink');
     verifyUrl.searchParams.set('redirect_to', `${origin}/api/auth/callback?next=/`);
 
     const response = NextResponse.redirect(verifyUrl.toString());
@@ -202,9 +199,36 @@ export async function GET(request: Request) {
     response.cookies.delete('line_oauth_state');
     response.cookies.delete('line_oauth_nonce');
     return response;
-  } catch {
+  } catch (err) {
+    console.error('[LINE callback] unhandled error:', err);
     return NextResponse.redirect(`${origin}/auth?error=line-unknown-error`);
   }
+}
+
+async function findUserIdByEmail(
+  supabase: ReturnType<typeof createAdminClient>,
+  email: string
+): Promise<string> {
+  // Try to find via profiles table first (faster than listing all auth users)
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('id')
+    .eq('email', email)
+    .single();
+
+  if (profile?.id) return profile.id;
+
+  // Fallback: paginate through auth users
+  let page = 1;
+  while (page <= 10) {
+    const { data } = await supabase.auth.admin.listUsers({ page, perPage: 50 });
+    const match = data?.users?.find((u) => u.email === email);
+    if (match) return match.id;
+    if (!data?.users?.length || data.users.length < 50) break;
+    page++;
+  }
+
+  throw new Error(`User not found for email: ${email}`);
 }
 
 function parseCookie(cookieHeader: string, name: string): string | null {

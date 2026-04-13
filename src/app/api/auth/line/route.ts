@@ -12,7 +12,7 @@ export async function GET(request: Request) {
     .select('key, value')
     .eq('group', 'line_login');
 
-  const channelId = settings?.find((s) => s.key === 'line_login_channel_id')?.value;
+  const channelId = settings?.find((s) => s.key === 'line_login_channel_id')?.value as string | undefined;
 
   if (!channelId) {
     return NextResponse.json({ error: 'LINE Login 尚未設定' }, { status: 500 });
@@ -24,7 +24,7 @@ export async function GET(request: Request) {
 
   const lineAuthUrl = new URL('https://access.line.me/oauth2/v2.1/authorize');
   lineAuthUrl.searchParams.set('response_type', 'code');
-  lineAuthUrl.searchParams.set('client_id', JSON.parse(channelId));
+  lineAuthUrl.searchParams.set('client_id', String(channelId));
   lineAuthUrl.searchParams.set('redirect_uri', redirectUri);
   lineAuthUrl.searchParams.set('state', state);
   lineAuthUrl.searchParams.set('nonce', nonce);

@@ -222,9 +222,10 @@ async function findUserIdByEmail(
   let page = 1;
   while (page <= 10) {
     const { data } = await supabase.auth.admin.listUsers({ page, perPage: 50 });
-    const match = data?.users?.find((u) => u.email === email);
+    const users = data?.users as { id: string; email?: string }[] | undefined;
+    const match = users?.find((u) => u.email === email);
     if (match) return match.id;
-    if (!data?.users?.length || data.users.length < 50) break;
+    if (!users?.length || users.length < 50) break;
     page++;
   }
 

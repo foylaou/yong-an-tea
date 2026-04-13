@@ -192,7 +192,7 @@ export async function GET(request: Request) {
     const verifyUrl = new URL(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/verify`);
     verifyUrl.searchParams.set('token', linkData.properties.hashed_token);
     verifyUrl.searchParams.set('type', linkData.properties.verification_type || 'magiclink');
-    verifyUrl.searchParams.set('redirect_to', `${origin}/api/auth/callback?next=/`);
+    verifyUrl.searchParams.set('redirect_to', `${origin}/`);
 
     const response = NextResponse.redirect(verifyUrl.toString());
     // Clear OAuth cookies

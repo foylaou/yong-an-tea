@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { createServerClient } from '@supabase/ssr';
 import { createAdminClient } from '@/lib/supabase/admin';
 
 interface LineTokenResponse {
@@ -177,7 +178,7 @@ export async function GET(request: Request) {
       return NextResponse.redirect(`${origin}/auth?error=line-user-error`);
     }
 
-    // 6. Generate magic link to create session
+    // 6. Generate magic link token
     const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
       type: 'magiclink',
       email: userData.user.email,
@@ -188,13 +189,36 @@ export async function GET(request: Request) {
       return NextResponse.redirect(`${origin}/auth?error=line-session-error`);
     }
 
-    // 7. Redirect to Supabase verify endpoint with the hashed token
-    const verifyUrl = new URL(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/verify`);
-    verifyUrl.searchParams.set('token', linkData.properties.hashed_token);
-    verifyUrl.searchParams.set('type', linkData.properties.verification_type || 'magiclink');
-    verifyUrl.searchParams.set('redirect_to', `${origin}/`);
+    // 7. Verify token server-side and set session cookies
+    const response = NextResponse.redirect(`${origin}/`);
 
-    const response = NextResponse.redirect(verifyUrl.toString());
+    const serverSupabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return [];
+          },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              response.cookies.set(name, value, options);
+            });
+          },
+        },
+      }
+    );
+
+    const { error: verifyError } = await serverSupabase.auth.verifyOtp({
+      token_hash: linkData.properties.hashed_token,
+      type: 'magiclink',
+    });
+
+    if (verifyError) {
+      console.error('[LINE callback] verifyOtp error:', verifyError.message);
+      return NextResponse.redirect(`${origin}/auth?error=line-session-error`);
+    }
+
     // Clear OAuth cookies
     response.cookies.delete('line_oauth_state');
     response.cookies.delete('line_oauth_nonce');

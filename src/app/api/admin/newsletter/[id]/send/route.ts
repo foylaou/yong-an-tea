@@ -45,11 +45,28 @@ export async function POST(
     return NextResponse.json({ error: '目前沒有活躍的訂閱者' }, { status: 400 });
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || request.nextUrl.origin;
+  const configuredBaseUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  if (!configuredBaseUrl) {
+    return NextResponse.json({ error: '站點網址未設定' }, { status: 500 });
+  }
+
+  let baseUrl: string;
+  try {
+    const parsedBaseUrl = new URL(configuredBaseUrl);
+    if (parsedBaseUrl.protocol !== 'http:' && parsedBaseUrl.protocol !== 'https:') {
+      throw new Error('Invalid protocol');
+    }
+    baseUrl = parsedBaseUrl.origin;
+  } catch {
+    return NextResponse.json({ error: '站點網址設定無效' }, { status: 500 });
+  }
+
   let sentCount = 0;
 
   for (const subscriber of subscribers) {
-    const unsubscribeUrl = `${baseUrl}/api/newsletter/unsubscribe?token=${subscriber.unsubscribe_token}`;
+    const unsubscribeLink = new URL('/api/newsletter/unsubscribe', baseUrl);
+    unsubscribeLink.searchParams.set('token', subscriber.unsubscribe_token);
+    const unsubscribeUrl = unsubscribeLink.toString();
     const html = newsletterWrapperEmail(newsletter.content_html, unsubscribeUrl);
 
     const result = await sendEmail({

@@ -1,3 +1,4 @@
+import CachedImage from '@/components/CachedImage';
 import Link from 'next/link';
 import { MarkdownItem } from '../../types';
 
@@ -15,7 +16,7 @@ function BlogListItem({ blog }: BlogListItemProps) {
         <div className="blog-item overflow-hidden group">
             <div className="blog-img relative">
                 <Link href={`/blogs/${blog?.slug}`} className="blog-img block">
-                    <img
+                    <CachedImage
                         className="object-cover object-center w-full"
                         src={blog?.largeImage}
                         alt={blog?.altImage}

@@ -12,7 +12,7 @@ const ACCEPT = 'image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.hei
 const PRODUCT_TARGETS = [
   { imageType: 'xs', width: 74, height: 74, label: 'XS (74x74)' },
   { imageType: 'sm', width: 300, height: 300, label: 'SM (300x300)' },
-  { imageType: 'md', width: 585, height: 585, label: 'MD (585x585)' },
+  { imageType: 'md', width: 1200, height: 1200, label: 'MD (1200x1200)' },
   { imageType: 'home-collection', width: 600, height: 600, label: '首頁集合 (600x600)' },
   { imageType: 'category-banner', width: 600, height: 600, label: '分類橫幅 (600x600)' },
 ] as const;

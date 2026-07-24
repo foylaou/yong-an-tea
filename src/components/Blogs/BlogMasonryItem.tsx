@@ -1,3 +1,4 @@
+import CachedImage from '@/components/CachedImage';
 import Link from 'next/link';
 import { MarkdownItem } from '../../types';
 
@@ -19,7 +20,7 @@ function BlogMasonryItem({ blog }: BlogMasonryItemProps) {
                         href={`/blogs/${blog.slug}`}
                         className="blog-img block"
                     >
-                        <img
+                        <CachedImage
                             className="object-cover object-center w-full"
                             src={blog.masonry}
                             alt={blog.altImage}

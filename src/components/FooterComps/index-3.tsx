@@ -1,3 +1,4 @@
+import CachedImage from '@/components/CachedImage';
 import { useEffect, useRef, useMemo } from 'react';
 import Link from 'next/link';
 import {
@@ -65,7 +66,7 @@ function FooterCompsThree() {
                             <div className="footer-widget">
                                 <div className="footer-logo mb-[15px]">
                                     <Link href={settings.footer_logo_path}>
-                                        <img
+                                        <CachedImage
                                             src={settings.logo_url}
                                             alt={settings.footer_logo_alt}
                                             width={120}

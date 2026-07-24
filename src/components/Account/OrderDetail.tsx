@@ -1,5 +1,6 @@
 'use client';
 
+import CachedImage from '@/components/CachedImage';
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
@@ -358,7 +359,7 @@ function OrderDetail({ order: initialOrder, bankTransferInfo }: OrderDetailProps
                 <td className="py-3 px-4">
                   <div className="flex items-center gap-3">
                     {item.product_image && (
-                      <img
+                      <CachedImage
                         src={item.product_image}
                         alt={item.product_title}
                         className="w-12 h-12 object-cover rounded"

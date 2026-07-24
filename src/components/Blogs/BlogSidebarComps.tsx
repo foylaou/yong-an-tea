@@ -1,3 +1,4 @@
+import CachedImage from '@/components/CachedImage';
 import Link from 'next/link';
 import BlogSearchBar from './BlogSearchBar';
 import { MarkdownItem } from '../../types';
@@ -79,7 +80,7 @@ function BlogSidebarComps({
                 </ul>
             </div>
             <div className="blog-sidebar-widget pt-[40px]">
-                <img
+                <CachedImage
                     src="/images/blog-sidebar/widget-banner.jpg"
                     alt="Widget Banner"
                 />

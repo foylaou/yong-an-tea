@@ -1,3 +1,4 @@
+import CachedImage from '@/components/CachedImage';
 import { useState, useMemo, useEffect, useCallback, lazy, Suspense } from 'react';
 import { MdPlayArrow, MdOutlineStarPurple500, MdStar, MdStarBorder, MdVerified } from 'react-icons/md';
 import { useSettingsStore } from '../../../store/settings/settings-slice';
@@ -401,7 +402,7 @@ function ProductDetailTab({ product }: ProductDetailTabProps) {
                                             </div>
                                         </div>
                                         <div className="lm:col-span-5 col-span-12">
-                                            <img
+                                            <CachedImage
                                                 className="w-full"
                                                 src={product?.mdImage}
                                                 alt={product?.altImage}
@@ -437,7 +438,7 @@ function ProductDetailTab({ product }: ProductDetailTabProps) {
                                             </div>
                                         </div>
                                         <div className="lm:col-span-5 col-span-12">
-                                            <img
+                                            <CachedImage
                                                 className="w-full"
                                                 src={product?.mdImage}
                                                 alt={product?.altImage}

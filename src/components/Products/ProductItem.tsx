@@ -1,3 +1,4 @@
+import CachedImage from '@/components/CachedImage';
 import { useState } from 'react';
 import Link from 'next/link';
 import {
@@ -197,7 +198,7 @@ function ProductItem({ product, productFilter, productFilterPath }: ProductItemP
                                 {offerSticker}
                             </span>
                         )}
-                        <img
+                        <CachedImage
                             className="w-full"
                             src={productImageSrc}
                             alt={(product as any)?.altImage}
@@ -339,7 +340,7 @@ function ProductItem({ product, productFilter, productFilterPath }: ProductItemP
                                         {offerSticker}
                                     </span>
                                 )}
-                                <img
+                                <CachedImage
                                     className="w-full md:h-full md:object-cover transition-all duration-300"
                                     src={quickViewImage}
                                     alt={(product as any)?.altImage}

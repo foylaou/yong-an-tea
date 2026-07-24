@@ -1,3 +1,4 @@
+import CachedImage from '@/components/CachedImage';
 import { useMemo } from 'react';
 import Link from 'next/link';
 import {
@@ -197,7 +198,7 @@ function FooterComps({ footerContainer }: FooterCompsProps) {
                         <div className="md:col-span-4 col-span-12">
                             <div className="footer-logo flex justify-center">
                                 <Link href={settings.footer_logo_path}>
-                                    <img
+                                    <CachedImage
                                         src={settings.logo_url}
                                         alt={settings.footer_logo_alt}
                                         width={180}

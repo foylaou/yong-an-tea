@@ -86,7 +86,7 @@ export default function ProductImageGallery({
           },
           targets: [
             { slug, imageType: `gallery/${imageId}-sm`, bucket: 'product-images', width: 300, height: 300 },
-            { slug, imageType: `gallery/${imageId}-md`, bucket: 'product-images', width: 585, height: 585 },
+            { slug, imageType: `gallery/${imageId}-md`, bucket: 'product-images', width: 1200, height: 1200 },
           ],
         }),
       });

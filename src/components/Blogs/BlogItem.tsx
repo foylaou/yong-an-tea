@@ -1,3 +1,4 @@
+import CachedImage from '@/components/CachedImage';
 import Link from 'next/link';
 import { IoAddSharp } from 'react-icons/io5';
 import { MarkdownItem } from '../../types';
@@ -16,7 +17,7 @@ function BlogItem({ blog }: BlogItemProps) {
         <div className="blog-item overflow-hidden group">
             <div className="blog-img relative">
                 <Link href={`/blogs/${blog?.slug}`} className="blog-img block">
-                    <img
+                    <CachedImage
                         className="object-cover object-center w-full"
                         src={blog?.mediumImage}
                         alt={blog?.altImage}

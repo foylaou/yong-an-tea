@@ -1,3 +1,4 @@
+import CachedImage from '@/components/CachedImage';
 import Link from 'next/link';
 import { useMemo } from 'react';
 import { IoArrowForwardOutline } from 'react-icons/io5';
@@ -35,7 +36,7 @@ function NewArrivalTwo({ products, excerpt, btnText }: NewArrivalTwoProps) {
                         >
                             <div className="product-img overflow-hidden group">
                                 <Link href={`/products/${product.slug}`}>
-                                    <img
+                                    <CachedImage
                                         className="transition-all duration-400 group-hover:scale-[1.02]"
                                         src={product.homeCollectionImg}
                                         alt={product.altImage}

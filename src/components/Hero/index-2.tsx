@@ -1,3 +1,4 @@
+import CachedImage from '@/components/CachedImage';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
@@ -167,7 +168,7 @@ function HeroTwo() {
                                         </div>
                                         <div className="sm:col-span-6 col-span-12">
                                             <div className="hero-img lg:absolute lg:right-[50px]">
-                                                <img
+                                                <CachedImage
                                                     className="object-cover object-center"
                                                     src={heroBoxedItem.image as string}
                                                     alt={heroBoxedItem.imageAlt as string}

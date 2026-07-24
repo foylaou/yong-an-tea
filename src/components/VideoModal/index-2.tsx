@@ -1,3 +1,4 @@
+import CachedImage from '@/components/CachedImage';
 import { useState } from 'react';
 import { IoPlayCircleOutline, IoCloseOutline } from 'react-icons/io5';
 import { BiLoaderAlt } from 'react-icons/bi';
@@ -39,7 +40,7 @@ function VideoModalTwo({ containerCName }: VideoModalTwoProps) {
                     </p>
                 </div>
                 <div className="video-img relative flex overflow-hidden after:transition-all after:duration-500 after:bg-[rgba(0,0,0,.4)] after:absolute after:top-0 after:left-0 after:w-full after:h-full after:opacity-0 hover:after:opacity-100 group">
-                    <img
+                    <CachedImage
                         className="object-cover object-center w-full transition-all duration-500 group-hover:scale-[1.05]"
                         src={v.image}
                         alt={v.imageAlt}

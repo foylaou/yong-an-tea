@@ -1,5 +1,6 @@
 'use client';
 
+import CachedImage from '@/components/CachedImage';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
@@ -91,7 +92,7 @@ export default function SearchPage() {
                 >
                   <div className="aspect-square bg-gray-100 rounded overflow-hidden mb-3">
                     {product.image ? (
-                      <img
+                      <CachedImage
                         src={product.image}
                         alt={product.title}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"

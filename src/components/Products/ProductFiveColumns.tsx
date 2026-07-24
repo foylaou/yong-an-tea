@@ -5,6 +5,7 @@ import ProductActiveFilter from './ProductActiveFilter';
 import ProductFilterDrawer, { FilterToggleButton } from './ProductFilterDrawer';
 import { useFilterStore, type ShopSortMode } from '../../store/product-filter/filter-slice';
 import { useSettingsStore } from '../../store/settings/settings-slice';
+import { useProductPagination } from '../../hooks/useProductPagination';
 import { MarkdownItem } from '../../types';
 
 interface ProductFiveColumnsProps {
@@ -29,20 +30,11 @@ function ProductFiveColumns({
     const mCol = mobileCols === 3 ? 'grid-cols-3' : mobileCols === 2 ? 'grid-cols-2' : 'grid-cols-1';
     const mGap = mobileCols > 1 ? 'gap-x-[12px]' : '';
 
-    const [currentPage, setCurrentPage] = useState(1);
     const [itemPerPage, setitemPerPage] = useState(productsPerPage);
 
     useEffect(() => {
         setitemPerPage(productsPerPage);
     }, [productsPerPage]);
-
-    const [pageNumberLimit, setPageNumberLimit] = useState(9);
-    const [maxPageNumberLimit, setMaxPageNumberLimit] = useState(9);
-    const [minPageNumberLimit, setMinPageNumberLimit] = useState(0);
-
-    const handleClick = (event: any) => {
-        setCurrentPage(Number(event.target.id));
-    };
 
     const filteredProduct = products.filter((singleProduct: any) => {
         const filterGroupResult: Record<string, boolean> = {};
@@ -80,6 +72,19 @@ function ProductFiveColumns({
         pages.push(i);
     }
 
+    const {
+        currentPage,
+        setCurrentPage,
+        handleNextbtn,
+        handlePrevbtn,
+        maxPageNumberLimit,
+        minPageNumberLimit,
+    } = useProductPagination(pages.length);
+
+    const handleClick = (event: any) => {
+        setCurrentPage(Number(event.target.id));
+    };
+
     const indexofLastItem = currentPage * itemPerPage;
     const indexOfFirstItem = indexofLastItem - itemPerPage;
     const currentItems = filteredProduct.slice(
@@ -105,23 +110,6 @@ function ProductFiveColumns({
         }
         return null;
     });
-
-    const handleNextbtn = () => {
-        setCurrentPage(currentPage + 1);
-
-        if (currentPage + 1 > maxPageNumberLimit) {
-            setMaxPageNumberLimit(maxPageNumberLimit + pageNumberLimit);
-            setMinPageNumberLimit(minPageNumberLimit + pageNumberLimit);
-        }
-    };
-    const handlePrevbtn = () => {
-        setCurrentPage(currentPage - 1);
-
-        if ((currentPage - 1) % maxPageNumberLimit === 0) {
-            setMaxPageNumberLimit(maxPageNumberLimit - pageNumberLimit);
-            setMinPageNumberLimit(minPageNumberLimit - pageNumberLimit);
-        }
-    };
 
     let pageIncrementBtn: React.ReactNode = null;
     if (pages.length > maxPageNumberLimit) {

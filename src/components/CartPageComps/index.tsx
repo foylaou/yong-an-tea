@@ -1,3 +1,4 @@
+import CachedImage from '@/components/CachedImage';
 import { useState, useEffect } from 'react';
 import { useCartStore } from '../../store/cart/cart-slice';
 import { formatPrice, useSettingsStore } from '../../store/settings/settings-slice';
@@ -236,7 +237,7 @@ function CartPageComps() {
                                                     <tr key={item.id} className="bg-white border-b">
                                                         <td className="py-4 product-name pr-[25px] flex items-center font-medium text-gray-900 whitespace-nowrap">
                                                             <Link href={linkPath(item.slug)} className="product-img w-[100px]">
-                                                                <img src={item.image} alt={item.name} />
+                                                                <CachedImage src={item.image} alt={item.name} />
                                                             </Link>
                                                             <h2 className="product-name">
                                                                 <Link href={linkPath(item.slug)} className="text-[14px] transition-all hover:text-primary">
@@ -263,7 +264,7 @@ function CartPageComps() {
                                                         <td rowSpan={group.items.length} className="py-4 product-name pr-[25px] font-medium text-gray-900 whitespace-nowrap align-top">
                                                             <div className="flex items-start">
                                                                 <Link href={linkPath(group.slug)} className="product-img w-[100px] shrink-0">
-                                                                    <img src={group.image} alt={group.name} />
+                                                                    <CachedImage src={group.image} alt={group.name} />
                                                                 </Link>
                                                                 <div className="pl-[10px]">
                                                                     <h2 className="product-name">

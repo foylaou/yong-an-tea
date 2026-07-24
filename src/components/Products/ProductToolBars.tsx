@@ -1,3 +1,4 @@
+import CachedImage from '@/components/CachedImage';
 import { IoChevronDownSharp } from 'react-icons/io5';
 import { useSettingsStore } from '../../store/settings/settings-slice';
 import { useFilterStore, type ShopSortMode } from '../../store/product-filter/filter-slice';
@@ -93,7 +94,7 @@ function ProductToolBars({
                                         productTab(singleGridTabList.tabStateNo)
                                     }
                                 >
-                                    <img
+                                    <CachedImage
                                         src={singleGridTabList.gridColumnImg}
                                         alt={singleGridTabList.gridImgAlt}
                                     />

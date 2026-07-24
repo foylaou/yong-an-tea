@@ -1,3 +1,4 @@
+import CachedImage from '@/components/CachedImage';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { IoArrowForwardOutline } from 'react-icons/io5';
@@ -213,7 +214,7 @@ function HeroFour({ btnText }: HeroFourProps) {
                                         </div>
                                         <div className="md:col-span-6 lm:col-span-7 col-span-8">
                                             <div className="slide-img pt-[50px] md:pt-0">
-                                                <img
+                                                <CachedImage
                                                     className="ml-auto"
                                                     src={
                                                         heroCollectionItem.image as string

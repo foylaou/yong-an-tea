@@ -1,3 +1,4 @@
+import CachedImage from '@/components/CachedImage';
 import Link from 'next/link';
 import { IoCloseOutline } from 'react-icons/io5';
 import { useCartStore } from '../../store/cart/cart-slice';
@@ -47,7 +48,7 @@ function CartItem({ items }: CartGroupProps) {
             <div className="flex items-start">
                 <div className="item-img shrink-0 w-[70px]">
                     <Link href={linkPath}>
-                        <img
+                        <CachedImage
                             src={image}
                             alt={productName}
                             className="w-full"

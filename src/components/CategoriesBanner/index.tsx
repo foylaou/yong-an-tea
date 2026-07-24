@@ -1,3 +1,4 @@
+import CachedImage from '@/components/CachedImage';
 import Link from 'next/link';
 import { useMemo } from 'react';
 import { MarkdownItem } from '../../types';
@@ -39,7 +40,7 @@ function CategoriesBanner({ products, categoryBannerCName }: CategoriesBannerPro
                             <div className="category-banner-item relative overflow-hidden group">
                                 <div className="product-img">
                                     <Link href={`/products/${product.slug}`}>
-                                        <img
+                                        <CachedImage
                                             className="w-full transition-all duration-400 group-hover:scale-[1.05]"
                                             src={product.categoryBannerImg}
                                             alt={product.altImage}

@@ -1,3 +1,4 @@
+import CachedImage from '@/components/CachedImage';
 import Link from 'next/link';
 import { FaQuoteRight } from 'react-icons/fa';
 import DisqusForm from '../../DisqusForm';
@@ -21,7 +22,7 @@ function BlogDetail({ blog, prevBlog, nextBlog }: BlogDetailProps) {
             <div className="container">
                 <div className="blog-detail-item">
                     <div className="blog-detail-img">
-                        <img
+                        <CachedImage
                             className="object-cover object-center w-full"
                             src={blog?.extraLargeImage}
                             alt={blog?.altImage}
@@ -66,14 +67,14 @@ function BlogDetail({ blog, prevBlog, nextBlog }: BlogDetailProps) {
                         <div className="rich-text-item">
                             <div className="rich-text-img grid grid-cols-2 gap-[30px]">
                                 <div className="single-img">
-                                    <img
+                                    <CachedImage
                                         className="w-full"
                                         src={blog?.singleImgOne}
                                         alt={blog?.singleImgAlt}
                                     />
                                 </div>
                                 <div className="single-img">
-                                    <img
+                                    <CachedImage
                                         className="w-full"
                                         src={blog?.singleImgTwo}
                                         alt={blog?.singleImgAlt}

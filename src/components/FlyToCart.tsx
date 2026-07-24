@@ -1,3 +1,4 @@
+import CachedImage from '@/components/CachedImage';
 import { useEffect, useState, useRef } from 'react';
 import { useFlyAnimationStore } from '../store/cart/fly-to-cart';
 
@@ -77,5 +78,5 @@ export default function FlyToCart() {
 
   if (!visible || !image) return null;
 
-  return <img src={image} alt="" style={style} />;
+  return <CachedImage src={image} alt="" style={style} />;
 }

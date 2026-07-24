@@ -1,3 +1,4 @@
+import CachedImage from '@/components/CachedImage';
 import { useState, useEffect } from 'react';
 import * as IoIcon from 'react-icons/io5';
 import ProgressBar from '../ProgressBar';
@@ -61,7 +62,7 @@ function AboutUs() {
             <div className="video-banner">
                 <div className="container">
                     <div className="blog-img relative flex overflow-hidden after:transition-all after:duration-500 after:bg-[rgba(0,0,0,.4)] after:absolute after:top-0 after:left-0 after:w-full after:h-full after:opacity-0 hover:after:opacity-100 group">
-                        <img
+                        <CachedImage
                             className="object-cover object-center w-full transition-all duration-500 group-hover:scale-[1.05]"
                             src={aboutVideoBanner}
                             alt={aboutVideoBannerAlt}
@@ -129,7 +130,7 @@ function AboutUs() {
                     <div className="grid grid-cols-12 gap-[10px]">
                         <div className="col-span-8">
                             <div className="single-img overflow-hidden">
-                                <img
+                                <CachedImage
                                     className="w-full block transition-all duration-500 hover:scale-[1.05]"
                                     src={aboutBannerOne}
                                     alt={aboutBannerAlt}
@@ -138,14 +139,14 @@ function AboutUs() {
                         </div>
                         <div className="col-span-4">
                             <div className="single-img overflow-hidden mb-[10px]">
-                                <img
+                                <CachedImage
                                     className="w-full block transition-all duration-500 hover:scale-[1.05]"
                                     src={aboutBannerTwo}
                                     alt={aboutBannerAlt}
                                 />
                             </div>
                             <div className="single-img overflow-hidden">
-                                <img
+                                <CachedImage
                                     className="w-full block transition-all duration-500 hover:scale-[1.05]"
                                     src={aboutBannerThree}
                                     alt={aboutBannerAlt}
@@ -154,7 +155,7 @@ function AboutUs() {
                         </div>
                         <div className="col-span-4">
                             <div className="single-img overflow-hidden">
-                                <img
+                                <CachedImage
                                     className="w-full block transition-all duration-500 hover:scale-[1.05]"
                                     src={aboutBannerFour}
                                     alt={aboutBannerAlt}
@@ -163,7 +164,7 @@ function AboutUs() {
                         </div>
                         <div className="col-span-8">
                             <div className="single-img overflow-hidden">
-                                <img
+                                <CachedImage
                                     className="w-full block transition-all duration-500 hover:scale-[1.05]"
                                     src={aboutBannerFive}
                                     alt={aboutBannerAlt}

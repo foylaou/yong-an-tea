@@ -1,3 +1,4 @@
+import CachedImage from '@/components/CachedImage';
 import Link from 'next/link';
 import { IoCloseOutline } from 'react-icons/io5';
 import { useWishlistStore } from '../../store/wishlist/wishlist-slice';
@@ -65,7 +66,7 @@ function WishlistPageComps() {
                                                         href={item.slug}
                                                         className="product-img w-[100px]"
                                                     >
-                                                        <img
+                                                        <CachedImage
                                                             src={item.image}
                                                             alt={item.name}
                                                         />
@@ -84,7 +85,7 @@ function WishlistPageComps() {
                                                 </td>
                                                 <td className="py-[30px]">
                                                     <Link
-                                                        href={`/products/${item.slug}`}
+                                                        href={item.slug}
                                                         className="inline-flex items-center bg-black text-white h-[46px] sm:px-[42px] px-[12px] transition-all hover:bg-[#222222]"
                                                     >
                                                         立即購買

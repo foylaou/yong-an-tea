@@ -1,3 +1,4 @@
+import CachedImage from '@/components/CachedImage';
 import Link from 'next/link';
 import { useMemo } from 'react';
 import { formatPrice } from '../../store/settings/settings-slice';
@@ -48,7 +49,7 @@ function NewArrival({
                         >
                             <div className="product-img">
                                 <Link href={`/products/${product.slug}`}>
-                                    <img
+                                    <CachedImage
                                         className="w-full"
                                         src={product.mdImage}
                                         alt={product.altImage}

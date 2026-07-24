@@ -1,3 +1,4 @@
+import CachedImage from '@/components/CachedImage';
 import { useMemo } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
@@ -51,7 +52,7 @@ function Brand() {
                         {brandItems.map((brandItem) => (
                             <Slide key={brandItem.id}>
                                 <Link href="#" className="slide-inner">
-                                    <img
+                                    <CachedImage
                                         className="opacity-[0.35] transition-all duration-500 hover:opacity-100"
                                         src={brandItem.brandImg}
                                         alt={brandItem.brandImgAlt}

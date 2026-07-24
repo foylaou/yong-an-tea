@@ -1,3 +1,4 @@
+import CachedImage from '@/components/CachedImage';
 import Link from 'next/link';
 import { useSettingsStore } from '../../store/settings/settings-slice';
 
@@ -13,7 +14,7 @@ function LogoComps({ headerLogoCName, logoPath }: LogoCompsProps) {
     return (
         <div className={`${headerLogoCName}`}>
             <Link href={logoPath} className="block">
-                <img
+                <CachedImage
                     src={logoSrc}
                     alt="網站標誌"
                     width={180}

@@ -78,5 +78,6 @@ export async function POST(request: NextRequest) {
     .from(BUCKET)
     .getPublicUrl(filePath);
 
-  return NextResponse.json({ url: urlData.publicUrl });
+  // Cache-busting param so browsers (and the IndexedDB image cache) fetch the new file.
+  return NextResponse.json({ url: `${urlData.publicUrl}?t=${Date.now()}` });
 }

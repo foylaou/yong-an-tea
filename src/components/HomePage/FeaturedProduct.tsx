@@ -1,3 +1,4 @@
+import CachedImage from '@/components/CachedImage';
 import Link from 'next/link';
 import { useMemo } from 'react';
 import { IoArrowForwardOutline } from 'react-icons/io5';
@@ -47,7 +48,7 @@ function FeaturedProduct() {
                                         className="featured-product-img block transition-all duration-500 group-hover:scale-[1.05]"
                                     >
                                         {block.image && (
-                                            <img
+                                            <CachedImage
                                                 src={block.image}
                                                 alt={block.altImage}
                                             />

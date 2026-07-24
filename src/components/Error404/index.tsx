@@ -1,3 +1,4 @@
+import CachedImage from '@/components/CachedImage';
 import Link from 'next/link';
 import { IoSearchOutline } from 'react-icons/io5';
 import { useSettingsStore } from '../../store/settings/settings-slice';
@@ -14,7 +15,7 @@ function Error404() {
         <div className="error-404 border-b border-[#ededed] pt-[20px] pb-[80px]">
             <div className="container">
                 <div className="content flex flex-col items-center">
-                    <img src={image} alt={imageAlt} className="mb-[30px] max-h-[450px] w-auto object-contain" />
+                    <CachedImage src={image} alt={imageAlt} className="mb-[30px] max-h-[450px] w-auto object-contain" />
                     <h1 className="mb-[10px]">{title}</h1>
                     <p className="text-[18px] leading-[31px] mb-[45px]">
                         {desc}

@@ -1,3 +1,4 @@
+import CachedImage from '@/components/CachedImage';
 import { useState, useMemo } from 'react';
 import { IoAddSharp, IoHeartOutline, IoHeart, IoRemoveSharp } from 'react-icons/io5';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -154,7 +155,7 @@ function MainContent({ product }: MainContentProps) {
                                     >
                                         {galleryImages.map((img: any, idx: number) => (
                                             <SwiperSlide key={idx}>
-                                                <img
+                                                <CachedImage
                                                     className="w-full"
                                                     src={img.mdUrl}
                                                     alt={img.altText || `${title} ${idx + 1}`}
@@ -174,7 +175,7 @@ function MainContent({ product }: MainContentProps) {
                                     >
                                         {galleryImages.map((img: any, idx: number) => (
                                             <SwiperSlide key={idx} className="cursor-pointer">
-                                                <img
+                                                <CachedImage
                                                     className="w-full rounded border border-gray-200 object-cover"
                                                     src={img.smUrl}
                                                     alt={img.altText || `${title} 縮圖 ${idx + 1}`}
@@ -186,7 +187,7 @@ function MainContent({ product }: MainContentProps) {
                                     </Swiper>
                                 </>
                             ) : (
-                                <img
+                                <CachedImage
                                     className="w-full"
                                     src={galleryImages[0]?.mdUrl || (product as any)?.mdImage}
                                     alt={(product as any)?.altImage}

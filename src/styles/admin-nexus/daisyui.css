@@ -1,13 +1,15 @@
 /*
- * Trimmed from Nexus's daisyui.css: only light + dark themes kept (the
- * ThemeToggle in this admin only ever switches between these two — the
- * contrast/material/dim/material-dark variants were part of Nexus's
- * theme-customizer drawer, which this admin doesn't expose).
- * `--color-primary` swapped to the site's actual brand gold instead of
- * Nexus's default blue.
+ * `light` and `dark` are this site's brand-gold themes (see below —
+ * `--color-primary` swapped from Nexus's default blue). `contrast`, `dim`,
+ * and `material-dark` are copied unchanged from Nexus's original
+ * daisyui.css (docs/nexus-nextjs@4.0.0/src/styles/daisyui.css) as extra,
+ * non-brand skin options. The rest of the `themes:` list are daisyUI's own
+ * built-in presets — no color values to maintain, just enabling them here
+ * is enough. All of this feeds the theme picker at /admin/appearance.
  */
 @plugin "daisyui" {
     exclude: rootscrollgutter;
+    themes: light --default, dark --prefersdark, contrast, dim, material-dark, cupcake, bumblebee, emerald, corporate, retro, cyberpunk, valentine, garden, lofi, pastel, fantasy, wireframe, cmyk, autumn, acid, lemonade, winter, nord;
 }
 
 @plugin "daisyui/theme" {
@@ -26,6 +28,50 @@
 
     --color-primary: #dcb14a;
     --color-primary-content: #2b1f08;
+    --color-secondary: #9c5de8;
+    --color-secondary-content: #ffffff;
+    --color-accent: #00d3bb;
+    --color-accent-content: #f3fbf6;
+    --color-neutral: #1e2832;
+    --color-neutral-content: #fafcff;
+    --color-info: #14b4ff;
+    --color-info-content: #ffffff;
+    --color-success: #0bbf58;
+    --color-success-content: #ffffff;
+    --color-warning: #f5a524;
+    --color-warning-content: #150a00;
+    --color-error: #f31260;
+    --color-error-content: #ffffff;
+
+    --radius-field: 0.25rem;
+    --radius-box: 0.25rem;
+    --rounded-box: 0.25rem;
+    --radius-selector: 0.25rem;
+    --size-selector: 0.25rem;
+    --size-field: 0.25rem;
+    --border: 1px;
+    --card-p: 20px;
+    --card-fs: var(--text-base);
+
+    --depth: 0;
+    --noise: 0;
+}
+
+@plugin "daisyui/theme" {
+    name: "contrast";
+    color-scheme: light;
+
+    --root-bg: #f2f4f6;
+    --layout-sidebar-background: #fcfdff;
+    --layout-topbar-background: #fdfeff;
+
+    --color-base-100: #ffffff;
+    --color-base-200: #eef0f2;
+    --color-base-300: #dcdee0;
+    --color-base-content: #1e2328;
+
+    --color-primary: #167bff;
+    --color-primary-content: #ffffff;
     --color-secondary: #9c5de8;
     --color-secondary-content: #ffffff;
     --color-accent: #00d3bb;
@@ -95,6 +141,93 @@
     --border: 1px;
     --card-p: 20px;
     --card-fs: var(--text-base);
+
+    --depth: 0;
+    --noise: 0;
+}
+
+@plugin "daisyui/theme" {
+    name: "dim";
+    color-scheme: dark;
+
+    --root-bg: #222630;
+    --layout-sidebar-background: #2a2e38;
+    --layout-topbar-background: #2a2e38;
+
+    --color-base-100: #2a2e38;
+    --color-base-200: #343842;
+    --color-base-300: #3c404a;
+    --color-base-content: #f0f4f8;
+
+    --color-primary: #378dff;
+    --color-primary-content: #ffffff;
+    --color-secondary: #b071ff;
+    --color-secondary-content: #ffffff;
+    --color-accent: #00d3bb;
+    --color-accent-content: #f3fbf6;
+    --color-neutral: #dce1e6;
+    --color-neutral-content: #1e2832;
+    --color-info: #14b4ff;
+    --color-info-content: #ffffff;
+    --color-success: #0bbf58;
+    --color-success-content: #ffffff;
+    --color-warning: #f5a524;
+    --color-warning-content: #150a00;
+    --color-error: #f31260;
+    --color-error-content: #ffffff;
+
+    --radius-field: 0.25rem;
+    --radius-box: 0.25rem;
+    --rounded-box: 0.25rem;
+    --radius-selector: 0.25rem;
+    --size-selector: 0.25rem;
+    --size-field: 0.25rem;
+    --border: 1px;
+    --card-p: 20px;
+    --card-fs: var(--text-base);
+
+    --depth: 0;
+    --noise: 0;
+}
+
+@plugin "daisyui/theme" {
+    name: "material-dark";
+    color-scheme: dark;
+
+    --root-bg: #141618;
+    --layout-sidebar-background: #181c20;
+    --layout-topbar-background: #181c22;
+
+    --color-base-100: #181e24;
+    --color-base-200: #202830;
+    --color-base-300: #2c323a;
+    --color-base-content: #f0f4f8;
+
+    --color-primary: #378dff;
+    --color-primary-content: #ffffff;
+    --color-secondary: #b071ff;
+    --color-secondary-content: #ffffff;
+    --color-accent: #00d3bb;
+    --color-accent-content: #f3fbf6;
+    --color-neutral: #dce1e6;
+    --color-neutral-content: #1e2832;
+    --color-info: #14b4ff;
+    --color-info-content: #ffffff;
+    --color-success: #0bbf58;
+    --color-success-content: #ffffff;
+    --color-warning: #f5a524;
+    --color-warning-content: #150a00;
+    --color-error: #f31260;
+    --color-error-content: #ffffff;
+
+    --radius-field: 20px;
+    --radius-box: 20px;
+    --rounded-box: 20px;
+    --radius-selector: 20px;
+    --size-selector: 0.25rem;
+    --size-field: 0.25rem;
+    --border: 1px;
+    --card-p: 20px;
 
     --depth: 0;
     --noise: 0;

@@ -48,6 +48,12 @@ export function TopbarProfileMenu({ userName }: TopbarProfileMenuProps) {
           </Link>
         </li>
         <li>
+          <Link href="/admin/appearance">
+            <span className="iconify lucide--palette size-4" />
+            <span>外觀設定</span>
+          </Link>
+        </li>
+        <li>
           <button type="button" onClick={handleSignOut} className="text-error hover:bg-error/10">
             <span className="iconify lucide--log-out size-4" />
             <span>登出</span>

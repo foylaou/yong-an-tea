@@ -1,12 +1,17 @@
 /*** Tailwind CSS Presets ***/
 @import "tailwindcss";
 
-/** Dark Variant with theme mode **/
+/**
+ * Dark Variant with theme mode.
+ * Keyed off `data-color-scheme` (light/dark), NOT `data-theme` (the specific
+ * skin name, e.g. "cupcake" or "nord") — with a full multi-theme picker,
+ * `data-theme` is no longer guaranteed to literally be the string "dark".
+ */
 @variant dark {
-    &:where([data-theme="dark"] *) {
+    &:where([data-color-scheme="dark"] *) {
         @slot;
     }
-    &:not([data-theme="light"] *) {
+    &:not([data-color-scheme="light"] *) {
         @media (prefers-color-scheme: dark) {
             @slot;
         }

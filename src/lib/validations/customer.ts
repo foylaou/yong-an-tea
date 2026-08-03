@@ -8,6 +8,8 @@ export const customerApiSchema = z.object({
   birthday: z.string().optional().nullable(),
   tea_preference: z.string().optional().nullable(),
   category: z.enum(['regular', 'wholesale']).optional(),
+  discount_type: z.enum(['percentage', 'fixed_amount']).nullable().optional(),
+  discount_value: z.number().min(0).optional(),
   note: z.string().optional().nullable(),
   // Set when POS staff verified this customer is an existing website member
   // (via the email-OTP check), linking their POS record to their profile.

@@ -18,6 +18,8 @@ interface CheckoutFormProps {
   paymentToggles: PaymentToggles;
   userEmail: string;
   userName: string;
+  loyaltyDiscount: { discount_type: 'percentage' | 'fixed_amount'; discount_value: number } | null;
+  loyaltyDiscountShowLabel: boolean;
 }
 
 const inputField =
@@ -27,7 +29,7 @@ const textareaField =
 const labelClass = 'mb-[5px] text-sm font-medium';
 const errorClass = 'text-red-500 text-xs mt-1';
 
-function CheckoutForm({ addresses, shippingSettings, paymentToggles, userEmail, userName }: CheckoutFormProps) {
+function CheckoutForm({ addresses, shippingSettings, paymentToggles, userEmail, userName, loyaltyDiscount, loyaltyDiscountShowLabel }: CheckoutFormProps) {
   const router = useRouter();
   const cartItems = useCartStore((state) => state.items);
   const clearAllFromCart = useCartStore((state) => state.clearAllFromCart);
@@ -58,7 +60,16 @@ function CheckoutForm({ addresses, shippingSettings, paymentToggles, userEmail, 
   const shippingFee =
     appliedCoupon?.discount_type === 'free_shipping' ? 0 : baseShippingFee;
 
-  const discountAmount = appliedCoupon?.discount_amount ?? 0;
+  // 熟客折扣跟優惠碼互斥，優惠碼優先
+  const loyaltyDiscountAmount = (() => {
+    if (appliedCoupon || !loyaltyDiscount || loyaltyDiscount.discount_value <= 0) return 0;
+    if (loyaltyDiscount.discount_type === 'percentage') {
+      return Math.round(subtotal * (loyaltyDiscount.discount_value / 100));
+    }
+    return Math.min(loyaltyDiscount.discount_value, subtotal);
+  })();
+
+  const discountAmount = appliedCoupon?.discount_amount ?? loyaltyDiscountAmount;
 
   // Build enabled payment methods list
   const enabledPaymentMethods = [
@@ -657,6 +668,14 @@ function CheckoutForm({ addresses, shippingSettings, paymentToggles, userEmail, 
                           <td className="py-[15px] font-bold text-green-600">折扣</td>
                           <td className="py-[15px] text-right text-green-600">
                             -{formatPrice(discountAmount)}
+                          </td>
+                        </tr>
+                      )}
+                      {!appliedCoupon && loyaltyDiscountAmount > 0 && loyaltyDiscountShowLabel && (
+                        <tr className="border-t border-[#cdcdcd]">
+                          <td className="py-[15px] font-bold text-green-600">熟客折扣</td>
+                          <td className="py-[15px] text-right text-green-600">
+                            -{formatPrice(loyaltyDiscountAmount)}
                           </td>
                         </tr>
                       )}

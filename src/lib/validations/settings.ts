@@ -9,6 +9,7 @@ export const generalSettingsSchema = z.object({
   favicon_url: z.string().min(1, 'Favicon 路徑為必填'),
   copyright_text: z.string().optional(),
   blog_enabled: z.string().optional(),
+  loyalty_discount_show_label: z.string().optional(),
 });
 
 export const shopLayoutEnum = z.enum([

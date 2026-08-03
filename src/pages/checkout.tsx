@@ -6,7 +6,7 @@ import Breadcrumb from '../components/Breadcrumb';
 import CheckoutForm from '../components/Checkout/CheckoutForm';
 import FooterComps from '../components/FooterComps';
 import { createPagesClient } from '../lib/supabase/server-pages';
-import { getShippingSettings, getPaymentToggles } from '../lib/orders-db';
+import { getShippingSettings, getPaymentToggles, getLoyaltyDiscountShowLabel } from '../lib/orders-db';
 
 interface CheckoutPageProps {
     addresses: Address[];
@@ -14,6 +14,8 @@ interface CheckoutPageProps {
     paymentToggles: PaymentToggles;
     userEmail: string;
     userName: string;
+    loyaltyDiscount: { discount_type: 'percentage' | 'fixed_amount'; discount_value: number } | null;
+    loyaltyDiscountShowLabel: boolean;
 }
 
 function CheckoutPage({
@@ -22,6 +24,8 @@ function CheckoutPage({
     paymentToggles,
     userEmail,
     userName,
+    loyaltyDiscount,
+    loyaltyDiscountShowLabel,
 }: CheckoutPageProps) {
     return (
         <>
@@ -39,6 +43,8 @@ function CheckoutPage({
                 paymentToggles={paymentToggles}
                 userEmail={userEmail}
                 userName={userName}
+                loyaltyDiscount={loyaltyDiscount}
+                loyaltyDiscountShowLabel={loyaltyDiscountShowLabel}
             />
             <FooterComps
                 footerContainer="container"
@@ -73,10 +79,16 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
         .eq('id', user.id)
         .single();
 
-    // Fetch shipping settings and payment toggles
-    const [shippingSettings, paymentToggles] = await Promise.all([
+    // Fetch shipping settings, payment toggles, and this user's loyalty discount (if any)
+    const [shippingSettings, paymentToggles, loyaltyDiscountShowLabel, { data: customer }] = await Promise.all([
       getShippingSettings(),
       getPaymentToggles(),
+      getLoyaltyDiscountShowLabel(),
+      supabase
+        .from('customers')
+        .select('discount_type, discount_value')
+        .eq('profile_id', user.id)
+        .maybeSingle(),
     ]);
 
     return {
@@ -86,6 +98,10 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
             paymentToggles,
             userEmail: user.email || '',
             userName: profile?.full_name || '',
+            loyaltyDiscount: customer?.discount_type
+                ? { discount_type: customer.discount_type, discount_value: customer.discount_value }
+                : null,
+            loyaltyDiscountShowLabel,
         },
     };
 };

@@ -1,4 +1,5 @@
 export type CustomerCategory = 'regular' | 'wholesale';
+export type CustomerDiscountType = 'percentage' | 'fixed_amount';
 
 export interface Customer {
   id: string;
@@ -10,6 +11,8 @@ export interface Customer {
   birthday: string | null;
   tea_preference: string | null;
   category: CustomerCategory;
+  discount_type: CustomerDiscountType | null;
+  discount_value: number;
   line_user_id: string | null;
   note: string | null;
   created_at: string;

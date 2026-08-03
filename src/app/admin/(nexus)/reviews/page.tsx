@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
-import ReviewTable from './ReviewTable';
+import { ReviewTable } from '@/components/admin/nexus-reviews/ReviewTable';
+import { PageTitle } from '@/components/admin/nexus-layout/PageTitle';
 
 const PER_PAGE = 20;
 
@@ -8,10 +9,7 @@ export default async function ReviewsPage() {
 
   const { data: reviews, count } = await supabase
     .from('product_reviews')
-    .select(
-      '*, profiles:customer_id(display_name), products:product_id(title)',
-      { count: 'exact' }
-    )
+    .select('*, profiles:customer_id(display_name), products:product_id(title)', { count: 'exact' })
     .order('created_at', { ascending: false })
     .range(0, PER_PAGE - 1);
 
@@ -32,15 +30,8 @@ export default async function ReviewsPage() {
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">評價管理</h1>
-      </div>
-      <ReviewTable
-        initialReviews={mapped}
-        initialTotal={count || 0}
-        initialPage={1}
-        perPage={PER_PAGE}
-      />
+      <PageTitle title="評價管理" />
+      <ReviewTable initialReviews={mapped} initialTotal={count || 0} initialPage={1} perPage={PER_PAGE} />
     </div>
   );
 }

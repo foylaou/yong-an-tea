@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
+import { useNexusAdminConfig } from '@/contexts/nexus-admin-config';
 
 interface TopbarProfileMenuProps {
   userName: string;
@@ -10,6 +11,7 @@ interface TopbarProfileMenuProps {
 
 export function TopbarProfileMenu({ userName }: TopbarProfileMenuProps) {
   const router = useRouter();
+  const { config, toggleTheme } = useNexusAdminConfig();
 
   const handleSignOut = async () => {
     const supabase = createClient();
@@ -46,6 +48,15 @@ export function TopbarProfileMenu({ userName }: TopbarProfileMenuProps) {
             <span className="iconify lucide--key-round size-4" />
             <span>更改密碼</span>
           </Link>
+        </li>
+        <li>
+          <label className="flex cursor-pointer items-center justify-between">
+            <span className="inline-flex items-center gap-2">
+              <span className="iconify lucide--sun-moon size-4" />
+              <span>深色模式</span>
+            </span>
+            <input type="checkbox" className="toggle toggle-sm" checked={config.theme === 'dark'} onChange={toggleTheme} />
+          </label>
         </li>
         <li>
           <button type="button" onClick={handleSignOut} className="text-error hover:bg-error/10">

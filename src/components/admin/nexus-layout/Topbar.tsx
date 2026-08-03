@@ -1,4 +1,3 @@
-import { ThemeToggle } from './ThemeToggle';
 import { TopbarProfileMenu } from './TopbarProfileMenu';
 
 export function Topbar({ userName }: { userName: string }) {
@@ -21,7 +20,6 @@ export function Topbar({ userName }: { userName: string }) {
         </label>
       </div>
       <div className="inline-flex items-center gap-0.5">
-        <ThemeToggle className="btn btn-sm btn-circle btn-ghost" />
         <TopbarProfileMenu userName={userName} />
       </div>
     </div>

@@ -11,7 +11,7 @@ interface NewsletterFormProps {
   };
 }
 
-export default function NewsletterForm({ initialData }: NewsletterFormProps) {
+export function NewsletterForm({ initialData }: NewsletterFormProps) {
   const router = useRouter();
   const isEditing = !!initialData;
 
@@ -31,9 +31,7 @@ export default function NewsletterForm({ initialData }: NewsletterFormProps) {
     setError(null);
 
     try {
-      const url = isEditing
-        ? `/api/admin/newsletter/${initialData.id}`
-        : '/api/admin/newsletter';
+      const url = isEditing ? `/api/admin/newsletter/${initialData.id}` : '/api/admin/newsletter';
       const method = isEditing ? 'PUT' : 'POST';
 
       const res = await fetch(url, {
@@ -65,7 +63,6 @@ export default function NewsletterForm({ initialData }: NewsletterFormProps) {
     setError(null);
 
     try {
-      // Save first
       const saveRes = await fetch(`/api/admin/newsletter/${initialData.id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -78,10 +75,7 @@ export default function NewsletterForm({ initialData }: NewsletterFormProps) {
         return;
       }
 
-      // Then send
-      const res = await fetch(`/api/admin/newsletter/${initialData.id}/send`, {
-        method: 'POST',
-      });
+      const res = await fetch(`/api/admin/newsletter/${initialData.id}/send`, { method: 'POST' });
       const data = await res.json();
 
       if (res.ok) {
@@ -102,58 +96,36 @@ export default function NewsletterForm({ initialData }: NewsletterFormProps) {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-lg bg-white p-6 shadow">
-        <div className="space-y-4">
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">主旨</label>
-            <input
-              type="text"
-              value={subject}
-              onChange={(e) => setSubject(e.target.value)}
-              placeholder="輸入電子報主旨"
-              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
-            />
-          </div>
-
-          <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
-              內容（HTML）
-            </label>
+      <div className="card card-border bg-base-100">
+        <div className="card-body space-y-4">
+          <fieldset className="fieldset">
+            <legend className="fieldset-legend">主旨</legend>
+            <input type="text" value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="輸入電子報主旨" className="input w-full" />
+          </fieldset>
+          <fieldset className="fieldset">
+            <legend className="fieldset-legend">內容（HTML）</legend>
             <textarea
               value={contentHtml}
               onChange={(e) => setContentHtml(e.target.value)}
               rows={16}
               placeholder="輸入電子報 HTML 內容"
-              className="w-full rounded-md border border-gray-300 px-3 py-2 font-mono text-sm focus:border-black focus:outline-none focus:ring-1 focus:ring-black"
+              className="textarea w-full font-mono text-sm"
             />
-          </div>
+          </fieldset>
         </div>
       </div>
 
-      {error && (
-        <div className="rounded-md bg-red-50 p-4 text-sm text-red-700">{error}</div>
-      )}
+      {error && <div className="alert alert-error text-sm">{error}</div>}
 
       <div className="flex items-center justify-end gap-3">
-        <button
-          onClick={() => router.push('/admin/newsletter')}
-          className="rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-        >
+        <button onClick={() => router.push('/admin/newsletter')} className="btn btn-outline">
           取消
         </button>
-        <button
-          onClick={handleSave}
-          disabled={isLoading}
-          className="rounded-md bg-black px-6 py-2 text-sm text-white hover:bg-gray-800 disabled:opacity-50"
-        >
+        <button onClick={handleSave} disabled={isLoading} className="btn btn-primary">
           {saving ? '儲存中...' : '儲存草稿'}
         </button>
         {isEditing && (
-          <button
-            onClick={handleSend}
-            disabled={isLoading}
-            className="rounded-md bg-green-600 px-6 py-2 text-sm text-white hover:bg-green-700 disabled:opacity-50"
-          >
+          <button onClick={handleSend} disabled={isLoading} className="btn btn-success">
             {sending ? '發送中...' : '立即發送'}
           </button>
         )}

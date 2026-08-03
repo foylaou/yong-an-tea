@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
-import SubscriberList from '@/components/admin/newsletter/SubscriberList';
+import { SubscriberList } from '@/components/admin/nexus-newsletter/SubscriberList';
 
 const PER_PAGE = 20;
 
@@ -12,17 +12,5 @@ export default async function SubscribersPage() {
     .order('created_at', { ascending: false })
     .range(0, PER_PAGE - 1);
 
-  return (
-    <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">電子報訂閱者</h1>
-      </div>
-      <SubscriberList
-        initialSubscribers={subscribers || []}
-        initialTotal={count || 0}
-        initialPage={1}
-        perPage={PER_PAGE}
-      />
-    </div>
-  );
+  return <SubscriberList initialSubscribers={subscribers || []} initialTotal={count || 0} initialPage={1} perPage={PER_PAGE} />;
 }

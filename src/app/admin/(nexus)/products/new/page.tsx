@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
-import ProductForm from '@/components/admin/products/ProductForm';
+import { ProductForm } from '@/components/admin/nexus-products/ProductForm';
+import { PageTitle } from '@/components/admin/nexus-layout/PageTitle';
 
 export default async function NewProductPage() {
   const supabase = await createClient();
@@ -12,7 +13,7 @@ export default async function NewProductPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-semibold text-gray-900">新增商品</h1>
+      <PageTitle title="新增商品" />
       <ProductForm categories={categories || []} />
     </div>
   );

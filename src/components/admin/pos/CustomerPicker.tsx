@@ -10,6 +10,12 @@ interface CustomerPickerProps {
   onClose: () => void;
 }
 
+interface LinkedMember {
+  profile_id: string;
+  full_name: string;
+  phone: string | null;
+}
+
 export function CustomerPicker({ onSelect, onClose }: CustomerPickerProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [phone, setPhone] = useState('');
@@ -21,6 +27,16 @@ export function CustomerPicker({ onSelect, onClose }: CustomerPickerProps) {
   const [quickPhone, setQuickPhone] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+
+  // Staff-assisted email-OTP member verification (POS fallback when a
+  // walk-in claims to already be a website member but isn't in `customers`)
+  const [showVerify, setShowVerify] = useState(false);
+  const [verifyStep, setVerifyStep] = useState<'email' | 'code'>('email');
+  const [verifyEmail, setVerifyEmail] = useState('');
+  const [verifyCode, setVerifyCode] = useState('');
+  const [verifyLoading, setVerifyLoading] = useState(false);
+  const [verifyError, setVerifyError] = useState('');
+  const [linkedMember, setLinkedMember] = useState<LinkedMember | null>(null);
 
   const search = useCallback(async (q: string) => {
     if (!q.trim()) {
@@ -71,7 +87,11 @@ export function CustomerPicker({ onSelect, onClose }: CustomerPickerProps) {
       const res = await fetch('/api/admin/customers', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: quickName.trim(), phone: quickPhone.trim() }),
+        body: JSON.stringify({
+          name: quickName.trim(),
+          phone: quickPhone.trim(),
+          profile_id: linkedMember?.profile_id ?? undefined,
+        }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -82,6 +102,60 @@ export function CustomerPicker({ onSelect, onClose }: CustomerPickerProps) {
     } finally {
       setSaving(false);
     }
+  }
+
+  async function handleRequestVerifyCode(e: React.FormEvent) {
+    e.preventDefault();
+    setVerifyError('');
+    setVerifyLoading(true);
+    try {
+      const res = await fetch('/api/admin/pos/verify-member/request-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: verifyEmail.trim() }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setVerifyError(data.error || '驗證碼寄送失敗');
+        return;
+      }
+      setVerifyStep('code');
+    } finally {
+      setVerifyLoading(false);
+    }
+  }
+
+  async function handleConfirmVerifyCode(e: React.FormEvent) {
+    e.preventDefault();
+    setVerifyError('');
+    setVerifyLoading(true);
+    try {
+      const res = await fetch('/api/admin/pos/verify-member/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: verifyEmail.trim(), code: verifyCode.trim(), phone: quickPhone.trim() || undefined }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setVerifyError(data.error || '驗證失敗');
+        return;
+      }
+      setLinkedMember(data.member);
+      setQuickName(data.member.full_name || quickName);
+      setQuickPhone(data.member.phone || quickPhone);
+      setShowVerify(false);
+      setShowQuickAdd(true);
+    } finally {
+      setVerifyLoading(false);
+    }
+  }
+
+  function resetVerify() {
+    setShowVerify(false);
+    setVerifyStep('email');
+    setVerifyEmail('');
+    setVerifyCode('');
+    setVerifyError('');
   }
 
   return (
@@ -121,11 +195,78 @@ export function CustomerPicker({ onSelect, onClose }: CustomerPickerProps) {
               </button>
             ))}
           {!loading && phone.trim() && results.length === 0 && (
-            <p className="text-base-content/40 py-4 text-center text-sm">查無此客戶</p>
+            <div className="py-4 text-center">
+              <p className="text-base-content/40 text-sm">查無此客戶</p>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowVerify(true);
+                  setVerifyEmail('');
+                }}
+                className="btn btn-ghost btn-xs mt-1"
+              >
+                這位是網站會員嗎？用 Email 核對
+              </button>
+            </div>
           )}
         </div>
 
+        {showVerify && (
+          <div className="border-base-300 bg-base-200/50 mt-2 space-y-2 rounded-md border p-3">
+            {verifyStep === 'email' ? (
+              <form onSubmit={handleRequestVerifyCode} className="space-y-2">
+                <p className="text-base-content/60 text-xs">輸入客人的會員 Email，寄送驗證碼確認身分</p>
+                <input
+                  type="email"
+                  value={verifyEmail}
+                  onChange={(e) => setVerifyEmail(e.target.value)}
+                  placeholder="member@example.com"
+                  className="input input-sm w-full"
+                  required
+                />
+                {verifyError && <p className="text-error text-xs">{verifyError}</p>}
+                <div className="flex gap-2">
+                  <button type="submit" disabled={verifyLoading || !verifyEmail.trim()} className="btn btn-sm btn-primary">
+                    {verifyLoading ? '寄送中...' : '發送驗證碼'}
+                  </button>
+                  <button type="button" onClick={resetVerify} className="btn btn-sm btn-ghost">
+                    取消
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <form onSubmit={handleConfirmVerifyCode} className="space-y-2">
+                <p className="text-base-content/60 text-xs">驗證碼已寄到 {verifyEmail}，請輸入 6 位數驗證碼</p>
+                <input
+                  type="text"
+                  value={verifyCode}
+                  onChange={(e) => setVerifyCode(e.target.value)}
+                  placeholder="6 位數驗證碼"
+                  maxLength={6}
+                  className="input input-sm w-full"
+                  required
+                />
+                {verifyError && <p className="text-error text-xs">{verifyError}</p>}
+                <div className="flex gap-2">
+                  <button type="submit" disabled={verifyLoading || verifyCode.length !== 6} className="btn btn-sm btn-primary">
+                    {verifyLoading ? '驗證中...' : '確認'}
+                  </button>
+                  <button type="button" onClick={resetVerify} className="btn btn-sm btn-ghost">
+                    取消
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        )}
+
         <div className="divider" />
+
+        {linkedMember && (
+          <div className="alert alert-success mb-2 text-sm">
+            已核對為會員「{linkedMember.full_name}」，新增後會自動連結線上購買紀錄
+          </div>
+        )}
 
         {!showQuickAdd ? (
           <div className="flex flex-wrap items-center justify-between gap-2">

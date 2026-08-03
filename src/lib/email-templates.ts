@@ -109,6 +109,22 @@ ${trackingNumber ? `<p style="color:#666;line-height:1.6;">追蹤編號：<stron
   return baseLayout(content);
 }
 
+export function phoneBindOtpEmail(code: string): string {
+  const content = `
+<p style="margin:0 0 16px;font-size:16px;color:#333;">您好，</p>
+<p style="margin:0 0 24px;font-size:14px;color:#666;line-height:1.6;">
+  您正在綁定電話號碼，請於 <strong>10 分鐘內</strong>輸入以下驗證碼完成驗證：
+</p>
+<div style="margin:0 0 24px;text-align:center;">
+  <span style="display:inline-block;padding:16px 32px;background-color:#f5f5f5;border-radius:8px;font-size:32px;font-weight:700;letter-spacing:8px;color:#222;">${code}</span>
+</div>
+<p style="margin:0;font-size:12px;color:#999;line-height:1.6;">
+  如果這不是您本人操作，請忽略這封信件。
+</p>`;
+
+  return baseLayout(content);
+}
+
 export function newsletterWrapperEmail(contentHtml: string, unsubscribeUrl: string): string {
   const content = `
 <div style="color:#333;line-height:1.6;">

@@ -1,0 +1,14 @@
+/*** Tailwind CSS Presets ***/
+@import "tailwindcss";
+
+/** Dark Variant with theme mode **/
+@variant dark {
+    &:where([data-theme="dark"] *) {
+        @slot;
+    }
+    &:not([data-theme="light"] *) {
+        @media (prefers-color-scheme: dark) {
+            @slot;
+        }
+    }
+}

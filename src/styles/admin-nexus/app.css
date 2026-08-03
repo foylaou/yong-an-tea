@@ -1,0 +1,16 @@
+/*
+ * Scoped Nexus admin CSS chain — imported only from
+ * src/app/admin/(nexus)/layout.tsx, so daisyUI's utility class names
+ * (primary/secondary/btn/card/badge...) never reach the storefront or the
+ * legacy (dashboard) admin pages, which use their own Tailwind config.
+ */
+@import "./tailwind.css";
+@import "./daisyui.css";
+@import "./components.css";
+@import "./layout.css";
+
+@plugin "tailwindcss-motion";
+
+@plugin "@iconify/tailwind4" {
+    prefixes: lucide;
+}

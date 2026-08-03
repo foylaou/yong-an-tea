@@ -2,10 +2,11 @@
 
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import type { AdminProduct } from '@/types/admin-product';
+import type { AdminProduct, ProductVariant } from '@/types/admin-product';
 import type { Customer } from '@/types/customer';
 import type { OrderChannel, PaymentMethod } from '@/types/order';
 import { CustomerPicker } from './CustomerPicker';
+import { AddToCartDialog } from './AddToCartDialog';
 
 interface PosScreenProps {
   initialProducts: AdminProduct[];
@@ -13,7 +14,9 @@ interface PosScreenProps {
 }
 
 interface CartLine {
+  key: string;
   product: AdminProduct;
+  variant?: ProductVariant;
   quantity: number;
 }
 
@@ -33,8 +36,22 @@ function productImage(product: AdminProduct): string {
   return product.xs_image || product.sm_image || '';
 }
 
-function effectivePrice(product: AdminProduct): number {
-  return product.discount_price ?? product.price;
+// discount_price is stored as 0 (not null) when there's no discount, so a
+// truthy check is required here — nullish coalescing would incorrectly
+// treat 0 as "the real price".
+function productDisplayPrice(product: AdminProduct): number {
+  return product.discount_price || product.price;
+}
+
+function lineUnitPrice(line: CartLine): number {
+  if (line.variant) {
+    return line.variant.discount_price || line.variant.price;
+  }
+  return productDisplayPrice(line.product);
+}
+
+function cartKey(productId: string, variantId?: string): string {
+  return `${productId}:${variantId ?? 'base'}`;
 }
 
 export function PosScreen({ initialProducts, categories }: PosScreenProps) {
@@ -42,6 +59,7 @@ export function PosScreen({ initialProducts, categories }: PosScreenProps) {
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<string>('');
   const [cart, setCart] = useState<CartLine[]>([]);
+  const [addToCartProduct, setAddToCartProduct] = useState<AdminProduct | null>(null);
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [customerPicked, setCustomerPicked] = useState(false);
   const [showCustomerPicker, setShowCustomerPicker] = useState(false);
@@ -61,28 +79,29 @@ export function PosScreen({ initialProducts, categories }: PosScreenProps) {
     });
   }, [initialProducts, search, categoryFilter]);
 
-  const total = useMemo(() => cart.reduce((sum, line) => sum + effectivePrice(line.product) * line.quantity, 0), [cart]);
+  const total = useMemo(() => cart.reduce((sum, line) => sum + lineUnitPrice(line) * line.quantity, 0), [cart]);
 
-  function addToCart(product: AdminProduct) {
+  function handleAddToCartConfirm(variant: ProductVariant | undefined, quantity: number) {
+    if (!addToCartProduct) return;
+    const product = addToCartProduct;
+    const key = cartKey(product.id, variant?.id);
+
     setCart((prev) => {
-      const existing = prev.find((line) => line.product.id === product.id);
+      const existing = prev.find((line) => line.key === key);
       if (existing) {
-        return prev.map((line) => (line.product.id === product.id ? { ...line, quantity: line.quantity + 1 } : line));
+        return prev.map((line) => (line.key === key ? { ...line, quantity: line.quantity + quantity } : line));
       }
-      return [...prev, { product, quantity: 1 }];
+      return [...prev, { key, product, variant, quantity }];
     });
+    setAddToCartProduct(null);
   }
 
-  function updateQuantity(productId: string, delta: number) {
-    setCart((prev) =>
-      prev
-        .map((line) => (line.product.id === productId ? { ...line, quantity: line.quantity + delta } : line))
-        .filter((line) => line.quantity > 0)
-    );
+  function updateQuantity(key: string, delta: number) {
+    setCart((prev) => prev.map((line) => (line.key === key ? { ...line, quantity: line.quantity + delta } : line)).filter((line) => line.quantity > 0));
   }
 
-  function removeLine(productId: string) {
-    setCart((prev) => prev.filter((line) => line.product.id !== productId));
+  function removeLine(key: string) {
+    setCart((prev) => prev.filter((line) => line.key !== key));
   }
 
   function handleCustomerSelect(selected: Customer | null) {
@@ -107,7 +126,7 @@ export function PosScreen({ initialProducts, categories }: PosScreenProps) {
           channel,
           payment_method: paymentMethod,
           is_paid: isPaid,
-          items: cart.map((line) => ({ product_id: line.product.id, quantity: line.quantity })),
+          items: cart.map((line) => ({ product_id: line.product.id, variant_id: line.variant?.id, quantity: line.quantity })),
         }),
       });
       const data = await res.json();
@@ -161,7 +180,7 @@ export function PosScreen({ initialProducts, categories }: PosScreenProps) {
             <button
               key={product.id}
               type="button"
-              onClick={() => addToCart(product)}
+              onClick={() => setAddToCartProduct(product)}
               className="card card-border bg-base-100 hover:border-primary text-left transition-colors"
             >
               <div className="bg-base-200 aspect-square w-full overflow-hidden rounded-t-box">
@@ -174,7 +193,9 @@ export function PosScreen({ initialProducts, categories }: PosScreenProps) {
               </div>
               <div className="card-body gap-0.5 p-3">
                 <p className="line-clamp-2 text-sm font-medium">{product.title}</p>
-                <p className="text-primary font-semibold">${effectivePrice(product).toLocaleString()}</p>
+                <p className="text-primary font-semibold">
+                  {product.product_variants?.length ? '多規格' : `$${productDisplayPrice(product).toLocaleString()}`}
+                </p>
               </div>
             </button>
           ))}
@@ -196,21 +217,24 @@ export function PosScreen({ initialProducts, categories }: PosScreenProps) {
             <p className="text-base-content/40 py-12 text-center text-sm">點選左側商品加入購物車</p>
           ) : (
             cart.map((line) => (
-              <div key={line.product.id} className="border-base-200 flex items-center gap-2 border-b pb-2">
+              <div key={line.key} className="border-base-200 flex items-center gap-2 border-b pb-2">
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium">{line.product.title}</p>
-                  <p className="text-base-content/50 text-xs">${effectivePrice(line.product).toLocaleString()} / 件</p>
+                  <p className="truncate text-sm font-medium">
+                    {line.product.title}
+                    {line.variant && <span className="text-base-content/50"> · {line.variant.name}</span>}
+                  </p>
+                  <p className="text-base-content/50 text-xs">${lineUnitPrice(line).toLocaleString()} / 件</p>
                 </div>
                 <div className="join">
-                  <button type="button" onClick={() => updateQuantity(line.product.id, -1)} className="join-item btn btn-xs btn-square">
+                  <button type="button" onClick={() => updateQuantity(line.key, -1)} className="join-item btn btn-xs btn-square">
                     <span className="iconify lucide--minus size-3.5" />
                   </button>
                   <span className="join-item btn btn-xs btn-disabled w-8">{line.quantity}</span>
-                  <button type="button" onClick={() => updateQuantity(line.product.id, 1)} className="join-item btn btn-xs btn-square">
+                  <button type="button" onClick={() => updateQuantity(line.key, 1)} className="join-item btn btn-xs btn-square">
                     <span className="iconify lucide--plus size-3.5" />
                   </button>
                 </div>
-                <button type="button" onClick={() => removeLine(line.product.id)} className="btn btn-xs btn-ghost btn-square text-error">
+                <button type="button" onClick={() => removeLine(line.key)} className="btn btn-xs btn-ghost btn-square text-error">
                   <span className="iconify lucide--trash-2 size-4" />
                 </button>
               </div>
@@ -259,6 +283,9 @@ export function PosScreen({ initialProducts, categories }: PosScreenProps) {
       </div>
 
       {showCustomerPicker && <CustomerPicker onSelect={handleCustomerSelect} onClose={() => setShowCustomerPicker(false)} />}
+      {addToCartProduct && (
+        <AddToCartDialog product={addToCartProduct} onConfirm={handleAddToCartConfirm} onClose={() => setAddToCartProduct(null)} />
+      )}
     </div>
   );
 }

@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 export const posOrderItemSchema = z.object({
   product_id: z.string().uuid(),
+  variant_id: z.string().uuid().nullable().optional(),
   quantity: z.number().int().positive(),
 });
 

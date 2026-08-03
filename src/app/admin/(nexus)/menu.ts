@@ -1,12 +1,10 @@
 import { ISidebarMenuItem } from '@/components/admin/nexus-layout/SidebarMenuItem';
 
-/**
- * 訂單管理／商品管理 指向這個新的 (nexus) 路由群組；
- * 其餘項目暫時還沒遷移，指向既有的 (dashboard) 群組頁面。
- */
 export const adminMenuItems: ISidebarMenuItem[] = [
   { id: 'dashboard', label: '儀表板', icon: 'lucide--layout-dashboard', url: '/admin' },
+  { id: 'pos', label: '銷售模式', icon: 'lucide--store', url: '/admin/pos' },
   { id: 'orders', label: '訂單管理', icon: 'lucide--shopping-cart', url: '/admin/orders' },
+  { id: 'customers', label: '客戶資料', icon: 'lucide--contact', url: '/admin/customers' },
   { id: 'products', label: '商品管理', icon: 'lucide--package', url: '/admin/products' },
   { id: 'reviews', label: '評價管理', icon: 'lucide--star', url: '/admin/reviews' },
   { id: 'analytics', label: '銷售分析', icon: 'lucide--bar-chart-3', url: '/admin/analytics' },

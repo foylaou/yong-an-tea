@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { ThemeToggle } from './ThemeToggle';
 import { TopbarNotificationButton } from './TopbarNotificationButton';
 import { TopbarProfileMenu } from './TopbarProfileMenu';
@@ -21,7 +22,11 @@ export function Topbar({ userName }: { userName: string }) {
           <span className="iconify lucide--menu size-5" />
         </label>
       </div>
-      <div className="inline-flex items-center gap-0.5">
+      <div className="inline-flex items-center gap-2">
+        <Link href="/admin/pos" className="btn btn-success btn-sm rounded-full px-4 font-semibold text-white shadow-sm">
+          <span className="iconify lucide--store size-4" />
+          銷售模式
+        </Link>
         <TopbarNotificationButton />
         <ThemeToggle className="btn btn-sm btn-circle btn-ghost" />
         <TopbarProfileMenu userName={userName} />

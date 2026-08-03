@@ -7,9 +7,11 @@ export type OrderStatus =
   | 'cancelled'
   | 'refunded';
 
-export type PaymentMethod = 'line_pay' | 'bank_transfer' | 'cod';
+export type PaymentMethod = 'line_pay' | 'bank_transfer' | 'cod' | 'cash';
 
-export type ShippingMethod = 'tcat' | 'tcat_b2s';
+export type ShippingMethod = 'tcat' | 'tcat_b2s' | 'pickup';
+
+export type OrderChannel = 'website' | 'phone' | 'line' | 'in_store';
 
 export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded';
 
@@ -37,7 +39,9 @@ export interface OrderItem {
 export interface Order {
   id: string;
   order_number: string;
-  customer_id: string;
+  customer_id: string | null;
+  walk_in_customer_id?: string | null;
+  channel?: OrderChannel;
   status: OrderStatus;
   subtotal: number;
   shipping_fee: number;
@@ -53,7 +57,7 @@ export interface Order {
   store_name: string | null;
   store_address: string | null;
   customer_name: string;
-  customer_email: string;
+  customer_email: string | null;
   customer_phone: string;
   company_name?: string | null;
   company_tax_id?: string | null;

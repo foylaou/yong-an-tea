@@ -4,10 +4,11 @@ import Breadcrumb from '../../components/Breadcrumb';
 import FooterComps from '../../components/FooterComps';
 import AccountLayout from '../../components/Account/AccountLayout';
 import ProfileForm from '../../components/Account/ProfileForm';
+import PhoneBindSection from '../../components/Account/PhoneBindSection';
 import { createPagesClient } from '../../lib/supabase/server-pages';
 
 interface AccountPageProps {
-    profile: { full_name: string; email: string };
+    profile: { full_name: string; email: string; phone: string | null };
 }
 
 function AccountPage({ profile }: AccountPageProps) {
@@ -23,6 +24,7 @@ function AccountPage({ profile }: AccountPageProps) {
             />
             <AccountLayout>
                 <ProfileForm initialData={profile} />
+                <PhoneBindSection initialPhone={profile.phone} />
             </AccountLayout>
             <FooterComps footerContainer="container" />
         </>
@@ -39,7 +41,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
 
     const { data: profile } = await supabase
         .from('profiles')
-        .select('full_name')
+        .select('full_name, phone')
         .eq('id', user.id)
         .single();
 
@@ -48,6 +50,7 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
             profile: {
                 full_name: profile?.full_name || '',
                 email: user.email || '',
+                phone: profile?.phone || null,
             },
         },
     };

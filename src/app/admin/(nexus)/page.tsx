@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import Image from 'next/image';
 import { createClient } from '@/lib/supabase/server';
 import { PageTitle } from '@/components/admin/nexus-layout/PageTitle';
 
@@ -115,11 +114,10 @@ export default async function AdminDashboard() {
                       <tr key={product.id}>
                         <td>
                           {product.xs_image ? (
-                            <Image
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
                               src={getImageUrl(product.xs_image, product.slug)}
                               alt={product.title}
-                              width={40}
-                              height={40}
                               className="h-10 w-10 rounded object-cover"
                             />
                           ) : (

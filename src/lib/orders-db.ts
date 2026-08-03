@@ -300,11 +300,15 @@ export async function validateCartItems(
 // --- Order Creation ---
 
 export interface CreateOrderParams {
-  customer_id: string;
+  // Exactly one of customer_id (site login) / walk_in_customer_id (POS
+  // customer record) must be set.
+  customer_id?: string;
+  walk_in_customer_id?: string;
+  channel?: 'website' | 'phone' | 'line' | 'in_store';
   customer_name: string;
-  customer_email: string;
+  customer_email?: string;
   customer_phone: string;
-  shipping_address: Record<string, unknown>;
+  shipping_address?: Record<string, unknown>;
   payment_method: string;
   shipping_method: string;
   shipping_fee: number;
@@ -334,11 +338,13 @@ export async function createOrder(
   const supabase = createAdminClient();
 
   const { data, error } = await supabase.rpc('create_order_with_items', {
-    p_customer_id: params.customer_id,
+    p_customer_id: params.customer_id ?? null,
+    p_walk_in_customer_id: params.walk_in_customer_id ?? null,
+    p_channel: params.channel ?? 'website',
     p_customer_name: params.customer_name,
-    p_customer_email: params.customer_email,
+    p_customer_email: params.customer_email ?? null,
     p_customer_phone: params.customer_phone,
-    p_shipping_address: params.shipping_address,
+    p_shipping_address: params.shipping_address ?? {},
     p_payment_method: params.payment_method,
     p_shipping_method: params.shipping_method,
     p_shipping_fee: params.shipping_fee,

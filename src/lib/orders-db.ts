@@ -148,6 +148,26 @@ export function calculateShippingFee(
   return shippingFee;
 }
 
+export async function getLoyaltyDiscountShowLabel(): Promise<boolean> {
+  const supabase = createAdminClient();
+  const { data } = await supabase
+    .from('site_settings')
+    .select('value')
+    .eq('key', 'loyalty_discount_show_label')
+    .single();
+  return data?.value !== 'false';
+}
+
+export function calculateLoyaltyDiscount(
+  subtotal: number,
+  discountType: 'percentage' | 'fixed_amount' | null,
+  discountValue: number
+): number {
+  if (!discountType || discountValue <= 0) return 0;
+  if (discountType === 'percentage') return Math.round(subtotal * (discountValue / 100));
+  return Math.min(discountValue, subtotal);
+}
+
 // --- Cart Validation ---
 
 export interface CartItemInput {

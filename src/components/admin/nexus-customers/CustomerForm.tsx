@@ -41,6 +41,8 @@ export function CustomerForm({ initialData, isEdit = false, orderHistory }: Cust
   const {
     register,
     handleSubmit,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm<CustomerApiData>({
     resolver: zodResolver(customerApiSchema),
@@ -52,9 +54,13 @@ export function CustomerForm({ initialData, isEdit = false, orderHistory }: Cust
       birthday: initialData?.birthday || '',
       tea_preference: initialData?.tea_preference || '',
       category: initialData?.category || 'regular',
+      discount_type: initialData?.discount_type ?? null,
+      discount_value: initialData?.discount_value ?? 0,
       note: initialData?.note || '',
     },
   });
+
+  const discountType = watch('discount_type');
 
   async function onSubmit(data: CustomerApiData) {
     setSubmitting(true);
@@ -63,11 +69,12 @@ export function CustomerForm({ initialData, isEdit = false, orderHistory }: Cust
     try {
       const url = isEdit ? `/api/admin/customers/${initialData?.id}` : '/api/admin/customers';
       const method = isEdit ? 'PUT' : 'POST';
+      const payload = data.discount_type ? data : { ...data, discount_type: null, discount_value: 0 };
 
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify(payload),
       });
 
       const result = await res.json();
@@ -125,6 +132,33 @@ export function CustomerForm({ initialData, isEdit = false, orderHistory }: Cust
                   <option value="wholesale">批發商</option>
                 </select>
               </fieldset>
+              <fieldset className="fieldset">
+                <legend className="fieldset-legend">熟客折扣</legend>
+                <select
+                  value={discountType ?? ''}
+                  onChange={(e) => setValue('discount_type', e.target.value ? (e.target.value as 'percentage' | 'fixed_amount') : null, { shouldDirty: true })}
+                  className="select w-full"
+                >
+                  <option value="">無</option>
+                  <option value="percentage">百分比折扣</option>
+                  <option value="fixed_amount">固定金額折扣</option>
+                </select>
+              </fieldset>
+              {discountType && (
+                <fieldset className="fieldset">
+                  <legend className="fieldset-legend">
+                    {discountType === 'percentage' ? '折扣百分比（例：10 代表 9 折省 10%）' : '折抵金額（元）'}
+                  </legend>
+                  <input
+                    type="number"
+                    min={0}
+                    step={discountType === 'percentage' ? 1 : 1}
+                    {...register('discount_value', { valueAsNumber: true })}
+                    className="input w-full"
+                  />
+                  {errors.discount_value && <p className="text-error mt-1 text-sm">{errors.discount_value.message}</p>}
+                </fieldset>
+              )}
               <fieldset className="fieldset md:col-span-2">
                 <legend className="fieldset-legend">備註</legend>
                 <textarea rows={3} {...register('note')} className="textarea w-full" />

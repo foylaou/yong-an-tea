@@ -2,7 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { posOrderApiSchema } from '@/lib/validations/pos';
-import { createOrder } from '@/lib/orders-db';
+import {
+  createOrder,
+  validateCartItems,
+  calculateLoyaltyDiscount,
+  getShippingSettings,
+  calculateShippingFee,
+} from '@/lib/orders-db';
 
 async function verifyAdmin(supabase: any) {
   const { data: { user } } = await supabase.auth.getUser();
@@ -38,6 +44,33 @@ export async function POST(request: NextRequest) {
   }
 
   const data = result.data;
+  const adminClient = createAdminClient();
+
+  // 折扣金額、運費都由後端重新查詢/計算，不信任前端傳來的數字
+  const needsSubtotal = !!data.walk_in_customer_id || data.fulfillment === 'delivery';
+  const validation = needsSubtotal ? await validateCartItems(data.items) : null;
+
+  let discountAmount = 0;
+  if (data.walk_in_customer_id && validation) {
+    const { data: customer } = await adminClient
+      .from('customers')
+      .select('discount_type, discount_value')
+      .eq('id', data.walk_in_customer_id)
+      .maybeSingle();
+
+    if (customer) {
+      discountAmount = calculateLoyaltyDiscount(validation.subtotal, customer.discount_type, customer.discount_value);
+    }
+  }
+
+  // 現場取貨維持原本寫死行為；寄到府則比照 storefront 結帳邏輯算出真運費
+  let shippingFee = 0;
+  let shippingMethod = 'pickup';
+  if (data.fulfillment === 'delivery' && validation) {
+    const shippingSettings = await getShippingSettings();
+    shippingFee = calculateShippingFee(validation.subtotal, shippingSettings.shipping_fee, shippingSettings.free_shipping_threshold);
+    shippingMethod = 'tcat';
+  }
 
   let orderResult;
   try {
@@ -46,12 +79,14 @@ export async function POST(request: NextRequest) {
       channel: data.channel,
       customer_name: data.customer_name,
       customer_phone: data.customer_phone,
+      shipping_address: data.fulfillment === 'delivery' ? data.shipping_address : undefined,
       payment_method: data.payment_method,
-      shipping_method: 'pickup',
-      shipping_fee: 0,
+      shipping_method: shippingMethod,
+      shipping_fee: shippingFee,
       cod_fee: 0,
       note: '',
       items: data.items,
+      discount_amount: discountAmount,
     });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : '建立訂單失敗';
@@ -60,7 +95,6 @@ export async function POST(request: NextRequest) {
 
   // In-store sales are handed over immediately — mark fulfilled right away,
   // and reflect whether payment was actually collected.
-  const adminClient = createAdminClient();
   const now = new Date().toISOString();
   const paymentStatus = data.is_paid ? 'paid' : 'pending';
 

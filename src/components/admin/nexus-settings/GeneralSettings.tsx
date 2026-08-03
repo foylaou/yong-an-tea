@@ -33,12 +33,14 @@ export default function GeneralSettings({ initialData }: GeneralSettingsProps) {
       favicon_url: (initialData.favicon_url as string) || '',
       copyright_text: (initialData.copyright_text as string) || '© {year} 永安茶園. 版權所有。',
       blog_enabled: (initialData.blog_enabled as string) || 'true',
+      loyalty_discount_show_label: (initialData.loyalty_discount_show_label as string) || 'true',
     },
   });
 
   const logoUrl = watch('logo_url');
   const faviconUrl = watch('favicon_url');
   const blogEnabled = watch('blog_enabled');
+  const loyaltyDiscountShowLabel = watch('loyalty_discount_show_label');
 
   async function uploadFile(file: File, key: string): Promise<string> {
     const formData = new FormData();
@@ -211,6 +213,19 @@ export default function GeneralSettings({ initialData }: GeneralSettingsProps) {
                 className="toggle toggle-primary"
                 checked={blogEnabled === 'true'}
                 onChange={(e) => setValue('blog_enabled', e.target.checked ? 'true' : 'false', { shouldDirty: true })}
+              />
+            </div>
+
+            <div className="border-base-300 flex items-center justify-between rounded-md border p-4">
+              <div>
+                <p className="text-sm font-medium">結帳頁顯示熟客折扣字樣</p>
+                <p className="text-base-content/50 mt-0.5 text-xs">關閉後結帳頁不會顯示「您有熟客折扣」字樣，但折扣金額仍會正確套用</p>
+              </div>
+              <input
+                type="checkbox"
+                className="toggle toggle-primary"
+                checked={loyaltyDiscountShowLabel === 'true'}
+                onChange={(e) => setValue('loyalty_discount_show_label', e.target.checked ? 'true' : 'false', { shouldDirty: true })}
               />
             </div>
           </div>

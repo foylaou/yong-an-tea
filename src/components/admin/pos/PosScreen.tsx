@@ -57,6 +57,16 @@ function cartKey(productId: string, variantId?: string): string {
   return `${productId}:${variantId ?? 'base'}`;
 }
 
+function calculateLoyaltyDiscount(
+  subtotal: number,
+  discountType: 'percentage' | 'fixed_amount' | null,
+  discountValue: number
+): number {
+  if (!discountType || discountValue <= 0) return 0;
+  if (discountType === 'percentage') return Math.round(subtotal * (discountValue / 100));
+  return Math.min(discountValue, subtotal);
+}
+
 export function PosScreen({ initialProducts, categories }: PosScreenProps) {
   const router = useRouter();
   const [search, setSearch] = useState('');
@@ -69,6 +79,14 @@ export function PosScreen({ initialProducts, categories }: PosScreenProps) {
   const [channel, setChannel] = useState<OrderChannel>('in_store');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cash');
   const [isPaid, setIsPaid] = useState(true);
+  const [fulfillment, setFulfillment] = useState<'pickup' | 'delivery'>('pickup');
+  const [shippingAddress, setShippingAddress] = useState({
+    postal_code: '',
+    city: '',
+    district: '',
+    address_line1: '',
+    address_line2: '',
+  });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -82,7 +100,12 @@ export function PosScreen({ initialProducts, categories }: PosScreenProps) {
     });
   }, [initialProducts, search, categoryFilter]);
 
-  const total = useMemo(() => cart.reduce((sum, line) => sum + lineUnitPrice(line) * line.quantity, 0), [cart]);
+  const subtotal = useMemo(() => cart.reduce((sum, line) => sum + lineUnitPrice(line) * line.quantity, 0), [cart]);
+  const discountAmount = useMemo(
+    () => calculateLoyaltyDiscount(subtotal, customer?.discount_type ?? null, customer?.discount_value ?? 0),
+    [subtotal, customer]
+  );
+  const total = subtotal - discountAmount;
 
   function handleAddToCartConfirm(variant: ProductVariant | undefined, quantity: number) {
     if (!addToCartProduct) return;
@@ -115,6 +138,10 @@ export function PosScreen({ initialProducts, categories }: PosScreenProps) {
 
   async function handleCheckout() {
     if (cart.length === 0) return;
+    if (fulfillment === 'delivery' && (!shippingAddress.city || !shippingAddress.district || !shippingAddress.address_line1)) {
+      setError('寄到府請填寫完整地址');
+      return;
+    }
     setSubmitting(true);
     setError(null);
 
@@ -129,6 +156,8 @@ export function PosScreen({ initialProducts, categories }: PosScreenProps) {
           channel,
           payment_method: paymentMethod,
           is_paid: isPaid,
+          fulfillment,
+          ...(fulfillment === 'delivery' && { shipping_address: shippingAddress }),
           items: cart.map((line) => ({ product_id: line.product.id, variant_id: line.variant?.id, quantity: line.quantity })),
         }),
       });
@@ -141,6 +170,8 @@ export function PosScreen({ initialProducts, categories }: PosScreenProps) {
       setCart([]);
       setCustomer(null);
       setCustomerPicked(false);
+      setFulfillment('pickup');
+      setShippingAddress({ postal_code: '', city: '', district: '', address_line1: '', address_line2: '' });
       router.push(`/admin/orders/${data.order.order_id}`);
     } catch {
       setError('建立訂單失敗，請稍後再試');
@@ -245,6 +276,12 @@ export function PosScreen({ initialProducts, categories }: PosScreenProps) {
         </div>
 
         <div className="border-base-300 space-y-3 border-t p-4">
+          {discountAmount > 0 && (
+            <div className="flex items-center justify-between text-sm text-success">
+              <span>熟客折扣</span>
+              <span>-${discountAmount.toLocaleString()}</span>
+            </div>
+          )}
           <div className="flex items-center justify-between text-lg font-semibold">
             <span>總計</span>
             <span>${total.toLocaleString()}</span>
@@ -270,6 +307,58 @@ export function PosScreen({ initialProducts, categories }: PosScreenProps) {
               </option>
             ))}
           </select>
+
+          <div className="grid grid-cols-2 gap-1">
+            <button
+              type="button"
+              onClick={() => setFulfillment('pickup')}
+              className={`btn btn-xs ${fulfillment === 'pickup' ? 'btn-primary' : 'btn-outline'}`}
+            >
+              現場取貨
+            </button>
+            <button
+              type="button"
+              onClick={() => setFulfillment('delivery')}
+              className={`btn btn-xs ${fulfillment === 'delivery' ? 'btn-primary' : 'btn-outline'}`}
+            >
+              寄到府
+            </button>
+          </div>
+
+          {fulfillment === 'delivery' && (
+            <div className="space-y-1.5">
+              <div className="grid grid-cols-2 gap-1.5">
+                <input
+                  type="text"
+                  value={shippingAddress.city}
+                  onChange={(e) => setShippingAddress((prev) => ({ ...prev, city: e.target.value }))}
+                  placeholder="縣市"
+                  className="input input-sm w-full"
+                />
+                <input
+                  type="text"
+                  value={shippingAddress.district}
+                  onChange={(e) => setShippingAddress((prev) => ({ ...prev, district: e.target.value }))}
+                  placeholder="鄉鎮區"
+                  className="input input-sm w-full"
+                />
+              </div>
+              <input
+                type="text"
+                value={shippingAddress.address_line1}
+                onChange={(e) => setShippingAddress((prev) => ({ ...prev, address_line1: e.target.value }))}
+                placeholder="詳細地址"
+                className="input input-sm w-full"
+              />
+              <input
+                type="text"
+                value={shippingAddress.postal_code}
+                onChange={(e) => setShippingAddress((prev) => ({ ...prev, postal_code: e.target.value }))}
+                placeholder="郵遞區號（選填）"
+                className="input input-sm w-full"
+              />
+            </div>
+          )}
 
           <label className="flex cursor-pointer items-center gap-2">
             <input type="checkbox" className="toggle toggle-sm toggle-primary" checked={isPaid} onChange={(e) => setIsPaid(e.target.checked)} />

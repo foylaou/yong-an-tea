@@ -5,6 +5,7 @@ import {
   getShippingSettings,
   calculateShippingFee,
   calculateCodFee,
+  calculateLoyaltyDiscount,
   validateCartItems,
   createOrder,
 } from '@/lib/orders-db';
@@ -78,6 +79,21 @@ export async function POST(request: NextRequest) {
     // free_shipping type: override shipping fee to 0
     if (couponResult.coupon?.discount_type === 'free_shipping') {
       shippingFee = 0;
+    }
+  } else {
+    // 熟客折扣：只在沒有輸入優惠碼時自動套用（兩者互斥，優惠碼優先）
+    const { data: customer } = await supabase
+      .from('customers')
+      .select('discount_type, discount_value')
+      .eq('profile_id', user.id)
+      .maybeSingle();
+
+    if (customer) {
+      discountAmount = calculateLoyaltyDiscount(
+        validation.subtotal,
+        customer.discount_type,
+        customer.discount_value
+      );
     }
   }
 

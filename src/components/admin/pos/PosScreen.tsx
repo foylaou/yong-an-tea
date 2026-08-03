@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import type { AdminProduct, ProductVariant } from '@/types/admin-product';
 import type { Customer } from '@/types/customer';
 import type { OrderChannel, PaymentMethod } from '@/types/order';
+import CachedImage from '@/components/CachedImage';
 import { CustomerPicker } from './CustomerPicker';
 import { AddToCartDialog } from './AddToCartDialog';
 
@@ -32,8 +33,10 @@ const paymentOptions: { value: PaymentMethod; label: string }[] = [
   { value: 'bank_transfer', label: '銀行轉帳' },
 ];
 
+// xs_image is sized for small table thumbnails (~32-40px) — POS cards are
+// much larger, so prefer sm/md to avoid visibly upscaling a too-small source.
 function productImage(product: AdminProduct): string {
-  return product.xs_image || product.sm_image || '';
+  return product.sm_image || product.md_image || product.xs_image || '';
 }
 
 // discount_price is stored as 0 (not null) when there's no discount, so a
@@ -185,8 +188,7 @@ export function PosScreen({ initialProducts, categories }: PosScreenProps) {
             >
               <div className="bg-base-200 aspect-square w-full overflow-hidden rounded-t-box">
                 {productImage(product) ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={productImage(product)} alt={product.title} className="h-full w-full object-cover" />
+                  <CachedImage src={productImage(product)} alt={product.title} className="h-full w-full object-cover" />
                 ) : (
                   <div className="text-base-content/30 flex h-full items-center justify-center text-xs">無圖片</div>
                 )}

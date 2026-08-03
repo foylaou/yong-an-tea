@@ -9,7 +9,7 @@ export default async function PosPage() {
     supabase
       .from('products')
       .select(
-        'id, title, sku, price, discount_price, xs_image, sm_image, stock_qty, is_active, product_categories(category_id), product_variants(id, name, price, discount_price, stock_qty, sku)'
+        'id, title, sku, price, discount_price, xs_image, sm_image, md_image, stock_qty, is_active, product_categories(category_id), product_variants(id, name, price, discount_price, stock_qty, sku)'
       )
       .eq('is_active', true)
       .order('title', { ascending: true }),

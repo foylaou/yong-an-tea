@@ -20,7 +20,7 @@ const statusBadgeClass: Record<string, string> = {
 
 export function OrderStatusBadge({ status }: { status: string }) {
   return (
-    <span className={`badge badge-sm ${statusBadgeClass[status] || 'badge-ghost'}`}>
+    <span className={`badge badge-sm whitespace-nowrap ${statusBadgeClass[status] || 'badge-ghost'}`}>
       {statusLabel[status] || status}
     </span>
   );

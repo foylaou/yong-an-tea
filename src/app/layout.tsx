@@ -12,7 +12,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-      <html lang="zh-TW">
+      <html lang="zh-TW" className="group/html">
           <Analytics />
           <SpeedInsights />
           <body className="font-roboto antialiased">{children}</body>

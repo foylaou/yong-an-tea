@@ -27,6 +27,7 @@ export interface OrderItem {
   product_id: string | null;
   product_title: string;
   product_image: string | null;
+  variant_label?: string | null;
   price: number;
   quantity: number;
   subtotal: number;
@@ -41,17 +42,21 @@ export interface Order {
   subtotal: number;
   shipping_fee: number;
   cod_fee: number;
+  discount_amount?: number;
   total: number;
   payment_method: PaymentMethod;
   payment_status: PaymentStatus;
   shipping_method: ShippingMethod;
   tracking_number: string | null;
+  reverse_obt_number?: string | null;
   store_id: string | null;
   store_name: string | null;
   store_address: string | null;
   customer_name: string;
   customer_email: string;
   customer_phone: string;
+  company_name?: string | null;
+  company_tax_id?: string | null;
   shipping_address: ShippingAddress;
   note: string | null;
   cancel_reason: string | null;
@@ -62,6 +67,7 @@ export interface Order {
   created_at: string;
   updated_at: string;
   order_items?: OrderItem[];
+  payments?: Payment[];
 }
 
 export interface Payment {

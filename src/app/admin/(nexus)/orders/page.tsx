@@ -1,5 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
-import OrderTable from '@/components/admin/orders/OrderTable';
+import { OrdersTable } from '@/components/admin/nexus-orders/OrdersTable';
+import { PageTitle } from '@/components/admin/nexus-layout/PageTitle';
+import type { Order } from '@/types/order';
 
 const PER_PAGE = 20;
 
@@ -15,11 +17,9 @@ export default async function OrdersPage() {
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">訂單管理</h1>
-      </div>
-      <OrderTable
-        initialOrders={orders || []}
+      <PageTitle title="訂單管理" />
+      <OrdersTable
+        initialOrders={(orders as Order[]) || []}
         initialTotal={count || 0}
         initialPage={1}
         perPage={PER_PAGE}

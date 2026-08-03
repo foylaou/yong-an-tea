@@ -11,14 +11,14 @@ import { PageTitle } from '@/components/admin/nexus-layout/PageTitle';
 const GeneralSettings = dynamic(() => import('./GeneralSettings'));
 const BranchManager = dynamic(() => import('./BranchManager'));
 const SocialSettings = dynamic(() => import('./SocialSettings'));
+const CurrencySettings = dynamic(() => import('./CurrencySettings'));
+const ProductDisplaySettings = dynamic(() => import('./ProductDisplaySettings'));
+const ShippingSettings = dynamic(() => import('./ShippingSettings'));
+const PaymentSettings = dynamic(() => import('./PaymentSettings'));
+const LineLoginSettings = dynamic(() => import('./LineLoginSettings'));
+const LogisticsSettings = dynamic(() => import('./LogisticsSettings'));
+const SmtpSettings = dynamic(() => import('./SmtpSettings'));
 
-const LegacyCurrencySettings = dynamic(() => import('@/components/admin/settings/CurrencySettings'));
-const LegacyProductDisplaySettings = dynamic(() => import('@/components/admin/settings/ProductDisplaySettings'));
-const LegacyShippingSettings = dynamic(() => import('@/components/admin/settings/ShippingSettings'));
-const LegacyPaymentSettings = dynamic(() => import('@/components/admin/settings/PaymentSettings'));
-const LegacyLineLoginSettings = dynamic(() => import('@/components/admin/settings/LineLoginSettings'));
-const LegacyLogisticsSettings = dynamic(() => import('@/components/admin/settings/LogisticsSettings'));
-const LegacySmtpSettings = dynamic(() => import('@/components/admin/settings/SmtpSettings'));
 const LegacyHomepageSettings = dynamic(() => import('@/components/admin/settings/HomepageSettings'));
 const LegacyHeroSettings = dynamic(() => import('@/components/admin/settings/HeroSettings'));
 const LegacyFeaturedSettings = dynamic(() => import('@/components/admin/settings/FeaturedSettings'));
@@ -96,27 +96,28 @@ export function SettingsTabs({ initialSettings }: SettingsTabsProps) {
       case 'social':
         return <SocialSettings {...props} />;
 
-      // -- Not yet migrated: renders the pre-Nexus panel as-is --
       case 'currency':
-        return <LegacyCurrencySettings {...props} />;
+        return <CurrencySettings {...props} />;
       case 'product_display':
-        return <LegacyProductDisplaySettings {...props} />;
+        return <ProductDisplaySettings {...props} />;
       case 'shipping':
-        return <LegacyShippingSettings {...props} />;
+        return <ShippingSettings {...props} />;
       case 'payment':
         return (
-          <LegacyPaymentSettings
+          <PaymentSettings
             initialData={initialSettings['payment'] || {}}
             linePayData={initialSettings['linepay'] || {}}
             shippingData={initialSettings['shipping'] || {}}
           />
         );
       case 'line_login':
-        return <LegacyLineLoginSettings {...props} />;
+        return <LineLoginSettings {...props} />;
       case 'logistics':
-        return <LegacyLogisticsSettings {...props} />;
+        return <LogisticsSettings {...props} />;
       case 'smtp':
-        return <LegacySmtpSettings {...props} />;
+        return <SmtpSettings {...props} />;
+
+      // -- Not yet migrated: renders the pre-Nexus panel as-is --
       case 'homepage':
         return <LegacyHomepageSettings {...props} />;
       case 'hero':

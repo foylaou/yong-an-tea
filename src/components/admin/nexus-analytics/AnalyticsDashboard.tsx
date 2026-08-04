@@ -57,23 +57,33 @@ const PAYMENT_METHOD_LABEL: Record<string, string> = {
 // Sub-components
 // ---------------------------------------------------------------------------
 function KPICards({ data }: { data: SalesAnalytics }) {
+  const netProfit = data.gross_profit - data.fixed_expenses_total;
   const cards = [
     { label: '總營收', value: `NT$ ${Math.round(data.total_revenue).toLocaleString()}`, color: 'text-primary' },
     { label: '訂單數', value: data.total_orders.toLocaleString(), color: 'text-success' },
     { label: '平均客單價', value: `NT$ ${Math.round(data.avg_order_value).toLocaleString()}`, color: 'text-warning' },
     { label: '新客戶數', value: data.new_customers.toLocaleString(), color: 'text-secondary' },
+    { label: '總成本', value: `NT$ ${Math.round(data.total_cost).toLocaleString()}`, color: 'text-error' },
+    { label: '毛利', value: `NT$ ${Math.round(data.gross_profit).toLocaleString()}`, color: 'text-primary' },
+    { label: '固定支出', value: `NT$ ${Math.round(data.fixed_expenses_total).toLocaleString()}`, color: 'text-error' },
+    { label: '淨利', value: `NT$ ${Math.round(netProfit).toLocaleString()}`, color: netProfit >= 0 ? 'text-success' : 'text-error' },
   ];
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-      {cards.map((card) => (
-        <div key={card.label} className="card card-border bg-base-100">
-          <div className="card-body p-5">
-            <p className="text-base-content/60 text-sm font-medium">{card.label}</p>
-            <p className={`mt-1 text-2xl font-semibold ${card.color}`}>{card.value}</p>
+    <div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {cards.map((card) => (
+          <div key={card.label} className="card card-border bg-base-100">
+            <div className="card-body p-5">
+              <p className="text-base-content/60 text-sm font-medium">{card.label}</p>
+              <p className={`mt-1 text-2xl font-semibold ${card.color}`}>{card.value}</p>
+            </div>
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
+      <p className="text-base-content/40 mt-2 text-xs">
+        成本／毛利／固定支出／淨利統計從 2026-08 上線，之前的訂單沒有成本記錄（視為 0），較早期間的毛利與淨利數字會偏高。
+      </p>
     </div>
   );
 }

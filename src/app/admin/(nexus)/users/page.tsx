@@ -30,5 +30,5 @@ export default async function UsersPage() {
     }))
     .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
-  return <UserTable initialUsers={merged} currentUserId={user?.id || ''} mode="admin" />;
+  return <UserTable initialUsers={merged} currentUserId={user?.id || ''} />;
 }

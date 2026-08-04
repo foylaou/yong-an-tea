@@ -15,13 +15,11 @@ interface User {
 interface UserTableProps {
   initialUsers: User[];
   currentUserId: string;
-  mode?: 'admin' | 'member' | 'all';
 }
 
-export function UserTable({ initialUsers, currentUserId, mode = 'all' }: UserTableProps) {
+export function UserTable({ initialUsers, currentUserId }: UserTableProps) {
   const [users, setUsers] = useState<User[]>(initialUsers);
   const [search, setSearch] = useState('');
-  const [roleFilter, setRoleFilter] = useState('');
   const [loading, setLoading] = useState(false);
 
   const [deleteTarget, setDeleteTarget] = useState<User | null>(null);
@@ -30,7 +28,6 @@ export function UserTable({ initialUsers, currentUserId, mode = 'all' }: UserTab
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
-  const [editRole, setEditRole] = useState('');
   const [saving, setSaving] = useState(false);
 
   const [passwordId, setPasswordId] = useState<string | null>(null);
@@ -42,20 +39,13 @@ export function UserTable({ initialUsers, currentUserId, mode = 'all' }: UserTab
   const [createEmail, setCreateEmail] = useState('');
   const [createPassword, setCreatePassword] = useState('');
   const [createName, setCreateName] = useState('');
-  const [createRole, setCreateRole] = useState('customer');
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
 
-  const pageTitle = mode === 'admin' ? '管理員' : mode === 'member' ? '會員管理' : '用戶管理';
-  const createLabel = mode === 'admin' ? '新增管理員' : mode === 'member' ? '新增會員' : '新增用戶';
-  const defaultCreateRole = mode === 'admin' ? 'admin' : 'customer';
-
-  async function fetchUsers(params: { search?: string; role?: string }) {
+  async function fetchUsers(params: { search?: string }) {
     setLoading(true);
     const s = params.search ?? search;
-    const r = params.role ?? roleFilter;
-    const fixedRole = mode === 'admin' ? 'admin' : mode === 'member' ? 'customer' : r;
-    const qs = new URLSearchParams({ ...(s && { search: s }), ...(fixedRole && { role: fixedRole }) });
+    const qs = new URLSearchParams({ ...(s && { search: s }), role: 'admin' });
     try {
       const res = await fetch(`/api/admin/users?${qs}`);
       const data = await res.json();
@@ -73,7 +63,6 @@ export function UserTable({ initialUsers, currentUserId, mode = 'all' }: UserTab
   function startEdit(user: User) {
     setEditingId(user.id);
     setEditName(user.full_name);
-    setEditRole(user.role);
   }
 
   function cancelEdit() {
@@ -86,10 +75,10 @@ export function UserTable({ initialUsers, currentUserId, mode = 'all' }: UserTab
       const res = await fetch(`/api/admin/users/${userId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ full_name: editName, role: editRole }),
+        body: JSON.stringify({ full_name: editName }),
       });
       if (res.ok) {
-        setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, full_name: editName, role: editRole } : u)));
+        setUsers((prev) => prev.map((u) => (u.id === userId ? { ...u, full_name: editName } : u)));
         setEditingId(null);
       }
     } finally {
@@ -152,7 +141,7 @@ export function UserTable({ initialUsers, currentUserId, mode = 'all' }: UserTab
       const res = await fetch('/api/admin/users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: createEmail, password: createPassword, full_name: createName, role: createRole }),
+        body: JSON.stringify({ email: createEmail, password: createPassword, full_name: createName, role: 'admin' }),
       });
       if (res.ok) {
         const data = await res.json();
@@ -161,7 +150,6 @@ export function UserTable({ initialUsers, currentUserId, mode = 'all' }: UserTab
         setCreateEmail('');
         setCreatePassword('');
         setCreateName('');
-        setCreateRole('customer');
       } else {
         const data = await res.json();
         setCreateError(data.error || '建立失敗');
@@ -245,16 +233,10 @@ export function UserTable({ initialUsers, currentUserId, mode = 'all' }: UserTab
   return (
     <div>
       <PageTitle
-        title={pageTitle}
+        title="管理員"
         actions={
-          <button
-            onClick={() => {
-              setShowCreate(true);
-              setCreateRole(defaultCreateRole);
-            }}
-            className="btn btn-sm btn-primary"
-          >
-            {createLabel}
+          <button onClick={() => setShowCreate(true)} className="btn btn-sm btn-primary">
+            新增管理員
           </button>
         }
       />
@@ -272,20 +254,6 @@ export function UserTable({ initialUsers, currentUserId, mode = 'all' }: UserTab
             搜尋
           </button>
         </form>
-        {mode === 'all' && (
-          <select
-            value={roleFilter}
-            onChange={(e) => {
-              setRoleFilter(e.target.value);
-              fetchUsers({ role: e.target.value });
-            }}
-            className="select select-sm"
-          >
-            <option value="">全部角色</option>
-            <option value="admin">管理員</option>
-            <option value="customer">會員</option>
-          </select>
-        )}
       </div>
 
       {/* Desktop table */}
@@ -295,7 +263,6 @@ export function UserTable({ initialUsers, currentUserId, mode = 'all' }: UserTab
             <tr>
               <th>Email</th>
               <th>名稱</th>
-              {mode === 'all' && <th>角色</th>}
               <th>建立時間</th>
               <th>操作</th>
             </tr>
@@ -303,7 +270,7 @@ export function UserTable({ initialUsers, currentUserId, mode = 'all' }: UserTab
           <tbody>
             {users.length === 0 ? (
               <tr>
-                <td colSpan={mode === 'all' ? 5 : 4} className="text-base-content/40 py-8 text-center">
+                <td colSpan={4} className="text-base-content/40 py-8 text-center">
                   沒有找到用戶
                 </td>
               </tr>
@@ -321,20 +288,6 @@ export function UserTable({ initialUsers, currentUserId, mode = 'all' }: UserTab
                       <span className="text-base-content/60">{user.full_name || '-'}</span>
                     )}
                   </td>
-                  {mode === 'all' && (
-                    <td>
-                      {editingId === user.id ? (
-                        <select value={editRole} onChange={(e) => setEditRole(e.target.value)} className="select select-sm">
-                          <option value="admin">管理員</option>
-                          <option value="customer">會員</option>
-                        </select>
-                      ) : (
-                        <span className={`badge badge-sm ${user.role === 'admin' ? 'badge-secondary' : 'badge-success'}`}>
-                          {user.role === 'admin' ? '管理員' : '會員'}
-                        </span>
-                      )}
-                    </td>
-                  )}
                   <td className="text-base-content/50">{new Date(user.created_at).toLocaleDateString('zh-TW')}</td>
                   <td>
                     <UserActions user={user} />
@@ -364,17 +317,6 @@ export function UserTable({ initialUsers, currentUserId, mode = 'all' }: UserTab
                 ) : (
                   <div className="text-base-content/60 text-sm">{user.full_name || '-'}</div>
                 )}
-                {mode === 'all' &&
-                  (editingId === user.id ? (
-                    <select value={editRole} onChange={(e) => setEditRole(e.target.value)} className="select select-sm">
-                      <option value="admin">管理員</option>
-                      <option value="customer">會員</option>
-                    </select>
-                  ) : (
-                    <span className={`badge badge-sm w-fit ${user.role === 'admin' ? 'badge-secondary' : 'badge-success'}`}>
-                      {user.role === 'admin' ? '管理員' : '會員'}
-                    </span>
-                  ))}
                 <div className="text-base-content/40 text-xs">{new Date(user.created_at).toLocaleDateString('zh-TW')}</div>
                 <div className="card-actions justify-end">
                   <UserActions user={user} />
@@ -425,14 +367,7 @@ export function UserTable({ initialUsers, currentUserId, mode = 'all' }: UserTab
               </fieldset>
               <fieldset className="fieldset">
                 <legend className="fieldset-legend">角色</legend>
-                {mode === 'all' ? (
-                  <select value={createRole} onChange={(e) => setCreateRole(e.target.value)} className="select w-full">
-                    <option value="customer">會員</option>
-                    <option value="admin">管理員</option>
-                  </select>
-                ) : (
-                  <input type="text" readOnly value={mode === 'admin' ? '管理員' : '會員'} className="input w-full opacity-60" />
-                )}
+                <input type="text" readOnly value="管理員" className="input w-full opacity-60" />
               </fieldset>
               {createError && <p className="text-error text-sm">{createError}</p>}
               <div className="modal-action">

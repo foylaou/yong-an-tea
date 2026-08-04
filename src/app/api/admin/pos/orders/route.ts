@@ -46,22 +46,25 @@ export async function POST(request: NextRequest) {
   const data = result.data;
   const adminClient = createAdminClient();
 
-  // 折扣金額、運費都由後端重新查詢/計算，不信任前端傳來的數字
-  const needsSubtotal = !!data.walk_in_customer_id || data.fulfillment === 'delivery';
-  const validation = needsSubtotal ? await validateCartItems(data.items) : null;
-
-  let discountAmount = 0;
-  if (data.walk_in_customer_id && validation) {
-    const { data: customer } = await adminClient
+  // 折扣金額、運費、批發身分都由後端重新查詢/計算，不信任前端傳來的數字
+  let customer: { discount_type: 'percentage' | 'fixed_amount' | null; discount_value: number; category: string } | null = null;
+  if (data.walk_in_customer_id) {
+    const { data: found } = await adminClient
       .from('customers')
-      .select('discount_type, discount_value')
+      .select('discount_type, discount_value, category')
       .eq('id', data.walk_in_customer_id)
       .maybeSingle();
-
-    if (customer) {
-      discountAmount = calculateLoyaltyDiscount(validation.subtotal, customer.discount_type, customer.discount_value);
-    }
+    customer = found;
   }
+  const isWholesale = customer?.category === 'wholesale';
+
+  const needsSubtotal = !!customer?.discount_type || data.fulfillment === 'delivery';
+  const validation = needsSubtotal ? await validateCartItems(data.items, { isWholesale }) : null;
+
+  const discountAmount =
+    customer?.discount_type && validation
+      ? calculateLoyaltyDiscount(validation.subtotal, customer.discount_type, customer.discount_value)
+      : 0;
 
   // 現場取貨維持原本寫死行為；寄到府則比照 storefront 結帳邏輯算出真運費
   let shippingFee = 0;
@@ -87,6 +90,7 @@ export async function POST(request: NextRequest) {
       note: '',
       items: data.items,
       discount_amount: discountAmount,
+      is_wholesale: isWholesale,
     });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : '建立訂單失敗';

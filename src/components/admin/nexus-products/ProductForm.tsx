@@ -40,6 +40,7 @@ export function ProductForm({ categories, initialData, isEdit = false }: Product
     slug: initialData?.slug || '',
     price: initialData?.price ?? 0,
     discount_price: initialData?.discount_price ?? null,
+    wholesale_price: initialData?.wholesale_price ?? null,
     sku: initialData?.sku != null ? String(initialData.sku) : '',
     desc_text: initialData?.desc_text || '',
     availability: initialData?.availability || 'in-stock',
@@ -114,19 +115,21 @@ export function ProductForm({ categories, initialData, isEdit = false }: Product
   );
 
   // --- 產品變體 (variants) ---
-  type Variant = { name: string; price: number; discount_price: number | null; stock_qty: number; sku: string; image_index: number | null };
+  type Variant = { name: string; price: number; discount_price: number | null; wholesale_price: number | null; stock_qty: number; sku: string; image_index: number | null };
   const [variants, setVariants] = useState<Variant[]>(
     initialData?.product_variants?.map((v) => ({
       name: v.name || '',
       price: v.price ?? 0,
       discount_price: v.discount_price ?? null,
+      wholesale_price: v.wholesale_price ?? null,
       stock_qty: v.stock_qty ?? 0,
       sku: v.sku || '',
       image_index: v.image_index ?? null,
     })) || [],
   );
   const [variantStockMode, setVariantStockMode] = useState<'shared' | 'independent'>(initialData?.variant_stock_mode || 'shared');
-  const addVariant = () => setVariants([...variants, { name: '', price: 0, discount_price: null, stock_qty: 0, sku: '', image_index: null }]);
+  const addVariant = () =>
+    setVariants([...variants, { name: '', price: 0, discount_price: null, wholesale_price: null, stock_qty: 0, sku: '', image_index: null }]);
   const removeVariant = (idx: number) => setVariants(variants.filter((_, i) => i !== idx));
   const updateVariant = (idx: number, field: keyof Variant, val: string | number | null) => {
     setVariants(variants.map((v, i) => (i === idx ? { ...v, [field]: val } : v)));
@@ -204,6 +207,16 @@ export function ProductForm({ categories, initialData, isEdit = false }: Product
                 className="input w-full"
               />
               {errors.discount_price && <p className="text-error mt-1 text-sm">{errors.discount_price.message}</p>}
+            </fieldset>
+            <fieldset className="fieldset">
+              <legend className="fieldset-legend">批發價</legend>
+              <input
+                type="number"
+                step="0.01"
+                {...register('wholesale_price', { setValueAs: (v: string) => (v === '' ? null : Number(v)) })}
+                className="input w-full"
+              />
+              {errors.wholesale_price && <p className="text-error mt-1 text-sm">{errors.wholesale_price.message}</p>}
             </fieldset>
             <fieldset className="fieldset">
               <legend className="fieldset-legend">SKU</legend>
@@ -371,6 +384,16 @@ export function ProductForm({ categories, initialData, isEdit = false }: Product
                     step="0.01"
                     value={v.discount_price ?? ''}
                     onChange={(e) => updateVariant(idx, 'discount_price', e.target.value === '' ? null : Number(e.target.value))}
+                    className="input input-sm w-full"
+                  />
+                </div>
+                <div className="w-28">
+                  {idx === 0 && <label className="text-base-content/50 mb-1 block text-xs font-medium">批發價</label>}
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={v.wholesale_price ?? ''}
+                    onChange={(e) => updateVariant(idx, 'wholesale_price', e.target.value === '' ? null : Number(e.target.value))}
                     className="input input-sm w-full"
                   />
                 </div>

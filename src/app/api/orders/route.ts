@@ -37,8 +37,16 @@ export async function POST(request: NextRequest) {
 
   const data = result.data;
 
+  // 查一次 customers 記錄，同時判斷是否批發商（影響定價）跟熟客折扣
+  const { data: customer } = await supabase
+    .from('customers')
+    .select('discount_type, discount_value, category')
+    .eq('profile_id', user.id)
+    .maybeSingle();
+  const isWholesale = customer?.category === 'wholesale';
+
   // Validate cart items (check stock, prices, active status)
-  const validation = await validateCartItems(data.items);
+  const validation = await validateCartItems(data.items, { isWholesale });
   if (!validation.valid) {
     return NextResponse.json(
       { error: '購物車驗證失敗', details: validation.errors },
@@ -80,21 +88,13 @@ export async function POST(request: NextRequest) {
     if (couponResult.coupon?.discount_type === 'free_shipping') {
       shippingFee = 0;
     }
-  } else {
+  } else if (customer) {
     // 熟客折扣：只在沒有輸入優惠碼時自動套用（兩者互斥，優惠碼優先）
-    const { data: customer } = await supabase
-      .from('customers')
-      .select('discount_type, discount_value')
-      .eq('profile_id', user.id)
-      .maybeSingle();
-
-    if (customer) {
-      discountAmount = calculateLoyaltyDiscount(
-        validation.subtotal,
-        customer.discount_type,
-        customer.discount_value
-      );
-    }
+    discountAmount = calculateLoyaltyDiscount(
+      validation.subtotal,
+      customer.discount_type,
+      customer.discount_value
+    );
   }
 
   // Calculate COD fee (only for cash-on-delivery)
@@ -122,6 +122,7 @@ export async function POST(request: NextRequest) {
       store_id: data.store_id || null,
       store_name: data.store_name || null,
       store_address: data.store_address || null,
+      is_wholesale: isWholesale,
     });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : '建立訂單失敗';

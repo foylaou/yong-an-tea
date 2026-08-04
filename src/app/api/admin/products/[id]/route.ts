@@ -95,6 +95,7 @@ export async function PUT(
         name: v.name,
         price: v.price,
         discount_price: v.discount_price || null,
+        wholesale_price: v.wholesale_price ?? null,
         stock_qty: v.stock_qty ?? 0,
         sku: v.sku || null,
         sort_order: idx,

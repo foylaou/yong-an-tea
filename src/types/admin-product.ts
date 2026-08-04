@@ -11,6 +11,7 @@ export interface ProductVariant {
   name: string;
   price: number;
   discount_price: number | null;
+  wholesale_price: number | null;
   stock_qty: number | null;
   sku: string | null;
   image_index: number | null;
@@ -44,6 +45,7 @@ export interface AdminProduct {
   sku: string | null;
   price: number;
   discount_price: number | null;
+  wholesale_price: number | null;
   desc_text: string | null;
   xs_image: string | null;
   sm_image: string | null;

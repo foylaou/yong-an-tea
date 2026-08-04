@@ -4,7 +4,7 @@ import { useCallback, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { createColumnHelper, flexRender, getCoreRowModel, useReactTable, type ColumnDef } from '@tanstack/react-table';
 import { Pagination } from '@/components/admin/nexus-layout/Pagination';
-import { OrderStatusBadge, statusLabel } from './OrderStatusBadge';
+import { OrderStatusBadge, PaymentStatusBadge, statusLabel } from './OrderStatusBadge';
 import type { Order } from '@/types/order';
 
 interface OrdersTableProps {
@@ -41,6 +41,7 @@ export function OrdersTable({ initialOrders, initialTotal, initialPage, perPage 
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string[]>(['pending', 'paid', 'processing', 'shipped']);
   const [statusDropdownOpen, setStatusDropdownOpen] = useState(false);
+  const [paymentStatusFilter, setPaymentStatusFilter] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
 
   // Batch selection — kept as plain state (not TanStack's row-selection
@@ -56,11 +57,12 @@ export function OrdersTable({ initialOrders, initialTotal, initialPage, perPage 
   const [batchPickingFileNo, setBatchPickingFileNo] = useState<string | null>(null);
   const [callTcatLoading, setCallTcatLoading] = useState(false);
 
-  async function fetchOrders(params: { page?: number; search?: string; status?: string[] }) {
+  async function fetchOrders(params: { page?: number; search?: string; status?: string[]; paymentStatus?: string[] }) {
     setLoading(true);
     const p = params.page ?? page;
     const s = params.search ?? search;
     const st = params.status ?? statusFilter;
+    const pst = params.paymentStatus ?? paymentStatusFilter;
 
     const qs = new URLSearchParams({
       page: String(p),
@@ -69,6 +71,9 @@ export function OrdersTable({ initialOrders, initialTotal, initialPage, perPage 
     });
     if (st.length > 0 && st.length < 7) {
       qs.set('status', st.join(','));
+    }
+    if (pst.length > 0) {
+      qs.set('paymentStatus', pst.join(','));
     }
 
     try {
@@ -96,6 +101,12 @@ export function OrdersTable({ initialOrders, initialTotal, initialPage, perPage 
       fetchOrders({ page: 1, status: next });
       return next;
     });
+  };
+
+  const toggleUnpaidOnly = () => {
+    const next = paymentStatusFilter.includes('pending') ? [] : ['pending'];
+    setPaymentStatusFilter(next);
+    fetchOrders({ page: 1, paymentStatus: next });
   };
 
   const toggleSelect = useCallback((id: string) => {
@@ -395,6 +406,10 @@ export function OrdersTable({ initialOrders, initialTotal, initialPage, perPage 
         header: '付款方式',
         cell: ({ getValue }) => paymentMethodLabel[getValue()] || getValue(),
       }),
+      columnHelper.accessor('payment_status', {
+        header: '付款狀態',
+        cell: ({ getValue }) => <PaymentStatusBadge status={getValue()} />,
+      }),
       columnHelper.accessor('total', {
         header: '金額',
         cell: ({ getValue }) => `$${Number(getValue()).toLocaleString()}`,
@@ -455,6 +470,14 @@ export function OrdersTable({ initialOrders, initialTotal, initialPage, perPage 
             搜尋
           </button>
         </form>
+
+        <button
+          type="button"
+          onClick={toggleUnpaidOnly}
+          className={`btn btn-sm ${paymentStatusFilter.includes('pending') ? 'btn-warning' : 'btn-outline'}`}
+        >
+          只看未收款
+        </button>
 
         <div className="dropdown">
           <button

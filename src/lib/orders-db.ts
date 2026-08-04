@@ -194,14 +194,16 @@ export interface CartValidationResult {
 }
 
 export async function validateCartItems(
-  items: CartItemInput[]
+  items: CartItemInput[],
+  opts?: { isWholesale?: boolean }
 ): Promise<CartValidationResult> {
+  const isWholesale = opts?.isWholesale ?? false;
   const supabase = createAdminClient();
   const productIds = items.map((i) => i.product_id);
 
   const { data: products, error } = await supabase
     .from('products')
-    .select('id, title, sm_image, price, stock_qty, variant_stock_mode, availability, is_active')
+    .select('id, title, sm_image, price, wholesale_price, stock_qty, variant_stock_mode, availability, is_active')
     .in('id', productIds);
 
   if (error) {
@@ -215,7 +217,7 @@ export async function validateCartItems(
   if (variantIds.length > 0) {
     const { data: variants } = await supabase
       .from('product_variants')
-      .select('id, name, price, discount_price, stock_qty, is_active, product_id')
+      .select('id, name, price, discount_price, wholesale_price, stock_qty, is_active, product_id')
       .in('id', variantIds);
     variantMap = new Map(
       (variants ?? []).map((v: Record<string, unknown>) => [v.id as string, v])
@@ -286,13 +288,19 @@ export async function validateCartItems(
         }
       }
 
-      price = Number(variant.discount_price ?? variant.price);
+      // discount_price=0 means "no discount" in this DB's convention (not
+      // NULL) — nullish coalescing would incorrectly sell it for $0.
+      const variantDiscountPrice = Number(variant.discount_price);
+      price = variantDiscountPrice > 0 ? variantDiscountPrice : Number(variant.price);
     } else {
       if ((product.stock_qty as number) < item.quantity) {
         errors.push(`庫存不足: ${product.title}（剩餘 ${product.stock_qty}）`);
         continue;
       }
       price = Number(product.price);
+      if (isWholesale && product.wholesale_price != null) {
+        price = Number(product.wholesale_price);
+      }
     }
 
     const itemSubtotal = price * item.quantity;
@@ -340,6 +348,7 @@ export interface CreateOrderParams {
   store_id?: string | null;
   store_name?: string | null;
   store_address?: string | null;
+  is_wholesale?: boolean;
 }
 
 export interface CreateOrderResult {
@@ -372,6 +381,7 @@ export async function createOrder(
     p_items: params.items,
     p_coupon_code: params.coupon_code ?? null,
     p_discount_amount: params.discount_amount ?? 0,
+    p_is_wholesale: params.is_wholesale ?? false,
     p_cod_fee: params.cod_fee,
   });
 

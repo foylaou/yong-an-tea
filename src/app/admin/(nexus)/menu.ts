@@ -7,6 +7,7 @@ export const adminMenuItems: ISidebarMenuItem[] = [
   { id: 'products', label: '商品管理', icon: 'lucide--package', url: '/admin/products' },
   { id: 'reviews', label: '評價管理', icon: 'lucide--star', url: '/admin/reviews' },
   { id: 'analytics', label: '銷售分析', icon: 'lucide--bar-chart-3', url: '/admin/analytics' },
+  { id: 'expenses', label: '支出管理', icon: 'lucide--wallet', url: '/admin/expenses' },
   { id: 'coupons', label: '優惠券', icon: 'lucide--ticket', url: '/admin/coupons' },
   { id: 'categories', label: '商品分類', icon: 'lucide--folder', url: '/admin/categories' },
   { id: 'blogs', label: '部落格管理', icon: 'lucide--newspaper', url: '/admin/blogs' },

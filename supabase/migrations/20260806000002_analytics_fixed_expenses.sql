@@ -1,0 +1,98 @@
+-- 銷售分析加入固定支出總額（給前端算淨利 = 毛利 - 固定支出用）。
+-- 這個 migration 假設 block ③ PR（20260805000002_analytics_gross_profit.sql，
+-- 已經加了 total_cost/gross_profit）已經先套用過了，所以完整複製那個版本
+-- 再疊加 fixed_expenses_total，避免用 CREATE OR REPLACE 蓋掉 total_cost/
+-- gross_profit。部署順序：③ 的兩個 migration -> ④ -> 這個。
+CREATE OR REPLACE FUNCTION public.get_sales_analytics(
+  p_start_date date DEFAULT (CURRENT_DATE - INTERVAL '30 days')::date,
+  p_end_date date DEFAULT CURRENT_DATE
+)
+RETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path = '' AS $$
+DECLARE
+  result jsonb;
+BEGIN
+  -- 只有 admin 可呼叫
+  IF NOT public.is_admin() THEN
+    RAISE EXCEPTION 'Permission denied';
+  END IF;
+
+  SELECT jsonb_build_object(
+    -- KPI 指標
+    'total_revenue', (SELECT COALESCE(SUM(total),0) FROM public.orders
+      WHERE status NOT IN ('cancelled','refunded')
+      AND created_at::date BETWEEN p_start_date AND p_end_date),
+    'total_orders', (SELECT COUNT(*) FROM public.orders
+      WHERE created_at::date BETWEEN p_start_date AND p_end_date),
+    'avg_order_value', (SELECT COALESCE(AVG(total),0) FROM public.orders
+      WHERE status NOT IN ('cancelled','refunded')
+      AND created_at::date BETWEEN p_start_date AND p_end_date),
+    'new_customers', (SELECT COUNT(DISTINCT customer_id) FROM public.orders
+      WHERE created_at::date BETWEEN p_start_date AND p_end_date
+      AND customer_id NOT IN (
+        SELECT DISTINCT customer_id FROM public.orders
+        WHERE created_at::date < p_start_date
+      )),
+
+    -- 成本/毛利（block ③ PR 加入，這裡原樣保留）
+    'total_cost', (SELECT COALESCE(SUM(COALESCE(oi.cost_price,0) * oi.quantity),0)
+      FROM public.order_items oi JOIN public.orders o ON o.id = oi.order_id
+      WHERE o.status NOT IN ('cancelled','refunded')
+      AND o.created_at::date BETWEEN p_start_date AND p_end_date),
+    'gross_profit', (SELECT COALESCE(SUM(oi.subtotal - COALESCE(oi.cost_price,0) * oi.quantity),0)
+      FROM public.order_items oi JOIN public.orders o ON o.id = oi.order_id
+      WHERE o.status NOT IN ('cancelled','refunded')
+      AND o.created_at::date BETWEEN p_start_date AND p_end_date),
+
+    -- 固定支出總額（前端拿去跟 gross_profit 相減算淨利；
+    -- 代墊款 advance_payments 完全不進這支 RPC）
+    'fixed_expenses_total', (SELECT COALESCE(SUM(amount),0) FROM public.fixed_expenses
+      WHERE month >= date_trunc('month', p_start_date)::date
+        AND month <= date_trunc('month', p_end_date)::date),
+
+    -- 每日營收趨勢
+    'daily_revenue', (SELECT COALESCE(jsonb_agg(row_to_json(t)), '[]'::jsonb) FROM (
+      SELECT d::date AS date, COALESCE(SUM(o.total),0) AS revenue, COUNT(o.id) AS orders
+      FROM generate_series(p_start_date::timestamp, p_end_date::timestamp, '1 day') d
+      LEFT JOIN public.orders o ON o.created_at::date = d::date
+        AND o.status NOT IN ('cancelled','refunded')
+      GROUP BY d::date ORDER BY d::date
+    ) t),
+
+    -- 熱銷商品 TOP 10
+    'top_products', (SELECT COALESCE(jsonb_agg(row_to_json(t)), '[]'::jsonb) FROM (
+      SELECT oi.product_title AS name, SUM(oi.quantity) AS qty, SUM(oi.subtotal) AS revenue
+      FROM public.order_items oi
+      JOIN public.orders o ON o.id = oi.order_id
+      WHERE o.status NOT IN ('cancelled','refunded')
+        AND o.created_at::date BETWEEN p_start_date AND p_end_date
+      GROUP BY oi.product_title ORDER BY revenue DESC LIMIT 10
+    ) t),
+
+    -- 訂單狀態分佈
+    'order_status_dist', (SELECT COALESCE(jsonb_agg(row_to_json(t)), '[]'::jsonb) FROM (
+      SELECT status, COUNT(*) AS count
+      FROM public.orders
+      WHERE created_at::date BETWEEN p_start_date AND p_end_date
+      GROUP BY status
+    ) t),
+
+    -- 付款方式分佈
+    'payment_method_dist', (SELECT COALESCE(jsonb_agg(row_to_json(t)), '[]'::jsonb) FROM (
+      SELECT payment_method, COUNT(*) AS count
+      FROM public.orders
+      WHERE created_at::date BETWEEN p_start_date AND p_end_date
+      GROUP BY payment_method
+    ) t),
+
+    -- 客戶統計
+    'returning_customers', (SELECT COUNT(DISTINCT customer_id) FROM public.orders
+      WHERE created_at::date BETWEEN p_start_date AND p_end_date
+      AND customer_id IN (
+        SELECT DISTINCT customer_id FROM public.orders
+        WHERE created_at::date < p_start_date
+      ))
+  ) INTO result;
+
+  RETURN result;
+END;
+$$;

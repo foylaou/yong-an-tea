@@ -25,6 +25,7 @@ export async function GET(request: NextRequest) {
   const perPage = parseInt(searchParams.get('perPage') || '20', 10);
   const search = searchParams.get('search') || '';
   const status = searchParams.get('status') || '';
+  const paymentStatus = searchParams.get('paymentStatus') || '';
 
   const from = (page - 1) * perPage;
   const to = from + perPage - 1;
@@ -47,6 +48,15 @@ export async function GET(request: NextRequest) {
       query = query.eq('status', statuses[0]);
     } else if (statuses.length > 1) {
       query = query.in('status', statuses);
+    }
+  }
+
+  if (paymentStatus) {
+    const paymentStatuses = paymentStatus.split(',').filter(Boolean);
+    if (paymentStatuses.length === 1) {
+      query = query.eq('payment_status', paymentStatuses[0]);
+    } else if (paymentStatuses.length > 1) {
+      query = query.in('payment_status', paymentStatuses);
     }
   }
 

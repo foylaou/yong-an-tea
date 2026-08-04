@@ -24,6 +24,8 @@ export interface SalesAnalytics {
   total_revenue: number;
   total_orders: number;
   avg_order_value: number;
+  total_cost: number;
+  gross_profit: number;
   new_customers: number;
   returning_customers: number;
   daily_revenue: DailyRevenue[];

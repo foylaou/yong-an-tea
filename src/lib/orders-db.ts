@@ -288,10 +288,10 @@ export async function validateCartItems(
         }
       }
 
-      price = Number(variant.discount_price ?? variant.price);
-      if (isWholesale && variant.wholesale_price != null) {
-        price = Number(variant.wholesale_price);
-      }
+      // discount_price=0 means "no discount" in this DB's convention (not
+      // NULL) — nullish coalescing would incorrectly sell it for $0.
+      const variantDiscountPrice = Number(variant.discount_price);
+      price = variantDiscountPrice > 0 ? variantDiscountPrice : Number(variant.price);
     } else {
       if ((product.stock_qty as number) < item.quantity) {
         errors.push(`庫存不足: ${product.title}（剩餘 ${product.stock_qty}）`);

@@ -25,3 +25,25 @@ export function OrderStatusBadge({ status }: { status: string }) {
     </span>
   );
 }
+
+export const paymentStatusLabel: Record<string, string> = {
+  pending: '未收款',
+  paid: '已收款',
+  failed: '付款失敗',
+  refunded: '已退款',
+};
+
+const paymentStatusBadgeClass: Record<string, string> = {
+  pending: 'badge-warning',
+  paid: 'badge-success',
+  failed: 'badge-error',
+  refunded: 'badge-ghost',
+};
+
+export function PaymentStatusBadge({ status }: { status: string }) {
+  return (
+    <span className={`badge badge-sm whitespace-nowrap ${paymentStatusBadgeClass[status] || 'badge-ghost'}`}>
+      {paymentStatusLabel[status] || status}
+    </span>
+  );
+}

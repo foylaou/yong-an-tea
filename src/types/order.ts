@@ -31,6 +31,7 @@ export interface OrderItem {
   product_image: string | null;
   variant_label?: string | null;
   price: number;
+  cost_price: number | null;
   quantity: number;
   subtotal: number;
   created_at: string;

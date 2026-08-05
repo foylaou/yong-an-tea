@@ -37,8 +37,11 @@ export async function POST(request: NextRequest) {
 
   const data = result.data;
 
-  // 查一次 customers 記錄，同時判斷是否批發商（影響定價）跟熟客折扣
-  const { data: customer } = await supabase
+  // 查一次 customers 記錄，同時判斷是否批發商（影響定價）跟熟客折扣。
+  // customers 表 RLS 只開放給 admin，一般登入者的 session client 查不到
+  // 自己的資料，所以這裡要用 admin client（查詢範圍已經用 profile_id 限定
+  // 只會查到自己的紀錄，不會外洩其他人資料）。
+  const { data: customer } = await createAdminClient()
     .from('customers')
     .select('discount_type, discount_value, category')
     .eq('profile_id', user.id)

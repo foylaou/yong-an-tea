@@ -6,6 +6,7 @@ import Breadcrumb from '../components/Breadcrumb';
 import CheckoutForm from '../components/Checkout/CheckoutForm';
 import FooterComps from '../components/FooterComps';
 import { createPagesClient } from '../lib/supabase/server-pages';
+import { createAdminClient } from '../lib/supabase/admin';
 import { getShippingSettings, getPaymentToggles, getLoyaltyDiscountShowLabel } from '../lib/orders-db';
 
 interface CheckoutPageProps {
@@ -79,12 +80,15 @@ export const getServerSideProps: GetServerSideProps = async (ctx) => {
         .eq('id', user.id)
         .single();
 
-    // Fetch shipping settings, payment toggles, and this user's loyalty discount (if any)
+    // Fetch shipping settings, payment toggles, and this user's loyalty discount (if any).
+    // customers table RLS is admin-only, so this lookup needs the admin client even
+    // though it's scoped to the logged-in user's own profile_id.
+    const adminClient = createAdminClient();
     const [shippingSettings, paymentToggles, loyaltyDiscountShowLabel, { data: customer }] = await Promise.all([
       getShippingSettings(),
       getPaymentToggles(),
       getLoyaltyDiscountShowLabel(),
-      supabase
+      adminClient
         .from('customers')
         .select('discount_type, discount_value')
         .eq('profile_id', user.id)

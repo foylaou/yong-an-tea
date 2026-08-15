@@ -65,6 +65,16 @@ export interface LiffFeature {
 export const LIFF_FEATURES: LiffFeature[] = [
   { path: '/liff/admin-coupon', label: '發放優惠券（Admin）' },
   { path: '/liff/my-qr', label: '我的會員條碼' },
+  { path: '/liff/admin-orders', label: '今日訂單（Admin）' },
+  { path: '/liff/admin-coupons', label: '優惠券管理（Admin）' },
+  { path: '/liff/admin-users', label: '管理員權限（Admin）' },
+  // Not a /liff/* page — an ordinary storefront route. Works the same way:
+  // LiffSessionProvider (mounted globally in _app.tsx) carries the LINE
+  // login over to *any* page opened through a liff.line.me URL, not just
+  // ones under src/pages/liff/. Points at the product catalog rather than
+  // the homepage since "quickly log in and buy" is the point, not browsing
+  // hero banners.
+  { path: '/products', label: '商店（快速登入購買）' },
 ];
 
 /** Turns a { type: 'liff', path } action into the uri action LINE actually needs. */

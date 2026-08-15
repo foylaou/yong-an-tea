@@ -13,6 +13,17 @@ const nextConfig: NextConfig = {
     // (open upstream, fixed in 16.3 canary but not yet backported —
     // https://github.com/lovell/sharp/issues/4567). `pnpm run build` therefore also
     // passes `--webpack`; keep that until upgrading past Next 16.2.
+    //
+    // Even with --webpack, @img/sharp-linux-x64's own (dynamic, so untraceable by
+    // both webpack's and @vercel/nft's static analysis) require() of its
+    // @img/sharp-libvips-linux-x64 sibling still gets dropped from .next/standalone
+    // — see the still-open https://github.com/lovell/sharp/issues/4543.
+    // outputFileTracingIncludes doesn't help either: it's a no-op under --webpack
+    // builds in this Next version (only wired up for the Turbopack/turbotrace path).
+    // Downgrading sharp isn't an option — 0.35.0+ is pinned via the override below
+    // to clear a Dependabot alert for inherited libvips CVEs. `pnpm run build`
+    // therefore also runs scripts/copy-sharp-libvips.js afterward, which copies the
+    // missing package into .next/standalone/node_modules by hand.
     serverExternalPackages: ['sharp'],
     images: {
         qualities: [70, 75, 90, 100],

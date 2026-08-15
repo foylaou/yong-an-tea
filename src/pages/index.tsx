@@ -4,9 +4,15 @@ import { buildProductFilters, buildProductTabs } from '../lib/build-filters';
 import { getFeaturedBlogs } from '../lib/blogs-db';
 import DynamicHomeContent from '../components/DynamicHome/DynamicHomeContent';
 import type { DynamicHomeContentProps } from '../components/DynamicHome/DynamicHomeContent';
+import HomeLoadingOverlay from '../components/HomeLoadingOverlay';
 
 function HomePage(props: DynamicHomeContentProps) {
-    return <DynamicHomeContent {...props} />;
+    return (
+        <>
+            <HomeLoadingOverlay />
+            <DynamicHomeContent {...props} />
+        </>
+    );
 }
 
 export const getServerSideProps: GetServerSideProps = async () => {

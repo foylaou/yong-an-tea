@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react';
 import { compressImage } from '@/lib/client-image-compress';
 import dynamic from 'next/dynamic';
-import type { Area } from 'react-easy-crop';
+import type { CropResult } from './CropModal';
 
 const CropModal = dynamic(() => import('./CropModal'), { ssr: false });
 
@@ -85,7 +85,7 @@ export default function ProductImageBatchUploader({
     }
   }
 
-  async function handleCropConfirm(croppedAreaPixels: Area) {
+  async function handleCropConfirm({ area, fitMode, fillMode }: CropResult) {
     if (!tempKey) return;
 
     setState('committing');
@@ -97,11 +97,13 @@ export default function ProductImageBatchUploader({
         body: JSON.stringify({
           tempKey,
           crop: {
-            x: croppedAreaPixels.x,
-            y: croppedAreaPixels.y,
-            width: croppedAreaPixels.width,
-            height: croppedAreaPixels.height,
+            x: area.x,
+            y: area.y,
+            width: area.width,
+            height: area.height,
           },
+          fitMode,
+          fillMode,
           targets: PRODUCT_TARGETS.map((t) => ({
             slug,
             imageType: t.imageType,

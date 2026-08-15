@@ -30,10 +30,19 @@ const nextConfig: NextConfig = {
     // Downgrading sharp isn't an option either — 0.35.0+ is pinned via the
     // override below to clear a Dependabot alert for inherited libvips CVEs.
     serverExternalPackages: ['sharp'],
+    // The glob below deliberately goes through @img/sharp-linux-x64's OWN pnpm
+    // store folder (.../@img+sharp-linux-x64@*/node_modules/@img/sharp-libvips-linux-x64,
+    // a symlink pnpm creates there) rather than sharp-libvips-linux-x64's own
+    // store folder. Both contain the same files, but outputFileTracingIncludes
+    // preserves the matched glob's own path when copying — and the compiled
+    // .node addon's dlopen() call looks for its libvips sibling relative to
+    // *its own* location (inside @img+sharp-linux-x64@.../node_modules/@img/),
+    // not libvips's independent store folder. Pointing the glob at the wrong
+    // one silently produces a copy dlopen() never looks at.
     outputFileTracingIncludes: {
-        '/api/admin/upload/**': ['./node_modules/.pnpm/@img+sharp-libvips-linux-x64@*/node_modules/@img/sharp-libvips-linux-x64/**'],
-        '/api/admin/upload-prepare/**': ['./node_modules/.pnpm/@img+sharp-libvips-linux-x64@*/node_modules/@img/sharp-libvips-linux-x64/**'],
-        '/api/admin/upload-commit/**': ['./node_modules/.pnpm/@img+sharp-libvips-linux-x64@*/node_modules/@img/sharp-libvips-linux-x64/**'],
+        '/api/admin/upload/**': ['./node_modules/.pnpm/@img+sharp-linux-x64@*/node_modules/@img/sharp-libvips-linux-x64/**'],
+        '/api/admin/upload-prepare/**': ['./node_modules/.pnpm/@img+sharp-linux-x64@*/node_modules/@img/sharp-libvips-linux-x64/**'],
+        '/api/admin/upload-commit/**': ['./node_modules/.pnpm/@img+sharp-linux-x64@*/node_modules/@img/sharp-libvips-linux-x64/**'],
     },
     images: {
         qualities: [70, 75, 90, 100],

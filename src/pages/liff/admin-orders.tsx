@@ -7,16 +7,52 @@ interface OrderRow {
     order_number: string;
     customer_name: string;
     status: string;
+    payment_method: string;
     total: number;
     created_at: string;
+}
+
+interface OrderItem {
+    id: string;
+    product_title: string;
+    variant_label: string | null;
+    quantity: number;
 }
 
 type Status = 'init' | 'loading' | 'ready' | 'error';
 
 const STATUS_LABEL: Record<string, string> = {
+    pending: '待付款',
     paid: '已付款',
     processing: '備貨中',
 };
+
+// [background, text] per status — distinct colors so orders in different
+// states are actually distinguishable at a glance, not just by their label.
+const STATUS_BADGE_COLOR: Record<string, [string, string]> = {
+    pending: ['#fff3cd', '#8a6d00'],
+    paid: ['#e6f0ff', '#1a56c2'],
+    processing: ['#e8f7ee', '#0a7d2c'],
+};
+
+// COD is collected on delivery, not upfront — its "needs prep/shipping"
+// state is 待付款 (pending), not 已付款 like bank_transfer/line_pay. A plain
+// status=paid,processing filter silently drops every COD order sitting in
+// pending, which is exactly the order that actually needs action.
+function needsAction(
+    order: Pick<OrderRow, 'status' | 'payment_method'>
+): boolean {
+    if (order.payment_method === 'cod') {
+        return order.status === 'pending' || order.status === 'processing';
+    }
+    return order.status === 'paid' || order.status === 'processing';
+}
+
+function nextStatusFor(
+    order: Pick<OrderRow, 'status'>
+): 'processing' | 'shipped' {
+    return order.status === 'processing' ? 'shipped' : 'processing';
+}
 
 function isToday(iso: string): boolean {
     const d = new Date(iso);
@@ -40,13 +76,20 @@ export default function AdminOrdersPage() {
     const [errorText, setErrorText] = useState('');
     const [orders, setOrders] = useState<OrderRow[]>([]);
     const [updatingId, setUpdatingId] = useState<string | null>(null);
+    const [expandedId, setExpandedId] = useState<string | null>(null);
+    const [itemsById, setItemsById] = useState<Record<string, OrderItem[]>>({});
+    const [loadingItemsId, setLoadingItemsId] = useState<string | null>(null);
 
     const loadOrders = useCallback(async () => {
         setStatus('loading');
         setErrorText('');
         try {
+            // Fetch the superset (pending covers COD's pre-fulfillment state
+            // too) and apply the real "needs action" rule client-side —
+            // see needsAction()'s comment for why a plain status filter
+            // isn't enough on its own.
             const res = await fetch(
-                '/api/admin/orders?status=paid,processing&perPage=50'
+                '/api/admin/orders?status=pending,paid,processing&perPage=50'
             );
             const data = await res.json();
             if (res.status === 403) {
@@ -59,7 +102,7 @@ export default function AdminOrdersPage() {
                 setStatus('error');
                 return;
             }
-            setOrders(data.orders || []);
+            setOrders((data.orders || []).filter(needsAction));
             setStatus('ready');
         } catch (err) {
             setErrorText(
@@ -89,8 +132,37 @@ export default function AdminOrdersPage() {
         })();
     }, [liffId, loadOrders]);
 
+    async function toggleExpand(order: OrderRow) {
+        if (expandedId === order.id) {
+            setExpandedId(null);
+            return;
+        }
+        setExpandedId(order.id);
+        if (itemsById[order.id]) return; // already fetched once, no need to reload every tap
+
+        setLoadingItemsId(order.id);
+        try {
+            const res = await fetch(`/api/admin/orders/${order.id}`);
+            const data = await res.json();
+            if (res.ok) {
+                setItemsById((prev) => ({
+                    ...prev,
+                    [order.id]: data.order?.order_items ?? [],
+                }));
+            } else {
+                setErrorText(data.error || '讀取商品明細失敗');
+            }
+        } catch (err) {
+            setErrorText(
+                `讀取商品明細失敗：${err instanceof Error ? err.message : String(err)}`
+            );
+        } finally {
+            setLoadingItemsId(null);
+        }
+    }
+
     async function advanceStatus(order: OrderRow) {
-        const nextStatus = order.status === 'paid' ? 'processing' : 'shipped';
+        const nextStatus = nextStatusFor(order);
         setUpdatingId(order.id);
         try {
             const res = await fetch(`/api/admin/orders/${order.id}`, {
@@ -193,18 +265,74 @@ export default function AdminOrdersPage() {
                                         </div>
                                         <span
                                             style={s.badge(
-                                                order.status === 'paid'
-                                                    ? '#e6f0ff'
-                                                    : '#e8f7ee',
-                                                order.status === 'paid'
-                                                    ? '#1a56c2'
-                                                    : '#0a7d2c'
+                                                STATUS_BADGE_COLOR[
+                                                    order.status
+                                                ]?.[0] ?? '#f2f2f2',
+                                                STATUS_BADGE_COLOR[
+                                                    order.status
+                                                ]?.[1] ?? '#666'
                                             )}
                                         >
                                             {STATUS_LABEL[order.status] ||
                                                 order.status}
                                         </span>
                                     </div>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => toggleExpand(order)}
+                                        style={{
+                                            ...s.outlineButton,
+                                            width: '100%',
+                                            marginTop: 10,
+                                        }}
+                                    >
+                                        {expandedId === order.id
+                                            ? '收合商品明細'
+                                            : loadingItemsId === order.id
+                                              ? '載入中...'
+                                              : '查看商品明細'}
+                                    </button>
+
+                                    {expandedId === order.id && (
+                                        <div
+                                            style={{
+                                                marginTop: 8,
+                                                paddingTop: 8,
+                                                borderTop: '1px dashed #ddd',
+                                            }}
+                                        >
+                                            {(itemsById[order.id] ?? []).map(
+                                                (item) => (
+                                                    <div
+                                                        key={item.id}
+                                                        style={{
+                                                            display: 'flex',
+                                                            justifyContent:
+                                                                'space-between',
+                                                            fontSize: 13,
+                                                            padding: '3px 0',
+                                                        }}
+                                                    >
+                                                        <span>
+                                                            {item.product_title}
+                                                            {item.variant_label
+                                                                ? `（${item.variant_label}）`
+                                                                : ''}
+                                                        </span>
+                                                        <span
+                                                            style={{
+                                                                color: '#666',
+                                                            }}
+                                                        >
+                                                            x{item.quantity}
+                                                        </span>
+                                                    </div>
+                                                )
+                                            )}
+                                        </div>
+                                    )}
+
                                     <button
                                         type="button"
                                         disabled={updatingId === order.id}
@@ -212,12 +340,13 @@ export default function AdminOrdersPage() {
                                         style={{
                                             ...s.primaryButton,
                                             width: '100%',
-                                            marginTop: 10,
+                                            marginTop: 8,
                                         }}
                                     >
                                         {updatingId === order.id
                                             ? '處理中...'
-                                            : order.status === 'paid'
+                                            : nextStatusFor(order) ===
+                                                'processing'
                                               ? '開始備貨'
                                               : '標記已出貨'}
                                     </button>

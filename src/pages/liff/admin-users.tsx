@@ -190,6 +190,69 @@ export default function AdminUsersPage() {
 
                 {status === 'ready' && (
                     <>
+                        <div
+                            style={{
+                                ...s.card,
+                                border: '1px solid #06C755',
+                                marginBottom: 20,
+                            }}
+                        >
+                            <h2
+                                style={{
+                                    fontSize: 15,
+                                    fontWeight: 600,
+                                    marginBottom: 8,
+                                }}
+                            >
+                                ＋ 新增管理員
+                            </h2>
+                            <p
+                                style={{
+                                    fontSize: 12,
+                                    color: '#666',
+                                    marginBottom: 8,
+                                }}
+                            >
+                                輸入姓名或 Email 搜尋要新增的會員
+                            </p>
+                            <div style={{ display: 'flex', gap: 8 }}>
+                                <input
+                                    style={{ ...s.input, flex: 1 }}
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                    placeholder="姓名或 Email"
+                                    onKeyDown={(e) =>
+                                        e.key === 'Enter' && handleSearch()
+                                    }
+                                />
+                                <button
+                                    type="button"
+                                    disabled={searching || !search.trim()}
+                                    onClick={handleSearch}
+                                    style={s.primaryButton}
+                                >
+                                    {searching ? '搜尋中...' : '搜尋'}
+                                </button>
+                            </div>
+
+                            {searchResults &&
+                                (searchResults.length === 0 ? (
+                                    <p
+                                        style={{
+                                            color: '#666',
+                                            marginTop: 8,
+                                            fontSize: 13,
+                                        }}
+                                    >
+                                        找不到符合的會員。
+                                    </p>
+                                ) : (
+                                    <div style={{ marginTop: 8 }}>
+                                        {searchResults.map(renderRow)}
+                                    </div>
+                                ))}
+                        </div>
+
                         <h2
                             style={{
                                 fontSize: 15,
@@ -200,47 +263,6 @@ export default function AdminUsersPage() {
                             目前的管理員（{admins.length}）
                         </h2>
                         {admins.map(renderRow)}
-
-                        <h2
-                            style={{
-                                fontSize: 15,
-                                fontWeight: 600,
-                                marginTop: 20,
-                                marginBottom: 8,
-                            }}
-                        >
-                            新增管理員
-                        </h2>
-                        <div style={{ display: 'flex', gap: 8 }}>
-                            <input
-                                style={{ ...s.input, flex: 1 }}
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                                placeholder="搜尋姓名或 Email"
-                                onKeyDown={(e) =>
-                                    e.key === 'Enter' && handleSearch()
-                                }
-                            />
-                            <button
-                                type="button"
-                                disabled={searching}
-                                onClick={handleSearch}
-                                style={s.outlineButton}
-                            >
-                                搜尋
-                            </button>
-                        </div>
-
-                        {searchResults &&
-                            (searchResults.length === 0 ? (
-                                <p style={{ color: '#666', marginTop: 8 }}>
-                                    找不到符合的會員。
-                                </p>
-                            ) : (
-                                <div style={{ marginTop: 8 }}>
-                                    {searchResults.map(renderRow)}
-                                </div>
-                            ))}
 
                         {errorText && <p style={s.errorText}>{errorText}</p>}
                     </>

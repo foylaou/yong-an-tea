@@ -3,182 +3,191 @@ import { z } from 'zod';
 // --- Form Schemas (for react-hook-form, use z.number() + valueAsNumber) ---
 
 export const generalSettingsSchema = z.object({
-  site_name: z.string().min(1, '網站名稱為必填'),
-  site_description: z.string().min(1, '網站描述為必填'),
-  logo_url: z.string().min(1, 'Logo 路徑為必填'),
-  favicon_url: z.string().min(1, 'Favicon 路徑為必填'),
-  copyright_text: z.string().optional(),
-  blog_enabled: z.string().optional(),
-  loyalty_discount_show_label: z.string().optional(),
+    site_name: z.string().min(1, '網站名稱為必填'),
+    site_description: z.string().min(1, '網站描述為必填'),
+    logo_url: z.string().min(1, 'Logo 路徑為必填'),
+    favicon_url: z.string().min(1, 'Favicon 路徑為必填'),
+    copyright_text: z.string().optional(),
+    blog_enabled: z.string().optional(),
+    loyalty_discount_show_label: z.string().optional(),
 });
 
 export const shopLayoutEnum = z.enum([
-  'left-sidebar',
-  'right-sidebar',
-  '3-columns',
-  '4-columns',
-  '5-columns',
-  '6-columns',
-  'categories',
-  'carousel',
+    'left-sidebar',
+    'right-sidebar',
+    '3-columns',
+    '4-columns',
+    '5-columns',
+    '6-columns',
+    'categories',
+    'carousel',
 ]);
 
 export const homepageSettingsSchema = z.object({
-  homepage_variant: z.number().int().min(1).max(5),
-  shop_layout: shopLayoutEnum,
+    homepage_variant: z.number().int().min(1).max(5),
+    shop_layout: shopLayoutEnum,
 });
 
 export const currencySettingsSchema = z.object({
-  default_currency: z.string().min(1, '預設幣別為必填'),
-  currency_symbol: z.string().min(1, '幣別符號為必填'),
-  decimal_places: z.number().int().min(0).max(4),
-  available_currencies: z.string().min(1, '可用幣別為必填'),
+    default_currency: z.string().min(1, '預設幣別為必填'),
+    currency_symbol: z.string().min(1, '幣別符號為必填'),
+    decimal_places: z.number().int().min(0).max(4),
+    available_currencies: z.string().min(1, '可用幣別為必填'),
 });
 
 export const contactSettingsSchema = z.object({
-  company_name: z.string().min(1, '公司名稱為必填'),
-  address: z.string().min(1, '地址為必填'),
-  phone: z.string().min(1, '電話為必填'),
-  email: z.string().email('Email 格式不正確'),
-  business_hours: z.string().min(1, '營業時間為必填'),
-  map_embed_url: z.string().refine(
-    (val) => val === '' || /^https:\/\/www\.google\.com\/maps\/embed/.test(val),
-    { message: '請輸入有效的 Google Maps 嵌入網址' }
-  ),
-  contact_form_title: z.string().optional(),
-  contact_form_desc: z.string().optional(),
-  contact_info_title: z.string().optional(),
-  contact_info_desc: z.string().optional(),
-  contact_social_title: z.string().optional(),
+    company_name: z.string().min(1, '公司名稱為必填'),
+    address: z.string().min(1, '地址為必填'),
+    phone: z.string().min(1, '電話為必填'),
+    email: z.string().email('Email 格式不正確'),
+    business_hours: z.string().min(1, '營業時間為必填'),
+    map_embed_url: z
+        .string()
+        .refine(
+            (val) =>
+                val === '' ||
+                /^https:\/\/www\.google\.com\/maps\/embed/.test(val),
+            { message: '請輸入有效的 Google Maps 嵌入網址' }
+        ),
+    contact_form_title: z.string().optional(),
+    contact_form_desc: z.string().optional(),
+    contact_info_title: z.string().optional(),
+    contact_info_desc: z.string().optional(),
+    contact_social_title: z.string().optional(),
 });
 
-const optionalUrl = z.string().refine(
-  (val) => val === '' || /^https?:\/\//.test(val),
-  { message: '請輸入有效的 URL（以 http:// 或 https:// 開頭）' }
-);
+const optionalUrl = z
+    .string()
+    .refine((val) => val === '' || /^https?:\/\//.test(val), {
+        message: '請輸入有效的 URL（以 http:// 或 https:// 開頭）',
+    });
 
 export const socialSettingsSchema = z.object({
-  social_facebook: optionalUrl,
-  social_twitter: optionalUrl,
-  social_instagram: optionalUrl,
-  social_pinterest: optionalUrl,
-  social_tumblr: optionalUrl,
-  social_line: optionalUrl,
+    social_facebook: optionalUrl,
+    social_twitter: optionalUrl,
+    social_instagram: optionalUrl,
+    social_pinterest: optionalUrl,
+    social_tumblr: optionalUrl,
+    social_line: optionalUrl,
 });
 
 export const sortOrderEnum = z.enum([
-  'newest',
-  'oldest',
-  'price_asc',
-  'price_desc',
-  'name_asc',
-  'name_desc',
+    'newest',
+    'oldest',
+    'price_asc',
+    'price_desc',
+    'name_asc',
+    'name_desc',
 ]);
 
 export const productDisplaySettingsSchema = z.object({
-  default_grid_columns: z.number().int().min(3).max(6),
-  products_per_page: z.number().int().min(4).max(48),
-  default_sort_order: sortOrderEnum,
+    default_grid_columns: z.number().int().min(3).max(6),
+    products_per_page: z.number().int().min(4).max(48),
+    default_sort_order: sortOrderEnum,
 });
 
 export const contentSettingsSchema = z.object({
-  section_title_bestselling: z.string().optional(),
-  section_title_latest_blog: z.string().optional(),
-  section_title_explore_blog: z.string().optional(),
-  section_title_popular_products: z.string().optional(),
-  section_title_newsletter: z.string().optional(),
-  newsletter_desc: z.string().optional(),
-  section_title_newsletter_v3: z.string().optional(),
-  newsletter_desc_v3: z.string().optional(),
-  btn_shop_now: z.string().optional(),
-  btn_view_more: z.string().optional(),
-  btn_view_all: z.string().optional(),
-  btn_all_products: z.string().optional(),
-  btn_load_more: z.string().optional(),
-  btn_all_loaded: z.string().optional(),
-  btn_subscribe: z.string().optional(),
-  new_arrival_title: z.string().optional(),
-  new_arrival_desc: z.string().optional(),
-  new_arrival_excerpt: z.string().optional(),
-  email_placeholder: z.string().optional(),
+    section_title_bestselling: z.string().optional(),
+    section_title_latest_blog: z.string().optional(),
+    section_title_explore_blog: z.string().optional(),
+    section_title_popular_products: z.string().optional(),
+    section_title_newsletter: z.string().optional(),
+    newsletter_desc: z.string().optional(),
+    section_title_newsletter_v3: z.string().optional(),
+    newsletter_desc_v3: z.string().optional(),
+    btn_shop_now: z.string().optional(),
+    btn_view_more: z.string().optional(),
+    btn_view_all: z.string().optional(),
+    btn_all_products: z.string().optional(),
+    btn_load_more: z.string().optional(),
+    btn_all_loaded: z.string().optional(),
+    btn_subscribe: z.string().optional(),
+    new_arrival_title: z.string().optional(),
+    new_arrival_desc: z.string().optional(),
+    new_arrival_excerpt: z.string().optional(),
+    email_placeholder: z.string().optional(),
 });
 
 export const videoSettingsSchema = z.object({
-  video_title: z.string().optional(),
-  video_desc: z.string().optional(),
-  video_image: z.string().optional(),
-  video_image_alt: z.string().optional(),
-  video_url: z.string().optional(),
+    video_title: z.string().optional(),
+    video_desc: z.string().optional(),
+    video_image: z.string().optional(),
+    video_image_alt: z.string().optional(),
+    video_url: z.string().optional(),
 });
 
 export const offerSettingsSchema = z.object({
-  offer_enabled: z.string().optional(),
-  offer_title: z.string().optional(),
-  offer_desc: z.string().optional(),
-  offer_countdown_date: z.string().optional(),
-  offer_link: z.string().optional(),
-  offer_image: z.string().optional(),
+    offer_enabled: z.string().optional(),
+    offer_title: z.string().optional(),
+    offer_desc: z.string().optional(),
+    offer_countdown_date: z.string().optional(),
+    offer_link: z.string().optional(),
+    offer_image: z.string().optional(),
 });
 
 export const brandsSettingsSchema = z.object({
-  brands_json: z.string().optional(),
+    brands_json: z.string().optional(),
 });
 
 export const heroSettingsSchema = z.object({
-  hero_hide_header_at_top: z.string().optional(),
-  hero_default_json: z.string().optional(),
-  hero_boxed_json: z.string().optional(),
-  hero_carousel_json: z.string().optional(),
-  hero_collection_json: z.string().optional(),
+    hero_hide_header_at_top: z.string().optional(),
+    hero_default_json: z.string().optional(),
+    hero_boxed_json: z.string().optional(),
+    hero_carousel_json: z.string().optional(),
+    hero_collection_json: z.string().optional(),
 });
 
 export const featuredSettingsSchema = z.object({
-  featured_products_json: z.string().optional(),
+    featured_products_json: z.string().optional(),
 });
 
 export const shippingSettingsSchema = z.object({
-  shipping_fee: z.number().int().min(0, '運費不能為負數'),
-  free_shipping_threshold: z.number().int().min(0, '免運門檻不能為負數'),
-  shipping_note: z.string().optional(),
-  cod_fee_tiers: z.string().optional(),
+    shipping_fee: z.number().int().min(0, '運費不能為負數'),
+    free_shipping_threshold: z.number().int().min(0, '免運門檻不能為負數'),
+    shipping_note: z.string().optional(),
+    cod_fee_tiers: z.string().optional(),
 });
 
 export const paymentSettingsSchema = z.object({
-  // Toggles
-  payment_linepay_enabled: z.string().optional(),
-  payment_atm_enabled: z.string().optional(),
-  payment_credit_card_enabled: z.string().optional(),
-  payment_cod_enabled: z.string().optional(),
-  // ATM details
-  payment_atm_bank_name: z.string().optional(),
-  payment_atm_bank_code: z.string().optional(),
-  payment_atm_account_number: z.string().optional(),
-  payment_atm_account_holder: z.string().optional(),
-  payment_atm_note: z.string().optional(),
-  // Credit Card details
-  payment_credit_card_provider: z.string().optional(),
-  payment_credit_card_merchant_id: z.string().optional(),
-  payment_credit_card_hash_key: z.string().optional(),
-  payment_credit_card_hash_iv: z.string().optional(),
-  payment_credit_card_sandbox: z.string().optional(),
+    // Toggles
+    payment_linepay_enabled: z.string().optional(),
+    payment_atm_enabled: z.string().optional(),
+    payment_credit_card_enabled: z.string().optional(),
+    payment_cod_enabled: z.string().optional(),
+    // ATM details
+    payment_atm_bank_name: z.string().optional(),
+    payment_atm_bank_code: z.string().optional(),
+    payment_atm_account_number: z.string().optional(),
+    payment_atm_account_holder: z.string().optional(),
+    payment_atm_note: z.string().optional(),
+    // Credit Card details
+    payment_credit_card_provider: z.string().optional(),
+    payment_credit_card_merchant_id: z.string().optional(),
+    payment_credit_card_hash_key: z.string().optional(),
+    payment_credit_card_hash_iv: z.string().optional(),
+    payment_credit_card_sandbox: z.string().optional(),
 });
 
 export const linePaySettingsSchema = z.object({
-  linepay_channel_id: z.string().optional(),
-  linepay_channel_secret: z.string().optional(),
-  linepay_sandbox: z.string().optional(),
+    linepay_channel_id: z.string().optional(),
+    linepay_channel_secret: z.string().optional(),
+    linepay_sandbox: z.string().optional(),
 });
 
 export const lineLoginSettingsSchema = z.object({
-  line_login_channel_id: z.string().optional(),
-  line_login_channel_secret: z.string().optional(),
+    line_login_channel_id: z.string().optional(),
+    line_login_channel_secret: z.string().optional(),
 });
 
 export const lineBotSettingsSchema = z.object({
-  line_bot_enabled: z.boolean().optional(),
-  line_bot_channel_id: z.string().optional(),
-  line_bot_channel_secret: z.string().optional(),
-  line_bot_channel_access_token: z.string().optional(),
+    line_bot_enabled: z.boolean().optional(),
+    line_bot_channel_id: z.string().optional(),
+    line_bot_channel_secret: z.string().optional(),
+    line_bot_channel_access_token: z.string().optional(),
+    // Fallback reply for messages that don't match any keyword dispatch
+    // (order status / coupon query) — see line-bot-handlers.ts's resolveReply().
+    line_bot_default_reply_enabled: z.boolean().optional(),
+    line_bot_default_reply: z.string().optional(),
 });
 
 // Split from lineBotSettingsSchema: these two aren't secrets — the LIFF ID
@@ -186,137 +195,137 @@ export const lineBotSettingsSchema = z.object({
 // Basic ID is just the public @-handle for an "add friend" link/QR. They
 // live in site_settings (public read), not protected_settings.
 export const lineBotPublicSettingsSchema = z.object({
-  line_bot_basic_id: z.string().optional(),
-  line_bot_liff_id: z.string().optional(),
+    line_bot_basic_id: z.string().optional(),
+    line_bot_liff_id: z.string().optional(),
 });
 
 export const logisticsSettingsSchema = z.object({
-  tcat_test_customer_id: z.string().optional(),
-  tcat_test_customer_token: z.string().optional(),
-  tcat_prod_customer_id: z.string().optional(),
-  tcat_prod_customer_token: z.string().optional(),
-  tcat_sandbox: z.string().optional(),
-  tcat_no_delivery_sunday: z.string().optional(),
-  tcat_no_delivery_saturday: z.string().optional(),
-  tcat_no_delivery_holidays: z.string().optional(),
-  tcat_sender_name: z.string().optional(),
-  tcat_sender_phone: z.string().optional(),
-  tcat_sender_mobile: z.string().optional(),
-  tcat_sender_zipcode: z.string().optional(),
-  tcat_sender_address: z.string().optional(),
+    tcat_test_customer_id: z.string().optional(),
+    tcat_test_customer_token: z.string().optional(),
+    tcat_prod_customer_id: z.string().optional(),
+    tcat_prod_customer_token: z.string().optional(),
+    tcat_sandbox: z.string().optional(),
+    tcat_no_delivery_sunday: z.string().optional(),
+    tcat_no_delivery_saturday: z.string().optional(),
+    tcat_no_delivery_holidays: z.string().optional(),
+    tcat_sender_name: z.string().optional(),
+    tcat_sender_phone: z.string().optional(),
+    tcat_sender_mobile: z.string().optional(),
+    tcat_sender_zipcode: z.string().optional(),
+    tcat_sender_address: z.string().optional(),
 });
 
 export const smtpSettingsSchema = z.object({
-  smtp_host: z.string().min(1, 'SMTP 主機為必填'),
-  smtp_port: z.number().int().min(1).max(65535),
-  smtp_user: z.string().min(1, 'SMTP 帳號為必填'),
-  smtp_pass: z.string().min(1, 'SMTP 密碼為必填'),
-  smtp_from_name: z.string().min(1, '寄件人名稱為必填'),
-  smtp_from_email: z.string().email('寄件人 Email 格式不正確'),
+    smtp_host: z.string().min(1, 'SMTP 主機為必填'),
+    smtp_port: z.number().int().min(1).max(65535),
+    smtp_user: z.string().min(1, 'SMTP 帳號為必填'),
+    smtp_pass: z.string().min(1, 'SMTP 密碼為必填'),
+    smtp_from_name: z.string().min(1, '寄件人名稱為必填'),
+    smtp_from_email: z.string().email('寄件人 Email 格式不正確'),
 });
 
 export const headerFooterSettingsSchema = z.object({
-  header_menu_json: z.string().optional(),
-  header_contact_title: z.string().optional(),
-  header_social_title: z.string().optional(),
-  footer_address_title: z.string().optional(),
-  footer_info_title: z.string().optional(),
-  footer_info_links_json: z.string().optional(),
-  footer_about_title: z.string().optional(),
-  footer_about_links_json: z.string().optional(),
-  footer_newsletter_title: z.string().optional(),
-  footer_menu_links_json: z.string().optional(),
-  footer_social_title: z.string().optional(),
-  footer_social_media_title: z.string().optional(),
-  footer_logo_alt: z.string().optional(),
-  footer_logo_path: z.string().optional(),
+    header_menu_json: z.string().optional(),
+    header_contact_title: z.string().optional(),
+    header_social_title: z.string().optional(),
+    footer_address_title: z.string().optional(),
+    footer_info_title: z.string().optional(),
+    footer_info_links_json: z.string().optional(),
+    footer_about_title: z.string().optional(),
+    footer_about_links_json: z.string().optional(),
+    footer_newsletter_title: z.string().optional(),
+    footer_menu_links_json: z.string().optional(),
+    footer_social_title: z.string().optional(),
+    footer_social_media_title: z.string().optional(),
+    footer_logo_alt: z.string().optional(),
+    footer_logo_path: z.string().optional(),
 });
 
 export const aboutSettingsSchema = z.object({
-  // video banner
-  about_video_banner: z.string().optional(),
-  about_video_banner_alt: z.string().optional(),
-  about_video_url: z.string().optional(),
-  // support info (JSON array)
-  about_support_info_json: z.string().optional(),
-  // perfection section
-  about_perfection_title: z.string().optional(),
-  about_perfection_desc: z.string().optional(),
-  about_progress_json: z.string().optional(),
-  // gallery banners
-  about_banner_alt: z.string().optional(),
-  about_banner_one: z.string().optional(),
-  about_banner_two: z.string().optional(),
-  about_banner_three: z.string().optional(),
-  about_banner_four: z.string().optional(),
-  about_banner_five: z.string().optional(),
-  // addresses
-  about_address_title_one: z.string().optional(),
-  about_address_desc_one: z.string().optional(),
-  about_address_title_two: z.string().optional(),
-  about_address_desc_two: z.string().optional(),
+    // video banner
+    about_video_banner: z.string().optional(),
+    about_video_banner_alt: z.string().optional(),
+    about_video_url: z.string().optional(),
+    // support info (JSON array)
+    about_support_info_json: z.string().optional(),
+    // perfection section
+    about_perfection_title: z.string().optional(),
+    about_perfection_desc: z.string().optional(),
+    about_progress_json: z.string().optional(),
+    // gallery banners
+    about_banner_alt: z.string().optional(),
+    about_banner_one: z.string().optional(),
+    about_banner_two: z.string().optional(),
+    about_banner_three: z.string().optional(),
+    about_banner_four: z.string().optional(),
+    about_banner_five: z.string().optional(),
+    // addresses
+    about_address_title_one: z.string().optional(),
+    about_address_desc_one: z.string().optional(),
+    about_address_title_two: z.string().optional(),
+    about_address_desc_two: z.string().optional(),
 });
 
 export const faqSettingsSchema = z.object({
-  faq_items_json: z.string().optional(),
-  faq_page_title: z.string().optional(),
-  faq_page_desc: z.string().optional(),
+    faq_items_json: z.string().optional(),
+    faq_page_title: z.string().optional(),
+    faq_page_desc: z.string().optional(),
 });
 
 export const errorPageSettingsSchema = z.object({
-  error404_image: z.string().optional(),
-  error404_image_alt: z.string().optional(),
-  error404_title: z.string().optional(),
-  error404_desc: z.string().optional(),
-  error404_link_path: z.string().optional(),
-  error404_link_text: z.string().optional(),
+    error404_image: z.string().optional(),
+    error404_image_alt: z.string().optional(),
+    error404_title: z.string().optional(),
+    error404_desc: z.string().optional(),
+    error404_link_path: z.string().optional(),
+    error404_link_text: z.string().optional(),
 });
 
 export const authPageSettingsSchema = z.object({
-  auth_tab_menu_json: z.string().optional(),
+    auth_tab_menu_json: z.string().optional(),
 });
 
 export const comingSoonSettingsSchema = z.object({
-  coming_soon_title: z.string().optional(),
-  coming_soon_desc: z.string().optional(),
-  coming_soon_count_title: z.string().optional(),
-  coming_soon_social_title: z.string().optional(),
+    coming_soon_title: z.string().optional(),
+    coming_soon_desc: z.string().optional(),
+    coming_soon_count_title: z.string().optional(),
+    coming_soon_social_title: z.string().optional(),
 });
 
 export const cartPageSettingsSchema = z.object({
-  cart_th_list_json: z.string().optional(),
-  cart_coupon_title: z.string().optional(),
-  cart_coupon_desc: z.string().optional(),
-  cart_coupon_btn_text: z.string().optional(),
-  cart_shop_page_btn_text: z.string().optional(),
-  cart_clear_btn_text: z.string().optional(),
-  cart_proceed_btn_text: z.string().optional(),
+    cart_th_list_json: z.string().optional(),
+    cart_coupon_title: z.string().optional(),
+    cart_coupon_desc: z.string().optional(),
+    cart_coupon_btn_text: z.string().optional(),
+    cart_shop_page_btn_text: z.string().optional(),
+    cart_clear_btn_text: z.string().optional(),
+    cart_proceed_btn_text: z.string().optional(),
 });
 
 export const wishlistPageSettingsSchema = z.object({
-  wishlist_th_list_json: z.string().optional(),
-  wishlist_clear_btn_text: z.string().optional(),
+    wishlist_th_list_json: z.string().optional(),
+    wishlist_clear_btn_text: z.string().optional(),
 });
 
 export const productDetailSettingsSchema = z.object({
-  product_tab_menu_json: z.string().optional(),
-  product_desc_title: z.string().optional(),
-  product_feature_title: z.string().optional(),
-  product_review_heading: z.string().optional(),
-  product_review_title: z.string().optional(),
-  product_rating_count: z.string().optional(),
+    product_tab_menu_json: z.string().optional(),
+    product_desc_title: z.string().optional(),
+    product_feature_title: z.string().optional(),
+    product_review_heading: z.string().optional(),
+    product_review_title: z.string().optional(),
+    product_rating_count: z.string().optional(),
 });
 
 export const gridLayoutSettingsSchema = z.object({
-  grid_tab_2col_json: z.string().optional(),
-  grid_tab_3col_json: z.string().optional(),
-  grid_tab_3col_alt_json: z.string().optional(),
-  mobile_grid_cols: z.coerce.number().min(1).max(3).optional(),
+    grid_tab_2col_json: z.string().optional(),
+    grid_tab_3col_json: z.string().optional(),
+    grid_tab_3col_alt_json: z.string().optional(),
+    mobile_grid_cols: z.coerce.number().min(1).max(3).optional(),
 });
 
 export const bestsellerSettingsSchema = z.object({
-  bestseller_mode: z.enum(['auto', 'custom']),
-  bestseller_product_ids: z.string().optional(), // JSON array of product UUIDs
+    bestseller_mode: z.enum(['auto', 'custom']),
+    bestseller_product_ids: z.string().optional(), // JSON array of product UUIDs
 });
 
 // --- Type exports ---
@@ -326,7 +335,9 @@ export type HomepageSettingsData = z.infer<typeof homepageSettingsSchema>;
 export type CurrencySettingsData = z.infer<typeof currencySettingsSchema>;
 export type ContactSettingsData = z.infer<typeof contactSettingsSchema>;
 export type SocialSettingsData = z.infer<typeof socialSettingsSchema>;
-export type ProductDisplaySettingsData = z.infer<typeof productDisplaySettingsSchema>;
+export type ProductDisplaySettingsData = z.infer<
+    typeof productDisplaySettingsSchema
+>;
 export type ContentSettingsData = z.infer<typeof contentSettingsSchema>;
 export type VideoSettingsData = z.infer<typeof videoSettingsSchema>;
 export type OfferSettingsData = z.infer<typeof offerSettingsSchema>;
@@ -339,8 +350,12 @@ export type ErrorPageSettingsData = z.infer<typeof errorPageSettingsSchema>;
 export type AuthPageSettingsData = z.infer<typeof authPageSettingsSchema>;
 export type ComingSoonSettingsData = z.infer<typeof comingSoonSettingsSchema>;
 export type CartPageSettingsData = z.infer<typeof cartPageSettingsSchema>;
-export type WishlistPageSettingsData = z.infer<typeof wishlistPageSettingsSchema>;
-export type ProductDetailSettingsData = z.infer<typeof productDetailSettingsSchema>;
+export type WishlistPageSettingsData = z.infer<
+    typeof wishlistPageSettingsSchema
+>;
+export type ProductDetailSettingsData = z.infer<
+    typeof productDetailSettingsSchema
+>;
 export type GridLayoutSettingsData = z.infer<typeof gridLayoutSettingsSchema>;
 export type BestsellerSettingsData = z.infer<typeof bestsellerSettingsSchema>;
 export type ShippingSettingsData = z.infer<typeof shippingSettingsSchema>;
@@ -348,110 +363,180 @@ export type PaymentSettingsData = z.infer<typeof paymentSettingsSchema>;
 export type LinePaySettingsData = z.infer<typeof linePaySettingsSchema>;
 export type LineLoginSettingsData = z.infer<typeof lineLoginSettingsSchema>;
 export type LineBotSettingsData = z.infer<typeof lineBotSettingsSchema>;
-export type LineBotPublicSettingsData = z.infer<typeof lineBotPublicSettingsSchema>;
+export type LineBotPublicSettingsData = z.infer<
+    typeof lineBotPublicSettingsSchema
+>;
 export type LogisticsSettingsData = z.infer<typeof logisticsSettingsSchema>;
 export type SmtpSettingsData = z.infer<typeof smtpSettingsSchema>;
-export type HeaderFooterSettingsData = z.infer<typeof headerFooterSettingsSchema>;
+export type HeaderFooterSettingsData = z.infer<
+    typeof headerFooterSettingsSchema
+>;
 
 // --- API Schemas (for server-side validation, accepts array for currencies) ---
 
 export const currencyApiSchema = z.object({
-  default_currency: z.string().min(1, '預設幣別為必填'),
-  currency_symbol: z.string().min(1, '幣別符號為必填'),
-  decimal_places: z.number().int().min(0).max(4),
-  available_currencies: z.array(z.string().min(1)).min(1, '至少需要一種幣別'),
+    default_currency: z.string().min(1, '預設幣別為必填'),
+    currency_symbol: z.string().min(1, '幣別符號為必填'),
+    decimal_places: z.number().int().min(0).max(4),
+    available_currencies: z.array(z.string().min(1)).min(1, '至少需要一種幣別'),
 });
 
 export const settingsUpdateApiSchema = z.object({
-  group: z.enum(['general', 'homepage', 'currency', 'contact', 'social', 'product_display', 'content', 'video', 'offer', 'brands', 'hero', 'featured', 'about', 'shipping', 'payment', 'linepay', 'line_login', 'line_bot', 'line_bot_public', 'logistics', 'smtp', 'header_footer', 'faq', 'error_page', 'auth_page', 'coming_soon', 'cart_page', 'wishlist_page', 'product_detail', 'grid_layout', 'bestseller']),
-  settings: z.record(z.string(), z.unknown()),
+    group: z.enum([
+        'general',
+        'homepage',
+        'currency',
+        'contact',
+        'social',
+        'product_display',
+        'content',
+        'video',
+        'offer',
+        'brands',
+        'hero',
+        'featured',
+        'about',
+        'shipping',
+        'payment',
+        'linepay',
+        'line_login',
+        'line_bot',
+        'line_bot_public',
+        'logistics',
+        'smtp',
+        'header_footer',
+        'faq',
+        'error_page',
+        'auth_page',
+        'coming_soon',
+        'cart_page',
+        'wishlist_page',
+        'product_detail',
+        'grid_layout',
+        'bestseller',
+    ]),
+    settings: z.record(z.string(), z.unknown()),
 });
 
 // Groups stored in protected_settings (admin-only read, unlike site_settings
 // which anyone can read — see the migration comment). Anything with a live
 // secret (API tokens, SMTP password, webhook signing keys) belongs here.
 export const PROTECTED_SETTINGS_GROUPS = new Set([
-  'line_login',
-  'line_bot',
-  'linepay',
-  'payment',
-  'smtp',
-  'logistics',
+    'line_login',
+    'line_bot',
+    'linepay',
+    'payment',
+    'smtp',
+    'logistics',
 ]);
 
 // --- Schema Map (API-side: uses currencyApiSchema for array input) ---
 
 export const settingsSchemaMap: Record<string, z.ZodType> = {
-  general: generalSettingsSchema,
-  homepage: homepageSettingsSchema,
-  currency: currencyApiSchema,
-  contact: contactSettingsSchema,
-  social: socialSettingsSchema,
-  product_display: productDisplaySettingsSchema,
-  content: contentSettingsSchema,
-  video: videoSettingsSchema,
-  offer: offerSettingsSchema,
-  brands: brandsSettingsSchema,
-  hero: heroSettingsSchema,
-  featured: featuredSettingsSchema,
-  about: aboutSettingsSchema,
-  shipping: shippingSettingsSchema,
-  payment: paymentSettingsSchema,
-  linepay: linePaySettingsSchema,
-  line_login: lineLoginSettingsSchema,
-  line_bot: lineBotSettingsSchema,
-  line_bot_public: lineBotPublicSettingsSchema,
-  logistics: logisticsSettingsSchema,
-  smtp: smtpSettingsSchema,
-  header_footer: headerFooterSettingsSchema,
-  faq: faqSettingsSchema,
-  error_page: errorPageSettingsSchema,
-  auth_page: authPageSettingsSchema,
-  coming_soon: comingSoonSettingsSchema,
-  cart_page: cartPageSettingsSchema,
-  wishlist_page: wishlistPageSettingsSchema,
-  product_detail: productDetailSettingsSchema,
-  grid_layout: gridLayoutSettingsSchema,
-  bestseller: bestsellerSettingsSchema,
+    general: generalSettingsSchema,
+    homepage: homepageSettingsSchema,
+    currency: currencyApiSchema,
+    contact: contactSettingsSchema,
+    social: socialSettingsSchema,
+    product_display: productDisplaySettingsSchema,
+    content: contentSettingsSchema,
+    video: videoSettingsSchema,
+    offer: offerSettingsSchema,
+    brands: brandsSettingsSchema,
+    hero: heroSettingsSchema,
+    featured: featuredSettingsSchema,
+    about: aboutSettingsSchema,
+    shipping: shippingSettingsSchema,
+    payment: paymentSettingsSchema,
+    linepay: linePaySettingsSchema,
+    line_login: lineLoginSettingsSchema,
+    line_bot: lineBotSettingsSchema,
+    line_bot_public: lineBotPublicSettingsSchema,
+    logistics: logisticsSettingsSchema,
+    smtp: smtpSettingsSchema,
+    header_footer: headerFooterSettingsSchema,
+    faq: faqSettingsSchema,
+    error_page: errorPageSettingsSchema,
+    auth_page: authPageSettingsSchema,
+    coming_soon: comingSoonSettingsSchema,
+    cart_page: cartPageSettingsSchema,
+    wishlist_page: wishlistPageSettingsSchema,
+    product_detail: productDetailSettingsSchema,
+    grid_layout: gridLayoutSettingsSchema,
+    bestseller: bestsellerSettingsSchema,
 };
 
 // --- Group labels (Chinese) ---
 
 export const groupLabels: Record<string, string> = {
-  general: '一般設定',
-  homepage: '首頁及商店樣式',
-  currency: '幣別設定',
-  branches: '分店管理',
-  contact: '聯絡資訊',
-  social: '社群媒體',
-  product_display: '商品顯示',
-  content: '文案設定',
-  video: '影片區塊',
-  offer: '限時優惠',
-  brands: '品牌輪播',
-  hero: 'Hero Banner',
-  featured: '精選商品',
-  about: '關於我們',
-  shipping: '運費設定',
-  payment: '付款方式',
-  linepay: 'LINE Pay',
-  line_login: 'LINE 登入',
-  line_bot: '基本設定',
-  line_bot_public: 'LINE 官方帳號（公開資訊）',
-  line_richmenu: '圖文設定',
-  logistics: '物流設定',
-  smtp: 'SMTP 郵件',
-  header_footer: 'Header / Footer',
-  faq: '常見問題',
-  error_page: '404 頁面',
-  auth_page: '登入頁面',
-  coming_soon: '即將推出',
-  cart_page: '購物車頁面',
-  wishlist_page: '願望清單',
-  product_detail: '商品詳情',
-  grid_layout: '格狀版面',
-  bestseller: '暢銷商品設定',
+    general: '一般設定',
+    homepage: '首頁及商店樣式',
+    currency: '幣別設定',
+    branches: '分店管理',
+    contact: '聯絡資訊',
+    social: '社群媒體',
+    product_display: '商品顯示',
+    content: '文案設定',
+    video: '影片區塊',
+    offer: '限時優惠',
+    brands: '品牌輪播',
+    hero: 'Hero Banner',
+    featured: '精選商品',
+    about: '關於我們',
+    shipping: '運費設定',
+    payment: '付款方式',
+    linepay: 'LINE Pay',
+    line_login: 'LINE 登入',
+    line_bot: '基本設定',
+    line_bot_public: 'LINE 官方帳號（公開資訊）',
+    line_richmenu: '圖文設定',
+    logistics: '物流設定',
+    smtp: 'SMTP 郵件',
+    header_footer: 'Header / Footer',
+    faq: '常見問題',
+    error_page: '404 頁面',
+    auth_page: '登入頁面',
+    coming_soon: '即將推出',
+    cart_page: '購物車頁面',
+    wishlist_page: '願望清單',
+    product_detail: '商品詳情',
+    grid_layout: '格狀版面',
+    bestseller: '暢銷商品設定',
 };
 
-export const groupKeys = ['general', 'homepage', 'currency', 'branches', 'contact', 'social', 'product_display', 'content', 'video', 'offer', 'brands', 'hero', 'featured', 'about', 'shipping', 'payment', 'linepay', 'line_login', 'line_bot', 'line_bot_public', 'line_richmenu', 'logistics', 'smtp', 'header_footer', 'faq', 'error_page', 'auth_page', 'coming_soon', 'cart_page', 'wishlist_page', 'product_detail', 'grid_layout', 'bestseller'] as const;
+export const groupKeys = [
+    'general',
+    'homepage',
+    'currency',
+    'branches',
+    'contact',
+    'social',
+    'product_display',
+    'content',
+    'video',
+    'offer',
+    'brands',
+    'hero',
+    'featured',
+    'about',
+    'shipping',
+    'payment',
+    'linepay',
+    'line_login',
+    'line_bot',
+    'line_bot_public',
+    'line_richmenu',
+    'logistics',
+    'smtp',
+    'header_footer',
+    'faq',
+    'error_page',
+    'auth_page',
+    'coming_soon',
+    'cart_page',
+    'wishlist_page',
+    'product_detail',
+    'grid_layout',
+    'bestseller',
+] as const;
 export type SettingsGroup = (typeof groupKeys)[number];

@@ -11,7 +11,8 @@ import {
 } from '@/lib/validations/settings';
 
 const BIND_ERROR_LABEL: Record<string, string> = {
-    'not-configured': '尚未設定 LINE Login（在「LINE 登入」分頁填 Channel ID/Secret）',
+    'not-configured':
+        '尚未設定 LINE Login（在「LINE 登入」分頁填 Channel ID/Secret）',
     denied: '已取消 LINE 授權',
     'bad-request': '請求格式錯誤，請重新嘗試',
     'state-mismatch': '驗證失敗，請重新嘗試',
@@ -47,7 +48,9 @@ export default function LineBotSettings({
     const searchParams = useSearchParams();
     const bindSuccess = searchParams.get('line_bind_success');
     const bindErrorCode = searchParams.get('line_bind_error');
-    const bindError = bindErrorCode ? BIND_ERROR_LABEL[bindErrorCode] || bindErrorCode : null;
+    const bindError = bindErrorCode
+        ? BIND_ERROR_LABEL[bindErrorCode] || bindErrorCode
+        : null;
 
     const { register, handleSubmit } = useForm<FormData>({
         resolver: zodResolver(formSchema),
@@ -62,6 +65,11 @@ export default function LineBotSettings({
                 (initialData.line_bot_channel_access_token as string) || '',
             line_bot_basic_id: (publicData.line_bot_basic_id as string) || '',
             line_bot_liff_id: (publicData.line_bot_liff_id as string) || '',
+            line_bot_default_reply_enabled:
+                (initialData.line_bot_default_reply_enabled as boolean) ?? true,
+            line_bot_default_reply:
+                (initialData.line_bot_default_reply as string) ||
+                '目前可以輸入「訂單」查詢出貨狀況，或輸入「優惠」查詢目前的優惠券。',
         },
     });
 
@@ -83,6 +91,9 @@ export default function LineBotSettings({
                         line_bot_channel_secret: data.line_bot_channel_secret,
                         line_bot_channel_access_token:
                             data.line_bot_channel_access_token,
+                        line_bot_default_reply_enabled:
+                            data.line_bot_default_reply_enabled,
+                        line_bot_default_reply: data.line_bot_default_reply,
                     },
                 }),
             });
@@ -231,6 +242,32 @@ export default function LineBotSettings({
                                     從圖文選單開啟前台官網並夾帶登入資訊時使用（前台會用到，公開沒關係）
                                 </p>
                             </fieldset>
+
+                            <label className="label cursor-pointer justify-start gap-3">
+                                <input
+                                    type="checkbox"
+                                    className="toggle toggle-primary"
+                                    {...register(
+                                        'line_bot_default_reply_enabled'
+                                    )}
+                                />
+                                <span className="label-text">
+                                    沒有符合任何關鍵字時，自動回覆預設訊息
+                                </span>
+                            </label>
+                            <fieldset className="fieldset">
+                                <legend className="fieldset-legend">
+                                    預設回覆內容
+                                </legend>
+                                <textarea
+                                    {...register('line_bot_default_reply')}
+                                    rows={3}
+                                    className="textarea w-full"
+                                />
+                                <p className="fieldset-label">
+                                    使用者傳送的訊息沒有對應到「訂單」「優惠」等關鍵字時的回覆內容；關閉上方開關則完全不回覆。
+                                </p>
+                            </fieldset>
                         </div>
                     </div>
                 </div>
@@ -279,7 +316,10 @@ export default function LineBotSettings({
                     )}
 
                     <div className="mt-2">
-                        <a href="/api/admin/line-bind" className="btn btn-outline">
+                        <a
+                            href="/api/admin/line-bind"
+                            className="btn btn-outline"
+                        >
                             綁定 LINE 帳號
                         </a>
                     </div>

@@ -56,7 +56,7 @@ export async function POST(
 
   // Get sender settings
   const { data: settingsRows } = await adminDb
-    .from('site_settings')
+    .from('protected_settings')
     .select('key, value')
     .in('key', [
       'tcat_sender_name',

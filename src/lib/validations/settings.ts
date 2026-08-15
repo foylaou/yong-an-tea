@@ -174,6 +174,22 @@ export const lineLoginSettingsSchema = z.object({
   line_login_channel_secret: z.string().optional(),
 });
 
+export const lineBotSettingsSchema = z.object({
+  line_bot_enabled: z.boolean().optional(),
+  line_bot_channel_id: z.string().optional(),
+  line_bot_channel_secret: z.string().optional(),
+  line_bot_channel_access_token: z.string().optional(),
+});
+
+// Split from lineBotSettingsSchema: these two aren't secrets — the LIFF ID
+// has to be readable client-side (liff.init() runs in the browser) and the
+// Basic ID is just the public @-handle for an "add friend" link/QR. They
+// live in site_settings (public read), not protected_settings.
+export const lineBotPublicSettingsSchema = z.object({
+  line_bot_basic_id: z.string().optional(),
+  line_bot_liff_id: z.string().optional(),
+});
+
 export const logisticsSettingsSchema = z.object({
   tcat_test_customer_id: z.string().optional(),
   tcat_test_customer_token: z.string().optional(),
@@ -331,6 +347,8 @@ export type ShippingSettingsData = z.infer<typeof shippingSettingsSchema>;
 export type PaymentSettingsData = z.infer<typeof paymentSettingsSchema>;
 export type LinePaySettingsData = z.infer<typeof linePaySettingsSchema>;
 export type LineLoginSettingsData = z.infer<typeof lineLoginSettingsSchema>;
+export type LineBotSettingsData = z.infer<typeof lineBotSettingsSchema>;
+export type LineBotPublicSettingsData = z.infer<typeof lineBotPublicSettingsSchema>;
 export type LogisticsSettingsData = z.infer<typeof logisticsSettingsSchema>;
 export type SmtpSettingsData = z.infer<typeof smtpSettingsSchema>;
 export type HeaderFooterSettingsData = z.infer<typeof headerFooterSettingsSchema>;
@@ -345,9 +363,21 @@ export const currencyApiSchema = z.object({
 });
 
 export const settingsUpdateApiSchema = z.object({
-  group: z.enum(['general', 'homepage', 'currency', 'contact', 'social', 'product_display', 'content', 'video', 'offer', 'brands', 'hero', 'featured', 'about', 'shipping', 'payment', 'linepay', 'line_login', 'logistics', 'smtp', 'header_footer', 'faq', 'error_page', 'auth_page', 'coming_soon', 'cart_page', 'wishlist_page', 'product_detail', 'grid_layout', 'bestseller']),
+  group: z.enum(['general', 'homepage', 'currency', 'contact', 'social', 'product_display', 'content', 'video', 'offer', 'brands', 'hero', 'featured', 'about', 'shipping', 'payment', 'linepay', 'line_login', 'line_bot', 'line_bot_public', 'logistics', 'smtp', 'header_footer', 'faq', 'error_page', 'auth_page', 'coming_soon', 'cart_page', 'wishlist_page', 'product_detail', 'grid_layout', 'bestseller']),
   settings: z.record(z.string(), z.unknown()),
 });
+
+// Groups stored in protected_settings (admin-only read, unlike site_settings
+// which anyone can read — see the migration comment). Anything with a live
+// secret (API tokens, SMTP password, webhook signing keys) belongs here.
+export const PROTECTED_SETTINGS_GROUPS = new Set([
+  'line_login',
+  'line_bot',
+  'linepay',
+  'payment',
+  'smtp',
+  'logistics',
+]);
 
 // --- Schema Map (API-side: uses currencyApiSchema for array input) ---
 
@@ -369,6 +399,8 @@ export const settingsSchemaMap: Record<string, z.ZodType> = {
   payment: paymentSettingsSchema,
   linepay: linePaySettingsSchema,
   line_login: lineLoginSettingsSchema,
+  line_bot: lineBotSettingsSchema,
+  line_bot_public: lineBotPublicSettingsSchema,
   logistics: logisticsSettingsSchema,
   smtp: smtpSettingsSchema,
   header_footer: headerFooterSettingsSchema,
@@ -404,6 +436,9 @@ export const groupLabels: Record<string, string> = {
   payment: '付款方式',
   linepay: 'LINE Pay',
   line_login: 'LINE 登入',
+  line_bot: '基本設定',
+  line_bot_public: 'LINE 官方帳號（公開資訊）',
+  line_richmenu: '圖文設定',
   logistics: '物流設定',
   smtp: 'SMTP 郵件',
   header_footer: 'Header / Footer',
@@ -418,5 +453,5 @@ export const groupLabels: Record<string, string> = {
   bestseller: '暢銷商品設定',
 };
 
-export const groupKeys = ['general', 'homepage', 'currency', 'branches', 'contact', 'social', 'product_display', 'content', 'video', 'offer', 'brands', 'hero', 'featured', 'about', 'shipping', 'payment', 'linepay', 'line_login', 'logistics', 'smtp', 'header_footer', 'faq', 'error_page', 'auth_page', 'coming_soon', 'cart_page', 'wishlist_page', 'product_detail', 'grid_layout', 'bestseller'] as const;
+export const groupKeys = ['general', 'homepage', 'currency', 'branches', 'contact', 'social', 'product_display', 'content', 'video', 'offer', 'brands', 'hero', 'featured', 'about', 'shipping', 'payment', 'linepay', 'line_login', 'line_bot', 'line_bot_public', 'line_richmenu', 'logistics', 'smtp', 'header_footer', 'faq', 'error_page', 'auth_page', 'coming_soon', 'cart_page', 'wishlist_page', 'product_detail', 'grid_layout', 'bestseller'] as const;
 export type SettingsGroup = (typeof groupKeys)[number];

@@ -16,6 +16,8 @@ const ProductDisplaySettings = dynamic(() => import('./ProductDisplaySettings'))
 const ShippingSettings = dynamic(() => import('./ShippingSettings'));
 const PaymentSettings = dynamic(() => import('./PaymentSettings'));
 const LineLoginSettings = dynamic(() => import('./LineLoginSettings'));
+const LineBotSettings = dynamic(() => import('./LineBotSettings'));
+const LineRichMenuSettings = dynamic(() => import('./LineRichMenuSettings'));
 const LogisticsSettings = dynamic(() => import('./LogisticsSettings'));
 const SmtpSettings = dynamic(() => import('./SmtpSettings'));
 
@@ -46,6 +48,10 @@ const sidebarGroups: { label: string; items: SettingsGroup[] }[] = [
   {
     label: '商店設定',
     items: ['currency', 'product_display', 'shipping', 'payment', 'line_login', 'logistics', 'smtp'],
+  },
+  {
+    label: 'LINE 官方帳號',
+    items: ['line_bot', 'line_richmenu'],
   },
   {
     label: '首頁與頁面',
@@ -112,6 +118,15 @@ export function SettingsTabs({ initialSettings }: SettingsTabsProps) {
         );
       case 'line_login':
         return <LineLoginSettings {...props} />;
+      case 'line_bot':
+        return (
+          <LineBotSettings
+            initialData={initialSettings['line_bot'] || {}}
+            publicData={initialSettings['line_bot_public'] || {}}
+          />
+        );
+      case 'line_richmenu':
+        return <LineRichMenuSettings />;
       case 'logistics':
         return <LogisticsSettings {...props} />;
       case 'smtp':

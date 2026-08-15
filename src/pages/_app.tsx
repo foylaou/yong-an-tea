@@ -7,12 +7,14 @@ import SettingsProvider from '../components/SettingsProvider';
 import CartWishlistSyncProvider from '../components/CartWishlistSyncProvider';
 import DynamicHead from '../components/DynamicHead';
 import FlyToCart from '../components/FlyToCart';
+import LiffSessionProvider from '../components/LiffSessionProvider';
 
 function MyApp({ Component, pageProps }: AppProps) {
     return (
         <Layout>
             <SettingsProvider />
             <CartWishlistSyncProvider />
+            <LiffSessionProvider />
             <DynamicHead />
             <Head>
                 <meta

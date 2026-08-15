@@ -158,6 +158,9 @@ interface SiteSettings {
   // bestseller
   bestseller_mode: string;
   bestseller_product_ids: string;
+  // LINE bot (public fields only — secrets live server-side in protected_settings)
+  line_bot_liff_id: string;
+  line_bot_basic_id: string;
   // state
   loaded: boolean;
 }
@@ -419,6 +422,9 @@ export const useSettingsStore = create<SiteSettings & SettingsActions>()((set) =
   // bestseller
   bestseller_mode: 'auto',
   bestseller_product_ids: '[]',
+  // LINE bot
+  line_bot_liff_id: '',
+  line_bot_basic_id: '',
   // state
   loaded: false,
 

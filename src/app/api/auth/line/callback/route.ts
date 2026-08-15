@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { establishLineSession } from '@/lib/line-login';
 
 interface LineTokenResponse {
   access_token: string;
@@ -46,7 +46,7 @@ export async function GET(request: Request) {
     // Read LINE Login settings from DB
     const supabase = createAdminClient();
     const { data: settings } = await supabase
-      .from('site_settings')
+      .from('protected_settings')
       .select('key, value')
       .eq('group', 'line_login');
 
@@ -110,113 +110,20 @@ export async function GET(request: Request) {
       }
     }
 
-    // 4. Find existing user by line_user_id
-    const { data: existingProfile } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('line_user_id', lineProfile.userId)
-      .single();
-
-    let userId: string;
-
-    if (existingProfile) {
-      // Existing user — get their email for magic link
-      userId = existingProfile.id;
-    } else {
-      // New user — create Supabase account
-      const userEmail = email || `line_${lineProfile.userId}@line.oauth.local`;
-
-      const { data: newUser, error: createError } = await supabase.auth.admin.createUser({
-        email: userEmail,
-        email_confirm: true,
-        user_metadata: {
-          full_name: lineProfile.displayName,
-          avatar_url: lineProfile.pictureUrl || '',
-          line_user_id: lineProfile.userId,
-        },
-      });
-
-      if (createError) {
-        // If email already exists, try to link the LINE account
-        if (createError.message.includes('already been registered')) {
-          const { data: userData } = await supabase.auth.admin.getUserById(
-            // Look up user by email via profiles or auth
-            await findUserIdByEmail(supabase, userEmail)
-          );
-          if (userData?.user) {
-            userId = userData.user.id;
-            // Link LINE user ID to existing profile
-            await supabase
-              .from('profiles')
-              .update({ line_user_id: lineProfile.userId })
-              .eq('id', userData.user.id);
-          } else {
-            console.error('[LINE callback] could not find existing user for email:', userEmail);
-            return NextResponse.redirect(`${origin}/auth?error=line-create-error`);
-          }
-        } else {
-          console.error('[LINE callback] createUser error:', createError.message);
-          return NextResponse.redirect(`${origin}/auth?error=line-create-error`);
-        }
-      } else {
-        userId = newUser.user.id;
-
-        // Update profile with LINE info
-        await supabase
-          .from('profiles')
-          .update({
-            full_name: lineProfile.displayName,
-            line_user_id: lineProfile.userId,
-          })
-          .eq('id', userId);
-      }
-    }
-
-    // 5. Get user email for magic link
-    const { data: userData } = await supabase.auth.admin.getUserById(userId);
-    if (!userData?.user?.email) {
-      return NextResponse.redirect(`${origin}/auth?error=line-user-error`);
-    }
-
-    // 6. Generate magic link token
-    const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
-      type: 'magiclink',
-      email: userData.user.email,
-    });
-
-    if (linkError || !linkData?.properties?.hashed_token) {
-      console.error('[LINE callback] generateLink error:', linkError?.message);
-      return NextResponse.redirect(`${origin}/auth?error=line-session-error`);
-    }
-
-    // 7. Verify token server-side and set session cookies
+    // 4. Find/create the matching Supabase user and start a session
     const response = NextResponse.redirect(`${origin}/`);
-
-    const serverSupabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    const { error: sessionError } = await establishLineSession(
       {
-        cookies: {
-          getAll() {
-            return [];
-          },
-          setAll(cookiesToSet) {
-            cookiesToSet.forEach(({ name, value, options }) => {
-              response.cookies.set(name, value, options);
-            });
-          },
-        },
-      }
+        userId: lineProfile.userId,
+        displayName: lineProfile.displayName,
+        pictureUrl: lineProfile.pictureUrl,
+        email,
+      },
+      response
     );
 
-    const { error: verifyError } = await serverSupabase.auth.verifyOtp({
-      token_hash: linkData.properties.hashed_token,
-      type: 'magiclink',
-    });
-
-    if (verifyError) {
-      console.error('[LINE callback] verifyOtp error:', verifyError.message);
-      return NextResponse.redirect(`${origin}/auth?error=line-session-error`);
+    if (sessionError) {
+      return NextResponse.redirect(`${origin}/auth?error=${sessionError}`);
     }
 
     // Clear OAuth cookies
@@ -227,33 +134,6 @@ export async function GET(request: Request) {
     console.error('[LINE callback] unhandled error:', err);
     return NextResponse.redirect(`${origin}/auth?error=line-unknown-error`);
   }
-}
-
-async function findUserIdByEmail(
-  supabase: ReturnType<typeof createAdminClient>,
-  email: string
-): Promise<string> {
-  // Try to find via profiles table first (faster than listing all auth users)
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('id')
-    .eq('email', email)
-    .single();
-
-  if (profile?.id) return profile.id;
-
-  // Fallback: paginate through auth users
-  let page = 1;
-  while (page <= 10) {
-    const { data } = await supabase.auth.admin.listUsers({ page, perPage: 50 });
-    const users = data?.users as { id: string; email?: string }[] | undefined;
-    const match = users?.find((u) => u.email === email);
-    if (match) return match.id;
-    if (!users?.length || users.length < 50) break;
-    page++;
-  }
-
-  throw new Error(`User not found for email: ${email}`);
 }
 
 function parseCookie(cookieHeader: string, name: string): string | null {

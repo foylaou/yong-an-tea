@@ -3,6 +3,13 @@ import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 
 const ALLOWED_KEYS = ['logo', 'favicon'];
+// Rich menus are dynamic/named by the admin (line_richmenus.name), so this
+// one's a prefix check rather than a fixed key — see isAllowedKey() below.
+const RICHMENU_KEY_PREFIX = 'line-richmenu-';
+
+function isAllowedKey(key: string): boolean {
+  return ALLOWED_KEYS.includes(key) || key.startsWith(RICHMENU_KEY_PREFIX);
+}
 const BUCKET = 'site-assets';
 
 async function ensureBucket() {
@@ -42,7 +49,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: '缺少必要參數' }, { status: 400 });
   }
 
-  if (!ALLOWED_KEYS.includes(key)) {
+  if (!isAllowedKey(key)) {
     return NextResponse.json({ error: '不支援的 key' }, { status: 400 });
   }
 

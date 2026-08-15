@@ -16,6 +16,7 @@ export interface Coupon {
   is_active: boolean;
   product_ids: string[] | null;
   category_ids: string[] | null;
+  is_welcome_coupon: boolean;
   created_at: string;
   updated_at: string;
 }

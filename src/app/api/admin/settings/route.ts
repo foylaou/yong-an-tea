@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { settingsUpdateApiSchema, settingsSchemaMap } from '@/lib/validations/settings';
+import { settingsUpdateApiSchema, settingsSchemaMap, PROTECTED_SETTINGS_GROUPS } from '@/lib/validations/settings';
+
+// Groups with live secrets (SMTP password, payment/webhook signing keys, LINE
+// tokens) live in protected_settings, which — unlike site_settings — has no
+// public read policy. Everything else stays in site_settings so the
+// storefront's unauthenticated SettingsProvider can still read it.
+function tableForGroup(group: string) {
+  return PROTECTED_SETTINGS_GROUPS.has(group) ? 'protected_settings' : 'site_settings';
+}
 
 async function verifyAdmin(supabase: Awaited<ReturnType<typeof createClient>>) {
   const { data: { user } } = await supabase.auth.getUser();
@@ -27,20 +35,24 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const group = searchParams.get('group');
 
-  let query = supabase.from('site_settings').select('*');
-  if (group) {
-    query = query.eq('group', group);
-  }
+  const tables = group ? [tableForGroup(group)] : ['site_settings', 'protected_settings'];
+  const rows: { key: string; value: unknown; group: string }[] = [];
 
-  const { data, error } = await query;
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  for (const table of tables) {
+    let query = supabase.from(table).select('*');
+    if (group) {
+      query = query.eq('group', group);
+    }
+    const { data, error } = await query;
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+    rows.push(...data);
   }
 
   // Convert to flat { [key]: value } object grouped by group
   const grouped: Record<string, Record<string, unknown>> = {};
-  for (const row of data) {
+  for (const row of rows) {
     if (!grouped[row.group]) {
       grouped[row.group] = {};
     }
@@ -94,7 +106,7 @@ export async function PUT(request: NextRequest) {
   }));
 
   const { error } = await supabase
-    .from('site_settings')
+    .from(tableForGroup(group))
     .upsert(upserts, { onConflict: 'key' });
 
   if (error) {

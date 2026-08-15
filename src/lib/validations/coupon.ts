@@ -20,6 +20,10 @@ export const couponFormSchema = z.object({
   is_active: z.boolean(),
   product_ids: z.array(z.string().uuid()).nullable(),
   category_ids: z.array(z.string().uuid()).nullable(),
+  // Standing "send to every new member as they bind LINE" — a one-time
+  // broadcast to *current* LINE members is a separate action, not a form
+  // field (see CouponForm's 立即推播 button / POST .../broadcast).
+  is_welcome_coupon: z.boolean(),
 });
 
 export type CouponFormData = z.infer<typeof couponFormSchema>;
@@ -44,6 +48,7 @@ export const couponApiSchema = z.object({
   is_active: z.boolean().default(true),
   product_ids: z.array(z.string().uuid()).nullable().optional(),
   category_ids: z.array(z.string().uuid()).nullable().optional(),
+  is_welcome_coupon: z.boolean().default(false),
 });
 
 export type CouponApiData = z.infer<typeof couponApiSchema>;

@@ -15,6 +15,12 @@ export function CouponForm({ coupon }: CouponFormProps) {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
+  // Create-mode only — a transient "also broadcast right after creating"
+  // flag, not a form field. Editing an existing coupon uses the separate
+  // 立即推播 button below instead, since it already has an id to target.
+  const [broadcastOnCreate, setBroadcastOnCreate] = useState(false);
+  const [broadcasting, setBroadcasting] = useState(false);
+  const [broadcastResult, setBroadcastResult] = useState<string | null>(null);
   const isEdit = !!coupon;
 
   const {
@@ -38,10 +44,29 @@ export function CouponForm({ coupon }: CouponFormProps) {
       is_active: coupon?.is_active ?? true,
       product_ids: coupon?.product_ids ?? null,
       category_ids: coupon?.category_ids ?? null,
+      is_welcome_coupon: coupon?.is_welcome_coupon ?? false,
     },
   });
 
   const discountType = watch('discount_type');
+
+  async function broadcastToLineMembers(couponId: string) {
+    setBroadcasting(true);
+    setBroadcastResult(null);
+    try {
+      const res = await fetch(`/api/admin/coupons/${couponId}/broadcast`, { method: 'POST' });
+      const data = await res.json();
+      if (!res.ok) {
+        setBroadcastResult(data.error || '推播失敗');
+        return;
+      }
+      setBroadcastResult(`已推播給 ${data.sent}/${data.total} 位 LINE 會員`);
+    } catch {
+      setBroadcastResult('推播失敗，請稍後再試');
+    } finally {
+      setBroadcasting(false);
+    }
+  }
 
   const onSubmit = async (data: CouponFormData) => {
     setSubmitting(true);
@@ -71,6 +96,14 @@ export function CouponForm({ coupon }: CouponFormProps) {
         setSubmitError(result.error || '操作失敗');
         setSubmitting(false);
         return;
+      }
+
+      if (!isEdit && broadcastOnCreate && result.coupon?.id) {
+        // Pause on the result instead of navigating away immediately — the
+        // admin should get to see how many members it actually reached.
+        setSubmitting(false);
+        await broadcastToLineMembers(result.coupon.id);
+        await new Promise((resolve) => setTimeout(resolve, 2000));
       }
 
       router.push('/admin/coupons');
@@ -162,6 +195,42 @@ export function CouponForm({ coupon }: CouponFormProps) {
           <input type="checkbox" {...register('is_active')} className="checkbox checkbox-sm" />
           <span className="text-sm font-medium">啟用此優惠券</span>
         </label>
+
+        <div className="border-base-300 rounded-lg border p-4">
+          <h3 className="mb-2 text-sm font-medium">LINE 官方帳號推播</h3>
+
+          <label className="flex cursor-pointer items-start gap-2">
+            <input type="checkbox" {...register('is_welcome_coupon')} className="checkbox checkbox-sm mt-0.5" />
+            <span className="text-sm">
+              設為新會員入會禮
+              <span className="text-base-content/60 block text-xs">之後每一位新綁定 LINE 的會員，都會自動收到這張優惠券（長期生效，不是只發一次）</span>
+            </span>
+          </label>
+
+          {isEdit ? (
+            <div className="mt-3">
+              <button type="button" disabled={broadcasting} onClick={() => broadcastToLineMembers(coupon!.id)} className="btn btn-outline btn-sm">
+                {broadcasting ? '推播中...' : '立即推播給所有 LINE 會員'}
+              </button>
+              <p className="text-base-content/60 mt-1 text-xs">一次性推播給「現在」已綁定 LINE 的會員（適合週年慶這類活動券），之後才加入的不會自動收到</p>
+            </div>
+          ) : (
+            <label className="mt-3 flex cursor-pointer items-start gap-2">
+              <input
+                type="checkbox"
+                checked={broadcastOnCreate}
+                onChange={(e) => setBroadcastOnCreate(e.target.checked)}
+                className="checkbox checkbox-sm mt-0.5"
+              />
+              <span className="text-sm">
+                建立後立即推播給所有現有 LINE 會員
+                <span className="text-base-content/60 block text-xs">一次性動作，適合週年慶這類活動券；跟上面的「入會禮」可以同時勾，代表現有會員先發一次，之後新會員再持續自動收到</span>
+              </span>
+            </label>
+          )}
+
+          {broadcastResult && <div className="alert alert-success mt-2 text-sm">{broadcastResult}</div>}
+        </div>
 
         {submitError && <div className="alert alert-error text-sm">{submitError}</div>}
 

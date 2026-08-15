@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import type { Customer } from '@/types/customer';
-import { decodeCustomerQr } from '@/components/admin/nexus-customers/CustomerQrModal';
+import { decodeCustomerQr } from '@/lib/customer-qr';
 import { QrScannerModal } from './QrScannerModal';
 
 interface CustomerPickerProps {

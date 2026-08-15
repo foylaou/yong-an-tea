@@ -58,7 +58,7 @@ export interface PaymentToggles {
 export async function getPaymentToggles(): Promise<PaymentToggles> {
   const supabase = createAdminClient();
   const { data, error } = await supabase
-    .from('site_settings')
+    .from('protected_settings')
     .select('key, value')
     .in('key', [
       'payment_linepay_enabled',
@@ -99,7 +99,7 @@ export interface BankTransferInfo {
 export async function getBankTransferInfo(): Promise<BankTransferInfo | null> {
   const supabase = createAdminClient();
   const { data, error } = await supabase
-    .from('site_settings')
+    .from('protected_settings')
     .select('key, value')
     .in('key', [
       'payment_atm_bank_name',

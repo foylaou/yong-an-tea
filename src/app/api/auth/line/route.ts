@@ -8,7 +8,7 @@ export async function GET(request: Request) {
   // Read LINE Login settings from DB
   const supabase = createAdminClient();
   const { data: settings } = await supabase
-    .from('site_settings')
+    .from('protected_settings')
     .select('key, value')
     .eq('group', 'line_login');
 

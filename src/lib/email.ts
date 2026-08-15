@@ -13,7 +13,7 @@ interface SmtpConfig {
 export async function getSmtpSettings(): Promise<SmtpConfig | null> {
   const supabase = createAdminClient();
   const { data, error } = await supabase
-    .from('site_settings')
+    .from('protected_settings')
     .select('key, value')
     .in('key', [
       'smtp_host',

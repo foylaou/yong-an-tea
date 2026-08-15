@@ -16,7 +16,7 @@ async function getLinePaySettings() {
 
   const supabase = createAdminClient();
   const { data, error } = await supabase
-    .from('site_settings')
+    .from('protected_settings')
     .select('key, value')
     .in('key', ['linepay_channel_id', 'linepay_channel_secret', 'linepay_sandbox']);
 

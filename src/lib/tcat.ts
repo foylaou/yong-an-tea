@@ -25,7 +25,7 @@ async function getTcatSettings() {
 
   const supabase = createAdminClient();
   const { data, error } = await supabase
-    .from('site_settings')
+    .from('protected_settings')
     .select('key, value')
     .in('key', [
       'tcat_test_customer_id',
@@ -997,12 +997,12 @@ export interface DeliveryDateOptions {
 }
 
 /**
- * 取得配送設定 from site_settings
+ * 取得配送設定 from protected_settings
  */
 export async function getDeliverySettings(): Promise<DeliveryDateOptions> {
   const supabase = createAdminClient();
   const { data } = await supabase
-    .from('site_settings')
+    .from('protected_settings')
     .select('key, value')
     .in('key', [
       'tcat_no_delivery_sunday',

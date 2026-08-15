@@ -65,7 +65,7 @@ export async function POST(
 
   // Get shop/sender settings (will become the "recipient" in reverse)
   const { data: settingsRows } = await adminDb
-    .from('site_settings')
+    .from('protected_settings')
     .select('key, value')
     .in('key', [
       'tcat_sender_name',

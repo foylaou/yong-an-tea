@@ -2,15 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import QRCode from 'qrcode';
-
-/** Encoded content for a customer's QR — namespaced so POS scanning can't confuse it with an unrelated QR code. */
-export function encodeCustomerQr(customerId: string): string {
-  return `yat-customer:${customerId}`;
-}
-
-export function decodeCustomerQr(text: string): string | null {
-  return text.startsWith('yat-customer:') ? text.slice('yat-customer:'.length) : null;
-}
+import { encodeCustomerQr } from '@/lib/customer-qr';
 
 interface CustomerQrModalProps {
   customer: { id: string; name: string };

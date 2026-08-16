@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import TaiwanAddressSelector from '@/components/TaiwanAddressSelector';
 
 export interface ShippingRecipientData {
     recipient_name: string;
@@ -210,72 +211,57 @@ export function ShippingAddressDialog({
                         </fieldset>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2">
-                        <fieldset className="fieldset">
-                            <legend className="fieldset-legend">縣市 *</legend>
-                            <input
-                                type="text"
-                                value={form.city}
-                                onChange={(e) => set('city', e.target.value)}
-                                className="input input-sm w-full"
-                            />
-                        </fieldset>
-                        <fieldset className="fieldset">
-                            <legend className="fieldset-legend">
-                                鄉鎮區 *
-                            </legend>
-                            <input
-                                type="text"
-                                value={form.district}
-                                onChange={(e) =>
-                                    set('district', e.target.value)
-                                }
-                                className="input input-sm w-full"
-                            />
-                        </fieldset>
-                    </div>
+                    {/* 縣市/鄉鎮區/郵遞區號連動 + 路名建議 — 跟前台結帳同一套輔助工具
+                        （src/components/TaiwanAddressSelector.tsx），行政區資料庫共用，
+                        店員不用自己記郵遞區號或手動對county/district */}
+                    <TaiwanAddressSelector
+                        postalCodeValue={form.postal_code}
+                        cityValue={form.city}
+                        districtValue={form.district}
+                        addressLine1Value={form.address_line1}
+                        onPostalCodeChange={(zip, city, district) =>
+                            setForm((prev) => ({
+                                ...prev,
+                                postal_code: zip,
+                                ...(city && { city, district }),
+                            }))
+                        }
+                        onCityChange={(city) =>
+                            setForm((prev) => ({
+                                ...prev,
+                                city,
+                                district: '',
+                                postal_code: '',
+                            }))
+                        }
+                        onDistrictChange={(district, zipCode) =>
+                            setForm((prev) => ({
+                                ...prev,
+                                district,
+                                postal_code: zipCode,
+                            }))
+                        }
+                        onAddressLine1Change={(address) =>
+                            set('address_line1', address)
+                        }
+                        selectClassName="select select-sm w-full"
+                        inputClassName="input input-sm w-full"
+                    />
 
                     <fieldset className="fieldset">
-                        <legend className="fieldset-legend">詳細地址 *</legend>
+                        <legend className="fieldset-legend">
+                            地址備註（選填）
+                        </legend>
                         <input
                             type="text"
-                            value={form.address_line1}
+                            value={form.address_line2}
                             onChange={(e) =>
-                                set('address_line1', e.target.value)
+                                set('address_line2', e.target.value)
                             }
+                            placeholder="樓層、門牌備註等"
                             className="input input-sm w-full"
                         />
                     </fieldset>
-
-                    <div className="grid grid-cols-2 gap-2">
-                        <fieldset className="fieldset">
-                            <legend className="fieldset-legend">
-                                地址備註（選填）
-                            </legend>
-                            <input
-                                type="text"
-                                value={form.address_line2}
-                                onChange={(e) =>
-                                    set('address_line2', e.target.value)
-                                }
-                                placeholder="樓層、門牌備註等"
-                                className="input input-sm w-full"
-                            />
-                        </fieldset>
-                        <fieldset className="fieldset">
-                            <legend className="fieldset-legend">
-                                郵遞區號（選填）
-                            </legend>
-                            <input
-                                type="text"
-                                value={form.postal_code}
-                                onChange={(e) =>
-                                    set('postal_code', e.target.value)
-                                }
-                                className="input input-sm w-full"
-                            />
-                        </fieldset>
-                    </div>
 
                     {error && <p className="text-error text-xs">{error}</p>}
 

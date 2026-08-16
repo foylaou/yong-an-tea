@@ -126,6 +126,14 @@ export async function POST(request: NextRequest) {
         shippingMethod = 'tcat';
     }
 
+    // free_shipping coupons don't produce a discount_amount (see
+    // validateCoupon's comment) — they work by zeroing the fee directly,
+    // same as the storefront's /api/orders. Without this, the coupon
+    // "validates" successfully but visibly does nothing.
+    if (couponResult?.coupon?.discount_type === 'free_shipping') {
+        shippingFee = 0;
+    }
+
     let orderResult;
     try {
         orderResult = await createOrder({

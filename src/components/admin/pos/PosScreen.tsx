@@ -9,6 +9,10 @@ import CachedImage from '@/components/CachedImage';
 import { CustomerPicker } from './CustomerPicker';
 import { AddToCartDialog } from './AddToCartDialog';
 import { QrScannerModal } from './QrScannerModal';
+import {
+    ShippingAddressDialog,
+    type ShippingRecipientData,
+} from './ShippingAddressDialog';
 
 interface PosScreenProps {
     initialProducts: AdminProduct[];
@@ -97,13 +101,13 @@ export function PosScreen({
     const [fulfillment, setFulfillment] = useState<'pickup' | 'delivery'>(
         'pickup'
     );
-    const [shippingAddress, setShippingAddress] = useState({
-        postal_code: '',
-        city: '',
-        district: '',
-        address_line1: '',
-        address_line2: '',
-    });
+    // Collected via ShippingAddressDialog, not inline fields — 黑貓 needs an
+    // explicit recipient name/phone that isn't necessarily the picked
+    // customer's own (gifting, no customer picked at all, etc.). null means
+    // 寄到府 hasn't been filled in yet.
+    const [shippingRecipient, setShippingRecipient] =
+        useState<ShippingRecipientData | null>(null);
+    const [showShippingDialog, setShowShippingDialog] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -112,6 +116,7 @@ export function PosScreen({
         code: string;
         discount_amount: number;
         description: string;
+        discount_type: 'percentage' | 'fixed_amount' | 'free_shipping';
     } | null>(null);
     const [couponError, setCouponError] = useState<string | null>(null);
     const [couponChecking, setCouponChecking] = useState(false);
@@ -157,9 +162,12 @@ export function PosScreen({
     const discountAmount =
         loyaltyDiscount + (appliedCoupon?.discount_amount ?? 0);
     // Same free-shipping-threshold rule the storefront checkout uses —
-    // preview only, the real fee is recomputed server-side on submit.
+    // preview only, the real fee is recomputed server-side on submit. A
+    // free_shipping coupon doesn't produce a discount_amount (see
+    // validateCoupon's comment) — it zeroes the fee directly instead.
     const shippingFee =
-        fulfillment === 'delivery'
+        fulfillment === 'delivery' &&
+        appliedCoupon?.discount_type !== 'free_shipping'
             ? freeShippingThreshold > 0 && subtotal >= freeShippingThreshold
                 ? 0
                 : flatShippingFee
@@ -192,6 +200,7 @@ export function PosScreen({
                 code: data.code,
                 discount_amount: data.discount_amount,
                 description: data.description,
+                discount_type: data.discount_type,
             });
             return true;
         } catch {
@@ -279,13 +288,8 @@ export function PosScreen({
 
     async function handleCheckout() {
         if (cart.length === 0) return;
-        if (
-            fulfillment === 'delivery' &&
-            (!shippingAddress.city ||
-                !shippingAddress.district ||
-                !shippingAddress.address_line1)
-        ) {
-            setError('寄到府請填寫完整地址');
+        if (fulfillment === 'delivery' && !shippingRecipient) {
+            setError('寄到府請填寫收件資訊');
             return;
         }
         setSubmitting(true);
@@ -297,15 +301,30 @@ export function PosScreen({
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     walk_in_customer_id: customer?.id ?? null,
-                    customer_name: customer?.name ?? '現場散客',
-                    customer_phone: customer?.phone ?? '',
+                    // 寄到府用收件人資訊（可能跟付款/購買的客戶不是同一人），
+                    // 其餘情況才退回用選好的客戶資料。
+                    customer_name:
+                        fulfillment === 'delivery' && shippingRecipient
+                            ? shippingRecipient.recipient_name
+                            : (customer?.name ?? '現場散客'),
+                    customer_phone:
+                        fulfillment === 'delivery' && shippingRecipient
+                            ? shippingRecipient.recipient_phone
+                            : (customer?.phone ?? ''),
                     channel,
                     payment_method: paymentMethod,
                     is_paid: isPaid,
                     fulfillment,
-                    ...(fulfillment === 'delivery' && {
-                        shipping_address: shippingAddress,
-                    }),
+                    ...(fulfillment === 'delivery' &&
+                        shippingRecipient && {
+                            shipping_address: {
+                                postal_code: shippingRecipient.postal_code,
+                                city: shippingRecipient.city,
+                                district: shippingRecipient.district,
+                                address_line1: shippingRecipient.address_line1,
+                                address_line2: shippingRecipient.address_line2,
+                            },
+                        }),
                     items: cart.map((line) => ({
                         product_id: line.product.id,
                         variant_id: line.variant?.id,
@@ -324,13 +343,7 @@ export function PosScreen({
             setCustomer(null);
             setCustomerPicked(false);
             setFulfillment('pickup');
-            setShippingAddress({
-                postal_code: '',
-                city: '',
-                district: '',
-                address_line1: '',
-                address_line2: '',
-            });
+            setShippingRecipient(null);
             handleRemoveCoupon();
             router.push(`/admin/orders/${data.order.order_id}`);
         } catch {
@@ -338,6 +351,23 @@ export function PosScreen({
         } finally {
             setSubmitting(false);
         }
+    }
+
+    function openShippingDialog() {
+        setShowShippingDialog(true);
+    }
+
+    function handleShippingConfirm(data: ShippingRecipientData) {
+        setShippingRecipient(data);
+        setFulfillment('delivery');
+        setShowShippingDialog(false);
+    }
+
+    function handleShippingDialogClose() {
+        setShowShippingDialog(false);
+        // First-time open with nothing confirmed yet — don't leave
+        // fulfillment stuck on "delivery" with no address behind it.
+        if (!shippingRecipient) setFulfillment('pickup');
     }
 
     return (
@@ -611,65 +641,36 @@ export function PosScreen({
                         </button>
                         <button
                             type="button"
-                            onClick={() => setFulfillment('delivery')}
+                            onClick={openShippingDialog}
                             className={`btn btn-sm ${fulfillment === 'delivery' ? 'btn-primary' : 'btn-outline'}`}
                         >
                             寄到府
                         </button>
                     </div>
 
-                    {fulfillment === 'delivery' && (
-                        <div className="space-y-1.5">
-                            <div className="grid grid-cols-2 gap-1.5">
-                                <input
-                                    type="text"
-                                    value={shippingAddress.city}
-                                    onChange={(e) =>
-                                        setShippingAddress((prev) => ({
-                                            ...prev,
-                                            city: e.target.value,
-                                        }))
-                                    }
-                                    placeholder="縣市"
-                                    className="input input-sm w-full"
-                                />
-                                <input
-                                    type="text"
-                                    value={shippingAddress.district}
-                                    onChange={(e) =>
-                                        setShippingAddress((prev) => ({
-                                            ...prev,
-                                            district: e.target.value,
-                                        }))
-                                    }
-                                    placeholder="鄉鎮區"
-                                    className="input input-sm w-full"
-                                />
+                    {fulfillment === 'delivery' && shippingRecipient && (
+                        <div className="bg-base-200 rounded-box space-y-0.5 p-2.5 text-xs">
+                            <div className="flex items-center justify-between">
+                                <span className="font-medium">
+                                    {shippingRecipient.recipient_name}{' '}
+                                    {shippingRecipient.recipient_phone}
+                                </span>
+                                <button
+                                    type="button"
+                                    onClick={openShippingDialog}
+                                    className="btn btn-ghost btn-xs"
+                                >
+                                    編輯
+                                </button>
                             </div>
-                            <input
-                                type="text"
-                                value={shippingAddress.address_line1}
-                                onChange={(e) =>
-                                    setShippingAddress((prev) => ({
-                                        ...prev,
-                                        address_line1: e.target.value,
-                                    }))
-                                }
-                                placeholder="詳細地址"
-                                className="input input-sm w-full"
-                            />
-                            <input
-                                type="text"
-                                value={shippingAddress.postal_code}
-                                onChange={(e) =>
-                                    setShippingAddress((prev) => ({
-                                        ...prev,
-                                        postal_code: e.target.value,
-                                    }))
-                                }
-                                placeholder="郵遞區號（選填）"
-                                className="input input-sm w-full"
-                            />
+                            <p className="text-base-content/60">
+                                {shippingRecipient.postal_code}{' '}
+                                {shippingRecipient.city}
+                                {shippingRecipient.district}
+                                {shippingRecipient.address_line1}
+                                {shippingRecipient.address_line2 &&
+                                    ` (${shippingRecipient.address_line2})`}
+                            </p>
                         </div>
                     )}
 
@@ -719,6 +720,24 @@ export function PosScreen({
                     hint="將優惠券條碼對準相機"
                     onDecoded={handleCouponScanDecoded}
                     onClose={() => setShowCouponScanner(false)}
+                />
+            )}
+            {showShippingDialog && (
+                <ShippingAddressDialog
+                    initial={
+                        shippingRecipient ?? {
+                            recipient_name: customer?.name ?? '',
+                            recipient_phone: customer?.phone ?? '',
+                            postal_code: '',
+                            city: '',
+                            district: '',
+                            address_line1: '',
+                            address_line2: '',
+                        }
+                    }
+                    customerId={customer?.id}
+                    onConfirm={handleShippingConfirm}
+                    onClose={handleShippingDialogClose}
                 />
             )}
         </div>

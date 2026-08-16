@@ -13,6 +13,13 @@ import { QrScannerModal } from './QrScannerModal';
 interface PosScreenProps {
     initialProducts: AdminProduct[];
     categories: { id: string; name: string }[];
+    // Flat rate + free-shipping threshold from site_settings, fetched
+    // server-side by the page — lets 寄到府 preview a shipping fee before
+    // checkout instead of the admin only finding out the real total on the
+    // order confirmation page afterward. POST /api/admin/pos/orders
+    // recomputes this independently server-side; this is preview-only.
+    shippingFee: number;
+    freeShippingThreshold: number;
 }
 
 interface CartLine {
@@ -69,7 +76,12 @@ function calculateLoyaltyDiscount(
     return Math.min(discountValue, subtotal);
 }
 
-export function PosScreen({ initialProducts, categories }: PosScreenProps) {
+export function PosScreen({
+    initialProducts,
+    categories,
+    shippingFee: flatShippingFee,
+    freeShippingThreshold,
+}: PosScreenProps) {
     const router = useRouter();
     const [search, setSearch] = useState('');
     const [categoryFilter, setCategoryFilter] = useState<string>('');
@@ -144,7 +156,15 @@ export function PosScreen({ initialProducts, categories }: PosScreenProps) {
     // Coupon stacks with the loyal-customer discount, same as the storefront.
     const discountAmount =
         loyaltyDiscount + (appliedCoupon?.discount_amount ?? 0);
-    const total = subtotal - discountAmount;
+    // Same free-shipping-threshold rule the storefront checkout uses —
+    // preview only, the real fee is recomputed server-side on submit.
+    const shippingFee =
+        fulfillment === 'delivery'
+            ? freeShippingThreshold > 0 && subtotal >= freeShippingThreshold
+                ? 0
+                : flatShippingFee
+            : 0;
+    const total = subtotal - discountAmount + shippingFee;
 
     async function checkCoupon(code: string): Promise<boolean> {
         setCouponChecking(true);
@@ -536,6 +556,16 @@ export function PosScreen({ initialProducts, categories }: PosScreenProps) {
                             <span>
                                 -$
                                 {appliedCoupon.discount_amount.toLocaleString()}
+                            </span>
+                        </div>
+                    )}
+                    {fulfillment === 'delivery' && (
+                        <div className="flex items-center justify-between text-sm">
+                            <span>運費</span>
+                            <span>
+                                {shippingFee === 0
+                                    ? '免運'
+                                    : `$${shippingFee.toLocaleString()}`}
                             </span>
                         </div>
                     )}

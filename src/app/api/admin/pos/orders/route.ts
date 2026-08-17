@@ -99,6 +99,7 @@ export async function POST(request: NextRequest) {
         couponResult = await validateCoupon(
             data.coupon_code,
             customer?.profile_id ?? null,
+            data.walk_in_customer_id ?? null,
             validation.subtotal,
             data.items.map((i) => i.product_id)
         );

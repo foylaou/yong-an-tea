@@ -17,6 +17,11 @@ export async function validateCoupon(
     // can't be enforced for them, so that check is skipped rather than
     // rejecting every walk-in coupon redemption.
     userId: string | null,
+    // customers.id (not profiles.id) — coupon_recipients is keyed by this
+    // since that's the identity admin-coupon issuance already uses (a
+    // customer doesn't need a website login to be issued a coupon). null
+    // when there's no known customer at all (e.g. POS with nobody picked).
+    customerId: string | null,
     subtotal: number,
     cartProductIds: string[]
 ): Promise<CouponValidationResult> {
@@ -65,6 +70,25 @@ export async function validateCoupon(
             discountAmount: 0,
             error: '此折扣碼已過期',
         };
+    }
+
+    // 限定發放 — only usable by an explicit coupon_recipients grant (admin
+    // issue, or auto-granted alongside a welcome coupon push). Broadcasting
+    // a coupon (create-time checkbox or 立即推播) flips is_public to true,
+    // which is what makes it usable by everyone instead — see this
+    // column's doc comment in types/coupon.ts.
+    if (!coupon.is_public) {
+        const isRecipient = customerId
+            ? await isCouponRecipient(coupon.id, customerId)
+            : false;
+        if (!isRecipient) {
+            return {
+                valid: false,
+                coupon: null,
+                discountAmount: 0,
+                error: '此折扣碼為限定發放，您尚未收到此優惠券',
+            };
+        }
     }
 
     // Check min_order_amount
@@ -169,6 +193,41 @@ export async function validateCoupon(
     discountAmount = Math.round(discountAmount * 100) / 100;
 
     return { valid: true, coupon: coupon as Coupon, discountAmount };
+}
+
+// --- Targeted Distribution (limited-issue coupons) ---
+
+export async function isCouponRecipient(
+    couponId: string,
+    customerId: string
+): Promise<boolean> {
+    const supabase = createAdminClient();
+    const { count } = await supabase
+        .from('coupon_recipients')
+        .select('*', { count: 'exact', head: true })
+        .eq('coupon_id', couponId)
+        .eq('customer_id', customerId);
+    return (count ?? 0) > 0;
+}
+
+/**
+ * Grants one customer redemption rights on a non-public coupon. Called by
+ * the admin QR-scan issue flow and by sendWelcomeCoupons() (a welcome
+ * coupon auto-pushed to a new member needs this too, or they'd get a code
+ * they can't actually use). Idempotent — re-issuing the same coupon to the
+ * same customer is a no-op, not an error.
+ */
+export async function recordCouponRecipient(
+    couponId: string,
+    customerId: string
+): Promise<void> {
+    const supabase = createAdminClient();
+    await supabase
+        .from('coupon_recipients')
+        .upsert(
+            { coupon_id: couponId, customer_id: customerId },
+            { onConflict: 'coupon_id,customer_id', ignoreDuplicates: true }
+        );
 }
 
 // --- Record Coupon Usage ---

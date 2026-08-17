@@ -4,10 +4,12 @@ import { createAdminClient } from '@/lib/supabase/admin';
 
 /**
  * The logged-in member's own usable coupon list, for the LIFF "我的優惠券"
- * page. Same coupon pool as the LINE bot's "優惠" keyword reply (any
- * active, in-date coupon — there's no per-customer "issued to you"
- * concept), but personalized: a coupon the member has already redeemed up
- * to its per_user_limit drops off the list. Since that's exactly what
+ * page. Two sources, merged: every public coupon (is_public = true — the
+ * same pool the LINE bot's "優惠" keyword shows), plus any 限定發放 coupon
+ * this specific member has an explicit coupon_recipients grant for (admin
+ * QR-issue, or auto-granted alongside a welcome coupon). Personalized on
+ * top of that: a coupon the member has already redeemed up to its
+ * per_user_limit drops off the list. Since that's exactly what
  * validateCoupon() checks at redemption time too, a coupon simply
  * disappearing here after checkout *is* the "used once → gone" behavior —
  * no separate "mark as used" step needed.
@@ -24,20 +26,57 @@ export async function GET() {
     const db = createAdminClient();
     const nowIso = new Date().toISOString();
 
-    const { data: coupons, error } = await db
-        .from('coupons')
-        .select(
-            'id, code, description, discount_type, discount_value, min_order_amount, expires_at, starts_at, per_user_limit'
-        )
-        .eq('is_active', true)
-        .or(`starts_at.is.null,starts_at.lte.${nowIso}`)
-        .or(`expires_at.is.null,expires_at.gt.${nowIso}`)
-        .order('created_at', { ascending: false });
+    const selectCols =
+        'id, code, description, discount_type, discount_value, min_order_amount, expires_at, starts_at, per_user_limit';
+
+    const { data: customer } = await db
+        .from('customers')
+        .select('id')
+        .eq('profile_id', user.id)
+        .maybeSingle();
+
+    const [{ data: publicCoupons, error }, recipientRows] = await Promise.all([
+        db
+            .from('coupons')
+            .select(selectCols)
+            .eq('is_active', true)
+            .eq('is_public', true)
+            .or(`starts_at.is.null,starts_at.lte.${nowIso}`)
+            .or(`expires_at.is.null,expires_at.gt.${nowIso}`)
+            .order('created_at', { ascending: false }),
+        customer
+            ? db
+                  .from('coupon_recipients')
+                  .select('coupon_id')
+                  .eq('customer_id', customer.id)
+            : Promise.resolve({ data: [] as { coupon_id: string }[] }),
+    ]);
 
     if (error) {
         return NextResponse.json({ error: '讀取優惠券失敗' }, { status: 500 });
     }
-    if (!coupons?.length) {
+
+    const issuedIds = (recipientRows.data ?? []).map((r) => r.coupon_id);
+    let issuedCoupons: typeof publicCoupons = [];
+    if (issuedIds.length) {
+        const { data } = await db
+            .from('coupons')
+            .select(selectCols)
+            .eq('is_active', true)
+            .in('id', issuedIds)
+            .or(`starts_at.is.null,starts_at.lte.${nowIso}`)
+            .or(`expires_at.is.null,expires_at.gt.${nowIso}`);
+        issuedCoupons = data ?? [];
+    }
+
+    const seen = new Set<string>();
+    const coupons = [...(publicCoupons ?? []), ...issuedCoupons].filter((c) => {
+        if (seen.has(c.id)) return false;
+        seen.add(c.id);
+        return true;
+    });
+
+    if (!coupons.length) {
         return NextResponse.json({ coupons: [] });
     }
 

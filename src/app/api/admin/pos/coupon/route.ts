@@ -67,6 +67,7 @@ export async function POST(request: NextRequest) {
     const result = await validateCoupon(
         code,
         profileId,
+        walk_in_customer_id ?? null,
         validation.subtotal,
         items.map((i: { product_id: string }) => i.product_id)
     );

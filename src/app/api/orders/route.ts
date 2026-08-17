@@ -2,12 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createOrderApiSchema } from '@/lib/validations/order';
 import {
-  getShippingSettings,
-  calculateShippingFee,
-  calculateCodFee,
-  calculateLoyaltyDiscount,
-  validateCartItems,
-  createOrder,
+    getShippingSettings,
+    calculateShippingFee,
+    calculateCodFee,
+    calculateLoyaltyDiscount,
+    validateCartItems,
+    createOrder,
 } from '@/lib/orders-db';
 import { validateCoupon, recordCouponUsage } from '@/lib/coupons-db';
 import { reservePayment } from '@/lib/line-pay';
@@ -16,261 +16,276 @@ import { sendEmail } from '@/lib/email';
 import { orderConfirmationEmail } from '@/lib/email-templates';
 
 export async function POST(request: NextRequest) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    const supabase = await createClient();
+    const {
+        data: { user },
+    } = await supabase.auth.getUser();
 
-  if (!user) {
-    return NextResponse.json({ error: '請先登入' }, { status: 401 });
-  }
-
-  const body = await request.json();
-  const result = createOrderApiSchema.safeParse(body);
-
-  if (!result.success) {
-    return NextResponse.json(
-      { error: '驗證失敗', details: result.error.flatten() },
-      { status: 400 }
-    );
-  }
-
-  const data = result.data;
-
-  // 查一次 customers 記錄，同時判斷是否批發商（影響定價）跟熟客折扣。
-  // customers 表 RLS 只開放給 admin，一般登入者的 session client 查不到
-  // 自己的資料，所以這裡要用 admin client（查詢範圍已經用 profile_id 限定
-  // 只會查到自己的紀錄，不會外洩其他人資料）。
-  const { data: customer } = await createAdminClient()
-    .from('customers')
-    .select('discount_type, discount_value, category')
-    .eq('profile_id', user.id)
-    .maybeSingle();
-  const isWholesale = customer?.category === 'wholesale';
-
-  // Validate cart items (check stock, prices, active status)
-  const validation = await validateCartItems(data.items, { isWholesale });
-  if (!validation.valid) {
-    return NextResponse.json(
-      { error: '購物車驗證失敗', details: validation.errors },
-      { status: 400 }
-    );
-  }
-
-  // Calculate shipping
-  const shippingSettings = await getShippingSettings();
-  let shippingFee = calculateShippingFee(
-    validation.subtotal,
-    shippingSettings.shipping_fee,
-    shippingSettings.free_shipping_threshold
-  );
-
-  // Validate coupon if provided
-  let couponResult: Awaited<ReturnType<typeof validateCoupon>> | null = null;
-  let discountAmount = 0;
-
-  if (data.coupon_code) {
-    const cartProductIds = data.items.map((i) => i.product_id);
-    couponResult = await validateCoupon(
-      data.coupon_code,
-      user.id,
-      validation.subtotal,
-      cartProductIds
-    );
-
-    if (!couponResult.valid) {
-      return NextResponse.json(
-        { error: couponResult.error || '折扣碼無效' },
-        { status: 400 }
-      );
+    if (!user) {
+        return NextResponse.json({ error: '請先登入' }, { status: 401 });
     }
 
-    discountAmount = couponResult.discountAmount;
+    const body = await request.json();
+    const result = createOrderApiSchema.safeParse(body);
 
-    // free_shipping type: override shipping fee to 0
-    if (couponResult.coupon?.discount_type === 'free_shipping') {
-      shippingFee = 0;
+    if (!result.success) {
+        return NextResponse.json(
+            { error: '驗證失敗', details: result.error.flatten() },
+            { status: 400 }
+        );
     }
-  } else if (customer) {
-    // 熟客折扣：只在沒有輸入優惠碼時自動套用（兩者互斥，優惠碼優先）
-    discountAmount = calculateLoyaltyDiscount(
-      validation.subtotal,
-      customer.discount_type,
-      customer.discount_value
+
+    const data = result.data;
+
+    // 查一次 customers 記錄，同時判斷是否批發商（影響定價）跟熟客折扣。
+    // customers 表 RLS 只開放給 admin，一般登入者的 session client 查不到
+    // 自己的資料，所以這裡要用 admin client（查詢範圍已經用 profile_id 限定
+    // 只會查到自己的紀錄，不會外洩其他人資料）。
+    const { data: customer } = await createAdminClient()
+        .from('customers')
+        .select('id, discount_type, discount_value, category')
+        .eq('profile_id', user.id)
+        .maybeSingle();
+    const isWholesale = customer?.category === 'wholesale';
+
+    // Validate cart items (check stock, prices, active status)
+    const validation = await validateCartItems(data.items, { isWholesale });
+    if (!validation.valid) {
+        return NextResponse.json(
+            { error: '購物車驗證失敗', details: validation.errors },
+            { status: 400 }
+        );
+    }
+
+    // Calculate shipping
+    const shippingSettings = await getShippingSettings();
+    let shippingFee = calculateShippingFee(
+        validation.subtotal,
+        shippingSettings.shipping_fee,
+        shippingSettings.free_shipping_threshold
     );
-  }
 
-  // Calculate COD fee (only for cash-on-delivery)
-  const codFee = data.payment_method === 'cod'
-    ? calculateCodFee(validation.subtotal + shippingFee, shippingSettings.cod_fee_tiers)
-    : 0;
+    // Validate coupon if provided
+    let couponResult: Awaited<ReturnType<typeof validateCoupon>> | null = null;
+    let discountAmount = 0;
 
-  // Create order atomically
-  let orderResult;
-  try {
-    orderResult = await createOrder({
-      customer_id: user.id,
-      customer_name: data.customer_name,
-      customer_email: data.customer_email,
-      customer_phone: data.customer_phone,
-      shipping_address: data.shipping_address,
-      payment_method: data.payment_method,
-      shipping_method: data.shipping_method || 'tcat',
-      shipping_fee: shippingFee,
-      cod_fee: codFee,
-      note: data.note || '',
-      items: data.items,
-      coupon_code: data.coupon_code,
-      discount_amount: discountAmount,
-      store_id: data.store_id || null,
-      store_name: data.store_name || null,
-      store_address: data.store_address || null,
-      is_wholesale: isWholesale,
-    });
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : '建立訂單失敗';
-    return NextResponse.json({ error: message }, { status: 400 });
-  }
+    if (data.coupon_code) {
+        const cartProductIds = data.items.map((i) => i.product_id);
+        couponResult = await validateCoupon(
+            data.coupon_code,
+            user.id,
+            customer?.id ?? null,
+            validation.subtotal,
+            cartProductIds
+        );
 
-  // Save company invoice info if provided
-  if (data.company_name && data.company_tax_id) {
-    const adminClient2 = createAdminClient();
-    await adminClient2
-      .from('orders')
-      .update({
-        company_name: data.company_name,
-        company_tax_id: data.company_tax_id,
-      })
-      .eq('id', orderResult.order_id);
-  }
+        if (!couponResult.valid) {
+            return NextResponse.json(
+                { error: couponResult.error || '折扣碼無效' },
+                { status: 400 }
+            );
+        }
 
-  // Record coupon usage after order created
-  if (couponResult?.valid && couponResult.coupon) {
-    await recordCouponUsage(
-      couponResult.coupon.id,
-      user.id,
-      orderResult.order_id
-    );
-  }
+        discountAmount = couponResult.discountAmount;
 
-  // Save address if requested
-  if (data.save_address) {
-    const adminClient = createAdminClient();
-    await adminClient.from('addresses').insert({
-      user_id: user.id,
-      label: '住家',
-      recipient_name: data.customer_name,
-      phone: data.customer_phone,
-      postal_code: data.shipping_address.postal_code || '',
-      city: data.shipping_address.city,
-      district: data.shipping_address.district,
-      address_line1: data.shipping_address.address_line1,
-      address_line2: data.shipping_address.address_line2 || '',
-      is_default: false,
-    });
-  }
+        // free_shipping type: override shipping fee to 0
+        if (couponResult.coupon?.discount_type === 'free_shipping') {
+            shippingFee = 0;
+        }
+    } else if (customer) {
+        // 熟客折扣：只在沒有輸入優惠碼時自動套用（兩者互斥，優惠碼優先）
+        discountAmount = calculateLoyaltyDiscount(
+            validation.subtotal,
+            customer.discount_type,
+            customer.discount_value
+        );
+    }
 
-  // Send order confirmation email (non-blocking)
-  try {
-    const emailHtml = orderConfirmationEmail(
-      {
-        order_number: orderResult.order_number,
-        customer_name: data.customer_name,
-        customer_email: data.customer_email,
-        shipping_address: data.shipping_address as Record<string, string>,
-        subtotal: orderResult.subtotal,
-        shipping_fee: orderResult.shipping_fee,
-        discount_amount: orderResult.discount_amount,
-        total: orderResult.total,
-      },
-      validation.items
-    );
-    sendEmail({
-      to: data.customer_email,
-      subject: `訂單確認 — ${orderResult.order_number}`,
-      html: emailHtml,
-    }).catch((err) => console.error('Order confirmation email failed:', err));
-  } catch (err) {
-    console.error('Order confirmation email error:', err);
-  }
+    // Calculate COD fee (only for cash-on-delivery)
+    const codFee =
+        data.payment_method === 'cod'
+            ? calculateCodFee(
+                  validation.subtotal + shippingFee,
+                  shippingSettings.cod_fee_tiers
+              )
+            : 0;
 
-  // If LINE Pay, reserve payment and return paymentUrl
-  if (data.payment_method === 'line_pay') {
+    // Create order atomically
+    let orderResult;
     try {
-      const linePayResult = await reservePayment(
-        orderResult.order_id,
-        orderResult.order_number,
-        orderResult.total,
-        validation.items.map((item) => ({
-          name: item.product_title,
-          quantity: item.quantity,
-          price: item.price,
-        }))
-      );
+        orderResult = await createOrder({
+            customer_id: user.id,
+            customer_name: data.customer_name,
+            customer_email: data.customer_email,
+            customer_phone: data.customer_phone,
+            shipping_address: data.shipping_address,
+            payment_method: data.payment_method,
+            shipping_method: data.shipping_method || 'tcat',
+            shipping_fee: shippingFee,
+            cod_fee: codFee,
+            note: data.note || '',
+            items: data.items,
+            coupon_code: data.coupon_code,
+            discount_amount: discountAmount,
+            store_id: data.store_id || null,
+            store_name: data.store_name || null,
+            store_address: data.store_address || null,
+            is_wholesale: isWholesale,
+        });
+    } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : '建立訂單失敗';
+        return NextResponse.json({ error: message }, { status: 400 });
+    }
 
-      // Create payment record
-      const adminClient = createAdminClient();
-      await adminClient.from('payments').insert({
+    // Save company invoice info if provided
+    if (data.company_name && data.company_tax_id) {
+        const adminClient2 = createAdminClient();
+        await adminClient2
+            .from('orders')
+            .update({
+                company_name: data.company_name,
+                company_tax_id: data.company_tax_id,
+            })
+            .eq('id', orderResult.order_id);
+    }
+
+    // Record coupon usage after order created
+    if (couponResult?.valid && couponResult.coupon) {
+        await recordCouponUsage(
+            couponResult.coupon.id,
+            user.id,
+            orderResult.order_id
+        );
+    }
+
+    // Save address if requested
+    if (data.save_address) {
+        const adminClient = createAdminClient();
+        await adminClient.from('addresses').insert({
+            user_id: user.id,
+            label: '住家',
+            recipient_name: data.customer_name,
+            phone: data.customer_phone,
+            postal_code: data.shipping_address.postal_code || '',
+            city: data.shipping_address.city,
+            district: data.shipping_address.district,
+            address_line1: data.shipping_address.address_line1,
+            address_line2: data.shipping_address.address_line2 || '',
+            is_default: false,
+        });
+    }
+
+    // Send order confirmation email (non-blocking)
+    try {
+        const emailHtml = orderConfirmationEmail(
+            {
+                order_number: orderResult.order_number,
+                customer_name: data.customer_name,
+                customer_email: data.customer_email,
+                shipping_address: data.shipping_address as Record<
+                    string,
+                    string
+                >,
+                subtotal: orderResult.subtotal,
+                shipping_fee: orderResult.shipping_fee,
+                discount_amount: orderResult.discount_amount,
+                total: orderResult.total,
+            },
+            validation.items
+        );
+        sendEmail({
+            to: data.customer_email,
+            subject: `訂單確認 — ${orderResult.order_number}`,
+            html: emailHtml,
+        }).catch((err) =>
+            console.error('Order confirmation email failed:', err)
+        );
+    } catch (err) {
+        console.error('Order confirmation email error:', err);
+    }
+
+    // If LINE Pay, reserve payment and return paymentUrl
+    if (data.payment_method === 'line_pay') {
+        try {
+            const linePayResult = await reservePayment(
+                orderResult.order_id,
+                orderResult.order_number,
+                orderResult.total,
+                validation.items.map((item) => ({
+                    name: item.product_title,
+                    quantity: item.quantity,
+                    price: item.price,
+                }))
+            );
+
+            // Create payment record
+            const adminClient = createAdminClient();
+            await adminClient.from('payments').insert({
+                order_id: orderResult.order_id,
+                method: 'line_pay',
+                status: 'pending',
+                amount: orderResult.total,
+                transaction_id: linePayResult.transactionId,
+            });
+
+            return NextResponse.json({
+                order: orderResult,
+                paymentUrl: linePayResult.paymentUrl,
+            });
+        } catch (err: unknown) {
+            const message =
+                err instanceof Error ? err.message : 'LINE Pay 付款失敗';
+            return NextResponse.json({ error: message }, { status: 500 });
+        }
+    }
+
+    // For bank_transfer or cod, create payment record
+    const adminClient = createAdminClient();
+    await adminClient.from('payments').insert({
         order_id: orderResult.order_id,
-        method: 'line_pay',
+        method: data.payment_method,
         status: 'pending',
         amount: orderResult.total,
-        transaction_id: linePayResult.transactionId,
-      });
+    });
 
-      return NextResponse.json({
-        order: orderResult,
-        paymentUrl: linePayResult.paymentUrl,
-      });
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'LINE Pay 付款失敗';
-      return NextResponse.json({ error: message }, { status: 500 });
-    }
-  }
-
-  // For bank_transfer or cod, create payment record
-  const adminClient = createAdminClient();
-  await adminClient.from('payments').insert({
-    order_id: orderResult.order_id,
-    method: data.payment_method,
-    status: 'pending',
-    amount: orderResult.total,
-  });
-
-  return NextResponse.json({ order: orderResult });
+    return NextResponse.json({ order: orderResult });
 }
 
 export async function GET(request: NextRequest) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    const supabase = await createClient();
+    const {
+        data: { user },
+    } = await supabase.auth.getUser();
 
-  if (!user) {
-    return NextResponse.json({ error: '請先登入' }, { status: 401 });
-  }
+    if (!user) {
+        return NextResponse.json({ error: '請先登入' }, { status: 401 });
+    }
 
-  const { searchParams } = new URL(request.url);
-  const page = parseInt(searchParams.get('page') || '1', 10);
-  const perPage = parseInt(searchParams.get('perPage') || '10', 10);
-  const from = (page - 1) * perPage;
-  const to = from + perPage - 1;
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get('page') || '1', 10);
+    const perPage = parseInt(searchParams.get('perPage') || '10', 10);
+    const from = (page - 1) * perPage;
+    const to = from + perPage - 1;
 
-  const { data: orders, count, error } = await supabase
-    .from('orders')
-    .select('*', { count: 'exact' })
-    .eq('customer_id', user.id)
-    .order('created_at', { ascending: false })
-    .range(from, to);
+    const {
+        data: orders,
+        count,
+        error,
+    } = await supabase
+        .from('orders')
+        .select('*', { count: 'exact' })
+        .eq('customer_id', user.id)
+        .order('created_at', { ascending: false })
+        .range(from, to);
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
+    if (error) {
+        return NextResponse.json({ error: error.message }, { status: 500 });
+    }
 
-  return NextResponse.json({
-    orders: orders || [],
-    total: count || 0,
-    page,
-    perPage,
-  });
+    return NextResponse.json({
+        orders: orders || [],
+        total: count || 0,
+        page,
+        perPage,
+    });
 }

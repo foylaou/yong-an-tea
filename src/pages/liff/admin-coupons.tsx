@@ -50,6 +50,9 @@ export default function AdminCouponsPage() {
     const [saving, setSaving] = useState(false);
     const [broadcastingId, setBroadcastingId] = useState<string | null>(null);
     const [broadcastResult, setBroadcastResult] = useState<string | null>(null);
+    // Create-mode only — 跟桌面版 CouponForm 一樣，編輯時改用清單上的「推播」
+    // 按鈕（已經有 id 可以直接打 broadcast API），不需要重複這個勾選框。
+    const [broadcastOnCreate, setBroadcastOnCreate] = useState(false);
 
     const loadCoupons = useCallback(async () => {
         setStatus('loading');
@@ -99,6 +102,7 @@ export default function AdminCouponsPage() {
 
     function startNew() {
         setForm(blankForm());
+        setBroadcastOnCreate(false);
         setErrorText('');
         setView('form');
     }
@@ -119,6 +123,7 @@ export default function AdminCouponsPage() {
             is_active: c.is_active,
             is_welcome_coupon: c.is_welcome_coupon,
         });
+        setBroadcastOnCreate(false);
         setErrorText('');
         setView('form');
     }
@@ -165,6 +170,11 @@ export default function AdminCouponsPage() {
                 setErrorText(data.error || '儲存失敗');
                 return;
             }
+
+            if (!form.id && broadcastOnCreate && data.coupon?.id) {
+                await handleBroadcast(data.coupon.id);
+            }
+
             await loadCoupons();
             setView('list');
         } catch (err) {
@@ -548,29 +558,91 @@ export default function AdminCouponsPage() {
                             <span style={{ fontSize: 14 }}>啟用此優惠券</span>
                         </label>
 
-                        <label
+                        <div
                             style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 8,
-                                marginTop: 8,
+                                border: '1px solid #ddd',
+                                borderRadius: 8,
+                                padding: 12,
+                                marginTop: 12,
                             }}
                         >
-                            <input
-                                type="checkbox"
-                                checked={form.is_welcome_coupon}
-                                onChange={(e) =>
-                                    setForm((f) => ({
-                                        ...f,
-                                        is_welcome_coupon: e.target.checked,
-                                    }))
-                                }
-                            />
-                            <span style={{ fontSize: 14 }}>
-                                設為新會員入會禮（之後新綁定 LINE
-                                的會員自動收到）
-                            </span>
-                        </label>
+                            <h3
+                                style={{
+                                    fontSize: 14,
+                                    fontWeight: 600,
+                                    marginBottom: 8,
+                                }}
+                            >
+                                LINE 官方帳號推播
+                            </h3>
+
+                            <label
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'flex-start',
+                                    gap: 8,
+                                }}
+                            >
+                                <input
+                                    type="checkbox"
+                                    style={{ marginTop: 2 }}
+                                    checked={form.is_welcome_coupon}
+                                    onChange={(e) =>
+                                        setForm((f) => ({
+                                            ...f,
+                                            is_welcome_coupon: e.target.checked,
+                                        }))
+                                    }
+                                />
+                                <span style={{ fontSize: 14 }}>
+                                    設為新會員入會禮
+                                    <span
+                                        style={{
+                                            display: 'block',
+                                            fontSize: 12,
+                                            color: '#666',
+                                        }}
+                                    >
+                                        之後每一位新綁定 LINE
+                                        的會員，都會自動收到這張優惠券（長期生效，不是只發一次）
+                                    </span>
+                                </span>
+                            </label>
+
+                            {!form.id && (
+                                <label
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'flex-start',
+                                        gap: 8,
+                                        marginTop: 10,
+                                    }}
+                                >
+                                    <input
+                                        type="checkbox"
+                                        style={{ marginTop: 2 }}
+                                        checked={broadcastOnCreate}
+                                        onChange={(e) =>
+                                            setBroadcastOnCreate(
+                                                e.target.checked
+                                            )
+                                        }
+                                    />
+                                    <span style={{ fontSize: 14 }}>
+                                        建立後立即推播給所有現有 LINE 會員
+                                        <span
+                                            style={{
+                                                display: 'block',
+                                                fontSize: 12,
+                                                color: '#666',
+                                            }}
+                                        >
+                                            一次性動作，適合週年慶這類活動券；跟上面的「入會禮」可以同時勾，代表現有會員先發一次，之後新會員再持續自動收到
+                                        </span>
+                                    </span>
+                                </label>
+                            )}
+                        </div>
 
                         <p
                             style={{

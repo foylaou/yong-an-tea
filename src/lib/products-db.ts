@@ -30,9 +30,10 @@ function mapProductRow(row: any): MarkdownItem {
     const slug = row.slug as string;
 
     // Map variants if joined
-    const variants = row.product_variants
-        ?.filter((v: any) => v.is_active !== false)
-        ?.map(mapVariant) ?? [];
+    const variants =
+        row.product_variants
+            ?.filter((v: any) => v.is_active !== false)
+            ?.map(mapVariant) ?? [];
 
     return {
         uuid: row.id,
@@ -57,6 +58,7 @@ function mapProductRow(row: any): MarkdownItem {
         showInBanner: row.show_in_banner ?? false,
         bannerOrder: row.banner_order ?? 0,
         isActive: row.is_active ?? true,
+        isHidden: row.is_hidden ?? false,
         xsImage: resolveImage(slug, row.xs_image),
         smImage: resolveImage(slug, row.sm_image),
         mdImage: resolveImage(slug, row.md_image),
@@ -70,7 +72,9 @@ function mapProductRow(row: any): MarkdownItem {
         content: row.content ?? '',
         puckData: row.puck_data || null,
         // category slugs from the joined categories table
-        category: (row.product_categories ?? []).map((pc: any) => pc.categories?.slug).filter(Boolean),
+        category: (row.product_categories ?? [])
+            .map((pc: any) => pc.categories?.slug)
+            .filter(Boolean),
         avgRating: Number(row.avg_rating) || 0,
         reviewCount: row.review_count ?? 0,
         variants,
@@ -95,8 +99,11 @@ export async function getAllProducts(): Promise<MarkdownItem[]> {
 
     const { data, error } = await supabase
         .from('products')
-        .select('*, product_categories(categories(slug)), product_variants(*), product_images(*)')
+        .select(
+            '*, product_categories(categories(slug)), product_variants(*), product_images(*)'
+        )
         .eq('is_active', true)
+        .eq('is_hidden', false)
         .order('sort_order', { ascending: true })
         .order('created_at', { ascending: false });
 
@@ -113,8 +120,11 @@ export async function getFeaturedProducts(): Promise<MarkdownItem[]> {
 
     const { data, error } = await supabase
         .from('products')
-        .select('*, product_categories(categories(slug)), product_variants(*), product_images(*)')
+        .select(
+            '*, product_categories(categories(slug)), product_variants(*), product_images(*)'
+        )
         .eq('is_active', true)
+        .eq('is_hidden', false)
         .eq('is_featured', true)
         .order('sort_order', { ascending: true })
         .order('created_at', { ascending: false });
@@ -127,7 +137,9 @@ export async function getFeaturedProducts(): Promise<MarkdownItem[]> {
     return (data ?? []).map(mapProductRow);
 }
 
-export async function getCategories(): Promise<{ slug: string; name: string }[]> {
+export async function getCategories(): Promise<
+    { slug: string; name: string }[]
+> {
     const supabase = createAdminClient();
 
     const { data, error } = await supabase
@@ -144,7 +156,9 @@ export async function getCategories(): Promise<{ slug: string; name: string }[]>
     return (data ?? []) as { slug: string; name: string }[];
 }
 
-export async function getBestsellingProducts(limit = 5): Promise<MarkdownItem[]> {
+export async function getBestsellingProducts(
+    limit = 5
+): Promise<MarkdownItem[]> {
     const supabase = createAdminClient();
 
     // Read bestseller settings
@@ -162,14 +176,21 @@ export async function getBestsellingProducts(limit = 5): Promise<MarkdownItem[]>
 
     if (mode === 'custom') {
         let ids: string[] = [];
-        try { ids = JSON.parse(settings.bestseller_product_ids || '[]'); } catch { /* ignore */ }
+        try {
+            ids = JSON.parse(settings.bestseller_product_ids || '[]');
+        } catch {
+            /* ignore */
+        }
         if (!ids.length) return [];
 
         const { data, error } = await supabase
             .from('products')
-            .select('*, product_categories(categories(slug)), product_variants(*), product_images(*)')
+            .select(
+                '*, product_categories(categories(slug)), product_variants(*), product_images(*)'
+            )
             .in('id', ids)
-            .eq('is_active', true);
+            .eq('is_active', true)
+            .eq('is_hidden', false);
 
         if (error || !data) return [];
 
@@ -188,8 +209,11 @@ export async function getBestsellingProducts(limit = 5): Promise<MarkdownItem[]>
         // Fallback to default sort
         const { data } = await supabase
             .from('products')
-            .select('*, product_categories(categories(slug)), product_variants(*), product_images(*)')
+            .select(
+                '*, product_categories(categories(slug)), product_variants(*), product_images(*)'
+            )
             .eq('is_active', true)
+            .eq('is_hidden', false)
             .order('sort_order', { ascending: true })
             .limit(limit);
         return (data ?? []).map(mapProductRow);
@@ -198,7 +222,10 @@ export async function getBestsellingProducts(limit = 5): Promise<MarkdownItem[]>
     // Aggregate sales by product_id
     const salesMap = new Map<string, number>();
     for (const item of topItems) {
-        salesMap.set(item.product_id, (salesMap.get(item.product_id) ?? 0) + item.quantity);
+        salesMap.set(
+            item.product_id,
+            (salesMap.get(item.product_id) ?? 0) + item.quantity
+        );
     }
     const topIds = [...salesMap.entries()]
         .sort((a, b) => b[1] - a[1])
@@ -209,9 +236,12 @@ export async function getBestsellingProducts(limit = 5): Promise<MarkdownItem[]>
 
     const { data, error } = await supabase
         .from('products')
-        .select('*, product_categories(categories(slug)), product_variants(*), product_images(*)')
+        .select(
+            '*, product_categories(categories(slug)), product_variants(*), product_images(*)'
+        )
         .in('id', topIds)
-        .eq('is_active', true);
+        .eq('is_active', true)
+        .eq('is_hidden', false);
 
     if (error || !data) return [];
 
@@ -220,12 +250,16 @@ export async function getBestsellingProducts(limit = 5): Promise<MarkdownItem[]>
     return topIds.map((id) => byId.get(id)).filter(Boolean) as MarkdownItem[];
 }
 
-export async function getProductBySlug(slug: string): Promise<MarkdownItem | null> {
+export async function getProductBySlug(
+    slug: string
+): Promise<MarkdownItem | null> {
     const supabase = createAdminClient();
 
     const { data, error } = await supabase
         .from('products')
-        .select('*, product_categories(categories(slug)), product_variants(*), product_images(*)')
+        .select(
+            '*, product_categories(categories(slug)), product_variants(*), product_images(*)'
+        )
         .eq('slug', slug)
         .eq('is_active', true)
         .single();

@@ -68,12 +68,7 @@ export function QrScannerModal({
             cancelled = true;
             queueRef.current = queueRef.current.then(async () => {
                 if (!scanner) return;
-                // html5-qrcode's stop()/clear() both throw *synchronously*
-                // (not rejected Promises) when called outside the exact
-                // state they expect — stop() if the scanner isn't
-                // RUNNING/PAUSED, clear() if a scan is still stopping.
-                // Every step needs its own try/catch, and clear() must be
-                // awaited *after* stop() resolves, not fired alongside it.
+1;
                 try {
                     if (scanner.isScanning) {
                         await scanner.stop();

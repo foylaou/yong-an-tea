@@ -54,3 +54,4 @@ Thumbs.db
 /docs/nexus-nextjs@4.0.0/
 /docs/永安茶園app logo设计/
 /supabase/.temp/linked-project.json
+.env*
